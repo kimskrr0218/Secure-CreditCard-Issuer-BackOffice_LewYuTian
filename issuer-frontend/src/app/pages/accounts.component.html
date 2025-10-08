@@ -1,0 +1,31 @@
+<h2>Account Management</h2>
+
+<form [formGroup]="accountForm" (ngSubmit)="onSubmit()">
+  <label for="customerId">Customer:</label>
+  <select formControlName="customerId" required>
+    <option *ngFor="let c of customers" [value]="c.id">
+      {{ c.name }} ({{ c.email }})
+    </option>
+  </select>
+
+  <label for="accountType">Account Type:</label>
+  <input formControlName="accountType" placeholder="SAVINGS / CURRENT" />
+
+  <label for="balance">Balance:</label>
+  <input formControlName="balance" type="number" />
+
+  <button type="submit">{{ isEditing ? 'Update Account' : 'Add Account' }}</button>
+  <button type="button" (click)="cancelEdit()" *ngIf="isEditing">Cancel</button>
+</form>
+
+<hr />
+
+<div *ngIf="loading">Loading accounts...</div>
+
+<ul>
+  <li *ngFor="let a of accounts">
+    {{ a.id }} - {{ a.accountNumber }} ({{ a.accountType }}) - Balance: {{ a.balance }} - {{ a.customer.name }}
+    <button (click)="edit(a)">Edit</button>
+    <button (click)="delete(a.id!)">Delete</button>
+  </li>
+</ul>

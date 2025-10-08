@@ -1,0 +1,50 @@
+<div class="page-container">
+  <div class="page-header">
+    <h2>👥 Customer Management</h2>
+    <button class="logout-btn" (click)="logout()">Logout</button>
+  </div>
+
+  <div class="card">
+    <h3>{{ isEditing ? '✏️ Edit Customer' : '➕ Add New Customer' }}</h3>
+
+    <form [formGroup]="customerForm" (ngSubmit)="onSubmit()" class="form-grid">
+      <input type="text" placeholder="Full Name" formControlName="name" />
+      <input type="email" placeholder="Email Address" formControlName="email" />
+
+      <div class="actions">
+        <button type="submit" [disabled]="customerForm.invalid">
+          {{ isEditing ? 'Update' : 'Add' }}
+        </button>
+        <button type="button" class="cancel-btn" (click)="cancelEdit()" *ngIf="isEditing">
+          Cancel
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <div class="card list-section">
+    <h3>📋 Existing Customers</h3>
+
+    <div *ngIf="loading" class="loading">Loading customers...</div>
+
+    <table *ngIf="!loading && customers.length > 0">
+      <tr>
+        <th>#</th>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Actions</th>
+      </tr>
+      <tr *ngFor="let c of customers; let i = index">
+        <td>{{ i + 1 }}</td>
+        <td>{{ c.name }}</td>
+        <td>{{ c.email }}</td>
+        <td>
+          <button class="edit-btn" (click)="edit(c)">Edit</button>
+          <button class="delete-btn" (click)="delete(c.id)">Delete</button>
+        </td>
+      </tr>
+    </table>
+
+    <p *ngIf="!loading && customers.length === 0" class="empty">No customers found 😴</p>
+  </div>
+</div>

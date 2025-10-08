@@ -1,0 +1,58 @@
+<div class="role-management">
+  <!-- Header -->
+  <div class="header">
+    <h2>Admin Role Management</h2>
+    <div class="admin-info">
+      Logged in as: <strong>ADMIN</strong>
+      <button class="logout-btn" (click)="logout()">Logout</button>
+    </div>
+  </div>
+
+  <!-- Create new user -->
+  <div class="card create-section">
+    <h3>Create New User</h3>
+    <form (ngSubmit)="createUser()" class="create-form">
+      <input type="text" [(ngModel)]="username" name="username" placeholder="Username" required />
+      <input type="password" [(ngModel)]="password" name="password" placeholder="Password" required />
+
+      <select [(ngModel)]="role" name="role" required>
+        <option value="">Select Role</option>
+        <option value="ADMIN">Admin</option>
+        <option value="MANAGER">Manager</option>
+        <option value="STAFF">Staff</option>
+      </select>
+
+      <button type="submit" class="create-btn">Create User</button>
+    </form>
+  </div>
+
+  <!-- Existing Users -->
+  <div class="card">
+    <h3>Existing Users</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Username</th>
+          <th>Role</th>
+          <th>Change Role</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let u of users">
+          <td>{{ u.id }}</td>
+          <td>{{ u.username }}</td>
+          <td>{{ u.role.name }}</td>
+          <td>
+            <select [(ngModel)]="u.newRole">
+              <option value="ADMIN">Admin</option>
+              <option value="MANAGER">Manager</option>
+              <option value="STAFF">Staff</option>
+            </select>
+            <button class="update-btn" (click)="updateRole(u)">Update</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

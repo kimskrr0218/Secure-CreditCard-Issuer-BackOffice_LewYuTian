@@ -1,0 +1,54 @@
+<div class="header-bar">
+  <h2>Pending Requests</h2>
+  <div class="user-info">
+    Logged in as: <strong>MANAGER</strong>
+    <button class="logout-btn" (click)="logout()">Logout</button>
+  </div>
+</div>
+
+<div class="requests-container">
+  <ul *ngIf="requests.length > 0; else noRequests">
+    <li *ngFor="let r of requests" class="request-item">
+      <strong>Request #{{ r.id }}</strong> – 
+      <em>{{ r.entityType }}</em> ({{ r.operation }}) :
+      <span [ngSwitch]="r.status">
+        <span *ngSwitchCase="'PENDING'">⏳ Waiting</span>
+        <span *ngSwitchCase="'APPROVED'">✅ Approved</span>
+        <span *ngSwitchCase="'REJECTED'">❌ Rejected</span>
+      </span>
+
+      <ng-container *ngIf="r.status === 'PENDING'">
+        <button class="approve-btn" (click)="approve(r.id)">Approve</button>
+        <button class="reject-btn" (click)="reject(r.id)">Reject</button>
+      </ng-container>
+
+      <!-- ✅ New View Button -->
+      <button class="view-btn" (click)="viewRequest(r)">View</button>
+    </li>
+  </ul>
+</div>
+
+<!-- ✅ Modal Section -->
+<div class="modal-overlay" *ngIf="selectedRequest">
+  <div class="modal-content">
+    <h3>Request Details</h3>
+    <p><strong>ID:</strong> {{ selectedRequest.id }}</p>
+    <p><strong>Entity Type:</strong> {{ selectedRequest.entityType }}</p>
+    <p><strong>Operation:</strong> {{ selectedRequest.operation }}</p>
+    <p><strong>Status:</strong> {{ selectedRequest.status }}</p>
+    <p><strong>Requested By:</strong> {{ selectedRequest.requestedBy }}</p>
+    <p><strong>Timestamp:</strong> {{ selectedRequest.timestamp || '—' }}</p>
+
+    <!-- Optional if your backend stores requestData -->
+    <div *ngIf="selectedRequest.requestData">
+      <h4>Submitted Data:</h4>
+      <pre>{{ selectedRequest.requestData | json }}</pre>
+    </div>
+
+    <button (click)="closeDetails()">Close</button>
+  </div>
+</div>
+
+<ng-template #noRequests>
+  <p>No pending requests 🎉</p>
+</ng-template>

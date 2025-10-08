@@ -1,0 +1,113 @@
+.page-container {
+  padding: 30px;
+  font-family: "Segoe UI", sans-serif;
+  color: #1e293b;
+  background-color: #f8fafc;
+  min-height: 100vh;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.page-header h2 {
+  color: #2563eb;
+  margin: 0;
+}
+
+.logout-btn {
+  background-color: #ef4444;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.logout-btn:hover {
+  background-color: #dc2626;
+}
+
+.card {
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  padding: 20px;
+  margin-bottom: 25px;
+}
+
+.form-grid {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+input {
+  flex: 1 1 45%;
+  padding: 10px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+}
+
+.actions {
+  margin-top: 10px;
+}
+
+button {
+  background-color: #2563eb;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-right: 6px;
+}
+
+button:hover {
+  background-color: #1d4ed8;
+}
+
+.cancel-btn {
+  background-color: #9ca3af;
+}
+
+.cancel-btn:hover {
+  background-color: #6b7280;
+}
+
+.list-section table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.list-section th,
+.list-section td {
+  padding: 10px;
+  border-bottom: 1px solid #e2e8f0;
+  text-align: left;
+}
+
+.edit-btn {
+  background-color: #facc15;
+  color: #111827;
+}
+
+.edit-btn:hover {
+  background-color: #eab308;
+}
+
+.delete-btn {
+  background-color: #ef4444;
+}
+
+.delete-btn:hover {
+  background-color: #dc2626;
+}
+
+.empty {
+  text-align: center;
+  color: #6b7280;
+  font-style: italic;
+}

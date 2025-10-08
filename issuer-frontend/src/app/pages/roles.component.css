@@ -1,0 +1,141 @@
+/* ===== Overall Layout ===== */
+.role-management {
+  background-color: #f8fafc;
+  min-height: 100vh;
+  padding: 20px 40px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* ===== Header Bar ===== */
+.header {
+  background: #1e293b;
+  color: #fff;
+  padding: 18px 25px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-radius: 8px;
+  margin-bottom: 25px;
+}
+
+.header h2 {
+  font-size: 22px;
+  margin: 0;
+}
+
+.admin-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.logout-btn {
+  background: #dc2626;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+.logout-btn:hover {
+  background: #b91c1c;
+}
+
+/* ===== Cards ===== */
+.card {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 25px;
+  margin-bottom: 30px;
+}
+
+h3 {
+  color: #0f172a;
+  margin-bottom: 15px;
+}
+
+/* ===== Create User Section ===== */
+.create-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.create-form input,
+.create-form select {
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px solid #cbd5e1;
+  flex: 1;
+  min-width: 180px;
+  background-color: #f1f5f9;
+}
+
+.create-btn {
+  background: #2563eb;
+  color: #fff;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+.create-btn:hover {
+  background: #1e40af;
+}
+
+/* ===== Table Styling ===== */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+}
+
+th {
+  background-color: #1e293b;
+  color: white;
+  text-align: left;
+  padding: 10px;
+  font-weight: 500;
+}
+
+td {
+  padding: 10px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+select {
+  padding: 6px;
+  border-radius: 5px;
+  border: 1px solid #cbd5e1;
+  background-color: #f1f5f9;
+}
+
+.update-btn {
+  background: #16a34a;
+  color: white;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 6px;
+  margin-left: 8px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+.update-btn:hover {
+  background: #15803d;
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 768px) {
+  .create-form {
+    flex-direction: column;
+  }
+
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+}

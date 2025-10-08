@@ -1,0 +1,45 @@
+<!-- dashboard.component.html -->
+<div class="dashboard-container">
+  <header class="topbar">
+    <h2>Issuer Back-Office</h2>
+    <div class="user-info">
+      <span>Logged in as: <strong>{{ role }}</strong> – {{ username }}</span>
+      <button (click)="logout()">Logout</button>
+    </div>
+  </header>
+
+  <main class="content">
+    <h1>Welcome, {{ role }}!</h1>
+
+    <div class="cards-container" *ngIf="role === 'STAFF'">
+      <div class="card" (click)="navigateTo('/customers')">
+        <h3>Customer Management</h3>
+        <p>Manage and view all registered customers.</p>
+      </div>
+
+      <div class="card" (click)="navigateTo('/accounts')">
+        <h3>Account Management</h3>
+        <p>Manage customer accounts efficiently.</p>
+      </div>
+
+      <div class="card" (click)="navigateTo('/cards')">
+        <h3>Card Management</h3>
+        <p>Issue, activate, or block cards.</p>
+      </div>
+    </div>
+
+    <div class="cards-container" *ngIf="role === 'MANAGER'">
+      <div class="card" (click)="navigateTo('/pending')">
+        <h3>Pending Requests</h3>
+        <p>Approve or reject customer, account, and card requests.</p>
+      </div>
+    </div>
+
+    <div class="cards-container" *ngIf="role === 'ADMIN'">
+      <div class="card" (click)="navigateTo('/roles')">
+        <h3>Role Management</h3>
+        <p>Create users and assign roles within the back-office system.</p>
+      </div>
+    </div>
+  </main>
+</div>

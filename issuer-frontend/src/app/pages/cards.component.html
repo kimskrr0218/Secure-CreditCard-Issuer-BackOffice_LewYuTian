@@ -1,0 +1,42 @@
+<h2>Card Management</h2>
+
+<form [formGroup]="cardForm" (ngSubmit)="onSubmit()">
+  <label>Account:</label>
+  <select formControlName="accountId" required>
+    <option value="" disabled selected>Select an account</option>
+    <option *ngFor="let acc of accounts" [value]="acc.id">
+      {{ acc.accountNumber }} ({{ acc.accountType }})
+    </option>
+  </select>
+
+  <label>Card Type:</label>
+  <select formControlName="cardType" required>
+    <option value="" disabled selected>Select a card type</option>
+    <option value="CREDIT CARD - SILVER">Credit Card - Silver</option>
+    <option value="CREDIT CARD - GOLD">Credit Card - Gold</option>
+    <option value="CREDIT CARD - PLATINUM">Credit Card - Platinum</option>
+  </select>
+
+  <button type="submit" [disabled]="cardForm.invalid">
+    {{ isEditing ? 'Submit Update Request' : 'Submit Create Request' }}
+  </button>
+
+  <button type="button" *ngIf="isEditing" (click)="cancelEdit()">Cancel</button>
+</form>
+
+<hr />
+
+<h3>Existing Cards</h3>
+<div *ngIf="loading">Loading cards...</div>
+
+<ul *ngIf="!loading && cards.length > 0">
+  <li *ngFor="let c of cards">
+    <strong>{{ c.cardNumber }}</strong> — {{ c.cardType }} ({{ c.status }})
+    <button (click)="edit(c)">Edit</button>
+    <button (click)="delete(c.id!)">Delete</button>
+  </li>
+</ul>
+
+<div *ngIf="!loading && cards.length === 0">
+  No cards available.
+</div>

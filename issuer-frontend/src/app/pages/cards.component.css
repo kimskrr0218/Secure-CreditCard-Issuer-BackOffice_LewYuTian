@@ -1,0 +1,50 @@
+h2 {
+  color: #dc2626;
+  margin-bottom: 16px;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 20px;
+  max-width: 400px;
+}
+
+input, select {
+  padding: 8px;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+}
+
+button {
+  background-color: #dc2626;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #b91c1c;
+}
+
+button:disabled {
+  background-color: #9ca3af;
+}
+
+ul {
+  list-style: none;
+  padding: 0;
+}
+
+li {
+  margin-bottom: 8px;
+  padding: 6px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+small {
+  color: red;
+}

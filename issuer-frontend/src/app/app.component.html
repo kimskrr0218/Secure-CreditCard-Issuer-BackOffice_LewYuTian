@@ -1,0 +1,24 @@
+<div *ngIf="showNav" class="navbar">
+  <span class="brand">Issuer Back-Office</span>
+  <div class="right">
+    <ng-container *ngIf="role === 'STAFF'">
+      <a routerLink="/dashboard">Dashboard</a>
+      <a routerLink="/customers">Customers</a>
+      <a routerLink="/accounts">Accounts</a>
+      <a routerLink="/cards">Cards</a>
+    </ng-container>
+
+    <ng-container *ngIf="role === 'MANAGER'">
+      <a routerLink="/pending">Pending Requests</a>
+    </ng-container>
+
+    <ng-container *ngIf="role === 'ADMIN'">
+      <a routerLink="/roles">Role Management</a>
+    </ng-container>
+
+    <a (click)="logout()" class="logout-btn">Logout</a>
+  </div>
+</div>
+
+<!-- Page content -->
+<router-outlet></router-outlet>

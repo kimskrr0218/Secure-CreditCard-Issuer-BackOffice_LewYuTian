@@ -1,0 +1,60 @@
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+
+export interface Customer {
+  id?: number;
+  name: string;
+  email: string;
+}
+
+export interface PendingRequest {
+  id?: number;
+  entityType: string;   // "CUSTOMER"
+  operation: string;    // "CREATE", "UPDATE", "DELETE"
+  payload: string;      
+  status?: string;      // "PENDING", "APPROVED", "REJECTED"
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+@Injectable({
+  providedIn: 'root'
+})
+export class CustomerService {
+  private customerUrl = 'http://localhost:8080/api/customers';
+  private pendingUrl = 'http://localhost:8080/api/pending';
+
+  constructor(private http: HttpClient) {}
+
+  // Approved customers (for staff view)
+  getAllCustomers(): Observable<Customer[]> {
+    return this.http.get<Customer[]>(this.customerUrl);
+  }
+
+  // Staff → submit pending requests
+  createPending(customer: Customer): Observable<PendingRequest> {
+    return this.http.post<PendingRequest>(this.pendingUrl, {
+      entityType: 'CUSTOMER',
+      operation: 'CREATE',
+      payload: JSON.stringify(customer)
+    });
+  }
+
+  updatePending(id: number, customer: Customer): Observable<PendingRequest> {
+    return this.http.post<PendingRequest>(this.pendingUrl, {
+      entityType: 'CUSTOMER',
+      operation: 'UPDATE',
+      payload: JSON.stringify({ ...customer, id })
+    });
+  }
+
+  deletePending(id: number): Observable<PendingRequest> {
+    return this.http.post<PendingRequest>(this.pendingUrl, {
+      entityType: 'CUSTOMER',
+      operation: 'DELETE',
+      payload: JSON.stringify({ id })
+    });
+  }
+}
+
