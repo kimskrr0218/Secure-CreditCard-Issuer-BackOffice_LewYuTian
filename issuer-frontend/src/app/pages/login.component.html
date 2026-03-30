@@ -5,11 +5,22 @@
 
     <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
       <div class="form-group">
-        <input type="text" formControlName="username" placeholder="Username" />
+                  <input
+            id="username"
+            type="text"
+            formControlName="username"
+            placeholder="Username/Email"
+            [ngClass]="{ 'is-invalid': loginForm.get('username')?.invalid && loginForm.get('username')?.touched }"
+          >
       </div>
 
       <div class="form-group">
         <input type="password" formControlName="password" placeholder="Password" />
+      </div>
+
+      <div class="forgot-password">
+        <a (click)="openForgotPasswordModal()">Forgot Password?</a> | 
+        <a routerLink="/register">Register</a>
       </div>
 
       <button type="submit" [disabled]="loading">
@@ -18,5 +29,39 @@
     </form>
 
     <p class="footer-text">© 2025 Secure Issuer Portal</p>
+  </div>
+</div>
+
+<div class="modal-overlay" *ngIf="showForgotPasswordModal">
+  <div class="modal-content forgot-container">
+    <h3>Reset Password Request</h3>
+    <p class="modal-description">Enter your username. An administrator will review your request.</p>
+
+    <div class="form-group mb-3">
+      <input
+        type="text"
+        placeholder="Username"
+        [(ngModel)]="resetRequestUsername"
+        class="form-control"
+      />
+    </div>
+
+    <div class="modal-actions">
+      <button class="cancel-btn" (click)="closeForgotPasswordModal()">Cancel</button>
+      <button class="submit-btn" (click)="submitResetRequest()" [disabled]="!resetRequestUsername">Submit Request</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ================= MESSAGE MODAL ================= -->
+<div *ngIf="showMessageModal" class="modal-overlay">
+  <div class="modal-content">
+    <div class="success-alert">
+      <p class="success-text">{{ modalMessage }}</p>
+      <div class="modal-actions" style="width: 100%; display: flex; justify-content: flex-end; margin-top: 15px;">
+        <button class="submit-btn" (click)="closeMessage()" style="background: #16a34a; padding: 8px 30px; width: auto;">OK</button>
+      </div>
+    </div>
   </div>
 </div>

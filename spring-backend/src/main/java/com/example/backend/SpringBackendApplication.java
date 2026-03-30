@@ -9,26 +9,69 @@ import com.example.backend.entity.Role;
 import com.example.backend.entity.User;
 import com.example.backend.repository.RoleRepository;
 import com.example.backend.repository.UserRepository;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @SpringBootApplication
 public class SpringBackendApplication {
+
     public static void main(String[] args) {
         SpringApplication.run(SpringBackendApplication.class, args);
     }
 
-    // Initialize Roles & Users, mock early data only
     @Bean
-    CommandLineRunner init(RoleRepository roleRepo, UserRepository userRepo) {
+    CommandLineRunner init(RoleRepository roleRepo,
+                           UserRepository userRepo,
+                           PasswordEncoder passwordEncoder) {
         return args -> {
-            if (roleRepo.count() == 0) {
-                Role admin = new Role(); admin.setName("ADMIN"); roleRepo.save(admin);
-                Role manager = new Role(); manager.setName("MANAGER"); roleRepo.save(manager);
-                Role staff = new Role(); staff.setName("STAFF"); roleRepo.save(staff);
 
-                User u1 = new User(); u1.setUsername("admin"); u1.setPassword("admin123"); u1.setRole(admin); userRepo.save(u1);
-                User u2 = new User(); u2.setUsername("manager"); u2.setPassword("manager123"); u2.setRole(manager); userRepo.save(u2);
-                User u3 = new User(); u3.setUsername("staff"); u3.setPassword("staff123"); u3.setRole(staff); userRepo.save(u3);
+            // Create roles if not exist
+            Role adminRole = roleRepo.findByName("ADMIN").orElse(null);
+            if (adminRole == null) {
+                adminRole = new Role();
+                adminRole.setName("ADMIN");
+                roleRepo.save(adminRole);
             }
+
+            Role managerRole = roleRepo.findByName("MANAGER").orElse(null);
+            if (managerRole == null) {
+                managerRole = new Role();
+                managerRole.setName("MANAGER");
+                roleRepo.save(managerRole);
+            }
+
+            Role staffRole = roleRepo.findByName("STAFF").orElse(null);
+            if (staffRole == null) {
+                staffRole = new Role();
+                staffRole.setName("STAFF");
+                roleRepo.save(staffRole);
+            }
+
+            // Create users if not exist
+            if (userRepo.findByUsername("admin").isEmpty()) {
+                User admin = new User();
+                admin.setUsername("admin");
+                admin.setPassword(passwordEncoder.encode("admin123"));
+                admin.setRole(adminRole);
+                userRepo.save(admin);
+            }
+
+            if (userRepo.findByUsername("manager").isEmpty()) {
+                User manager = new User();
+                manager.setUsername("manager");
+                manager.setPassword(passwordEncoder.encode("manager123"));
+                manager.setRole(managerRole);
+                userRepo.save(manager);
+            }
+
+            if (userRepo.findByUsername("staff").isEmpty()) {
+                User staff = new User();
+                staff.setUsername("staff");
+                staff.setPassword(passwordEncoder.encode("staff123"));
+                staff.setRole(staffRole);
+                userRepo.save(staff);
+            }
+
+            System.out.println("Default roles and users initialized.");
         };
     }
 }

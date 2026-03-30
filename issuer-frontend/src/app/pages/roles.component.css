@@ -2,8 +2,9 @@
 .role-management {
   background-color: #f8fafc;
   min-height: 100vh;
-  padding: 20px 40px;
+  padding: 30px;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #1e293b;
 }
 
 /* ===== Header Bar ===== */
@@ -14,13 +15,15 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-radius: 8px;
+  border-radius: 12px;
   margin-bottom: 25px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .header h2 {
   font-size: 22px;
   margin: 0;
+  font-weight: 600;
 }
 
 .admin-info {
@@ -33,11 +36,14 @@
   background: #dc2626;
   color: white;
   border: none;
-  padding: 6px 12px;
+  padding: 8px 16px;
   border-radius: 6px;
   cursor: pointer;
-  transition: 0.2s;
+  transition: 0.2s ease;
+  font-weight: 600;
+  font-size: 14px;
 }
+
 .logout-btn:hover {
   background: #b91c1c;
 }
@@ -46,89 +52,274 @@
 .card {
   background: #fff;
   border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
   padding: 25px;
   margin-bottom: 30px;
+  border: 1px solid #e2e8f0;
 }
 
 h3 {
-  color: #0f172a;
-  margin-bottom: 15px;
+  color: #1e293b;
+  margin-bottom: 20px;
+  font-size: 18px;
+  font-weight: 600;
+  border-bottom: 2px solid #f1f5f9;
+  padding-bottom: 10px;
 }
 
 /* ===== Create User Section ===== */
 .create-form {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 12px;
 }
 
 .create-form input,
 .create-form select {
-  padding: 8px 10px;
-  border-radius: 6px;
+  padding: 10px 14px;
+  border-radius: 8px;
   border: 1px solid #cbd5e1;
   flex: 1;
-  min-width: 180px;
-  background-color: #f1f5f9;
+  min-width: 200px;
+  background-color: #ffffff;
+  font-size: 14px;
+  transition: border-color 0.2s;
+}
+
+.create-form input:focus,
+.create-form select:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
 }
 
 .create-btn {
   background: #2563eb;
   color: #fff;
   border: none;
-  padding: 8px 14px;
-  border-radius: 6px;
+  padding: 10px 20px;
+  border-radius: 8px;
   cursor: pointer;
-  transition: 0.2s;
+  transition: 0.2s ease;
+  font-weight: 600;
+  font-size: 14px;
 }
+
 .create-btn:hover {
-  background: #1e40af;
+  background: #1d4ed8;
+  transform: translateY(-1px);
 }
 
 /* ===== Table Styling ===== */
 table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 15px;
+  margin-top: 5px;
 }
 
 th {
-  background-color: #1e293b;
-  color: white;
+  background-color: #f8fafc;
+  color: #64748b;
   text-align: left;
-  padding: 10px;
-  font-weight: 500;
+  padding: 14px 16px;
+  font-weight: 600;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+  border-bottom: 2px solid #e2e8f0;
 }
 
 td {
-  padding: 10px;
-  border-bottom: 1px solid #e2e8f0;
+  padding: 14px 16px;
+  border-bottom: 1px solid #f1f5f9;
+  color: #334155;
+  font-size: 14px;
 }
 
-select {
-  padding: 6px;
-  border-radius: 5px;
+tbody tr:hover {
+  background-color: #f8fafc;
+}
+
+/* Table select & update button */
+td select {
+  padding: 6px 10px;
+  border-radius: 6px;
   border: 1px solid #cbd5e1;
-  background-color: #f1f5f9;
+  background-color: #fff;
+  font-size: 13px;
 }
 
 .update-btn {
   background: #16a34a;
   color: white;
   border: none;
-  padding: 6px 10px;
+  padding: 6px 14px;
   border-radius: 6px;
   margin-left: 8px;
   cursor: pointer;
-  transition: 0.2s;
+  transition: 0.2s ease;
+  font-weight: 600;
+  font-size: 13px;
 }
+
 .update-btn:hover {
   background: #15803d;
 }
 
+/* ===== Status Badges ===== */
+.badge {
+  padding: 4px 12px;
+  border-radius: 15px;
+  font-size: 11px;
+  font-weight: 700;
+  display: inline-block;
+  text-transform: uppercase;
+}
+
+.pending {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.approved {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.rejected {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+/* ===== Action Buttons in Table ===== */
+.action-btn {
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  transition: 0.2s ease;
+  border: none;
+  margin-right: 6px;
+}
+
+.approve-btn {
+  background: #16a34a;
+  color: white;
+}
+
+.approve-btn:hover {
+  background: #15803d;
+}
+
+.reject-btn {
+  background: #dc2626;
+  color: white;
+}
+
+.reject-btn:hover {
+  background: #b91c1c;
+}
+
+/* ===== Custom Styled Alert Modal ===== */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(15, 23, 42, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  backdrop-filter: blur(4px);
+}
+
+.modal-content {
+  background: white;
+  width: 400px;
+  padding: 0;
+  border-radius: 16px;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  overflow: hidden;
+  animation: modalFadeIn 0.3s ease-out;
+}
+
+@keyframes modalFadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.modal-header {
+  background: #f8fafc;
+  padding: 20px 25px;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.modal-header h3 {
+  margin: 0;
+  font-size: 18px;
+  color: #1e293b;
+  border: none;
+  padding: 0;
+}
+
+.modal-content p {
+  padding: 25px;
+  margin: 0;
+  color: #475569;
+  font-size: 15px;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.modal-actions {
+  padding: 15px 25px 25px;
+  display: flex;
+  justify-content: center;
+}
+
+.submit-btn {
+  background: #2563eb;
+  color: white;
+  border: none;
+  padding: 10px 30px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 14px;
+  transition: 0.2s ease;
+  width: 100%;
+}
+
+.submit-btn:hover {
+  background: #1d4ed8;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  color: #94a3b8;
+  position: relative;
+  top: -2px;
+}
+
+.close-btn:hover {
+  color: #64748b;
+}
+
 /* ===== Responsive ===== */
 @media (max-width: 768px) {
+  .role-management {
+    padding: 15px;
+  }
+
   .create-form {
     flex-direction: column;
   }
@@ -136,6 +327,12 @@ select {
   .header {
     flex-direction: column;
     align-items: flex-start;
-    gap: 10px;
+    gap: 15px;
+    padding: 20px;
+  }
+
+  .admin-info {
+    width: 100%;
+    justify-content: space-between;
   }
 }

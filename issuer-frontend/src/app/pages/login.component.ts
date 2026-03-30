@@ -1,24 +1,75 @@
 import { Component } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { ReactiveFormsModule } from '@angular/forms';
+import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, RouterModule],
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css']
 })
 export class LoginComponent {
+  showMessageModal = false;
+  modalMessage = "";
+
+  closeMessage() {
+    this.showMessageModal = false;
+  }
+
   loginForm: FormGroup;
   loading = false;
 
-  // ✅ use the new backend path
-  private apiUrl = 'http://localhost:8080/api/login';
+  // ✅ Use relative URL - proxy forwards to backend
+  private apiUrl = '/api/login';
 
+  errorMessage: string = '';
+
+  showForgotPasswordModal: boolean = false;
+  resetRequestUsername: string = '';
+  resetRequestMessage: string = '';
+
+  openForgotPasswordModal() {
+    this.showForgotPasswordModal = true;
+    this.resetRequestUsername = '';
+    this.resetRequestMessage = '';
+  }
+
+  closeForgotPasswordModal() {
+    this.showForgotPasswordModal = false;
+  }
+
+  submitResetRequest() {
+    if (!this.resetRequestUsername.trim()) {
+      this.resetRequestMessage = 'Username is required.';
+      return;
+    }
+
+    const payload = {
+      entity: 'USER',
+      operation: 'PASSWORD_RESET',
+      requestType: 'RESET_PASSWORD',
+      username: this.resetRequestUsername.trim(),
+      payload: { username: this.resetRequestUsername.trim() }
+    };
+
+    this.http.post('http://localhost:8080/api/maker-checker/requests', payload, { withCredentials: true })
+      .subscribe({
+        next: () => {
+          this.modalMessage = 'Password reset request submitted successfully. Waiting for admin approval.';
+          this.showMessageModal = true;
+          this.closeForgotPasswordModal();
+        },
+        error: (err) => {
+          console.error('Reset request error:', err);
+          this.modalMessage = 'Failed to submit reset request. Please check the username and try again.';
+          this.showMessageModal = true;
+        }
+      });
+  }
 
   constructor(
     private fb: FormBuilder,
@@ -53,17 +104,20 @@ export class LoginComponent {
             } else if (res.role === 'STAFF') {
               this.router.navigate(['/dashboard']);
             } else {
-              alert('Unknown role. Redirecting to dashboard.');
+              this.modalMessage = 'Unknown role. Redirecting to dashboard.';
+          this.showMessageModal = true;
               this.router.navigate(['/dashboard']);
             }
           } else {
-            alert(res.message || 'Login failed');
+            this.modalMessage = res.message || 'Login failed';
+          this.showMessageModal = true;
           }
         },
         error: (err) => {
           this.loading = false;
           const msg = err.error?.message || 'Invalid username or password';
-          alert(msg);
+          this.modalMessage = msg;
+          this.showMessageModal = true;
         }
       });
     }

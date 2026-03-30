@@ -1,0 +1,108 @@
+<app-top-navbar></app-top-navbar>
+
+<div class="page-container">
+  <div class="page-header">
+    <h2>Edit Credit Card</h2>
+  </div>
+
+  <div class="card add-customer-card" *ngIf="!loading">
+    <form [formGroup]="cardForm" (ngSubmit)="onSubmit()">
+
+      <!-- Card Information -->
+      <div class="form-section">
+        <h3>Card Information</h3>
+
+        <div class="info-row" *ngIf="card">
+          <span class="info-label">Card Number:</span>
+          <span class="info-value">{{ card.cardNumber ? (card.cardNumber.substring(0, 4) + ' **** **** ' + card.cardNumber.substring(card.cardNumber.length - 4)) : 'N/A' }}</span>
+        </div>
+        <div class="info-row" *ngIf="card?.account">
+          <span class="info-label">Linked Account:</span>
+          <span class="info-value">{{ card.account.accountNumber }} ({{ card.account.currency || '' }})</span>
+        </div>
+        <div class="info-row" *ngIf="card?.customer">
+          <span class="info-label">Customer:</span>
+          <span class="info-value">{{ card.customer.customerNo }} - {{ card.customer.name }}</span>
+        </div>
+        <div class="info-row" *ngIf="card">
+          <span class="info-label">Status:</span>
+          <span class="badge active">{{ card.status }}</span>
+        </div>
+
+        <div class="form-grid">
+
+          <div class="form-group">
+            <label>Cardholder Name *</label>
+            <input type="text" formControlName="cardHolderName" placeholder="Name on Card">
+            <div class="error" *ngIf="cardForm.get('cardHolderName')?.touched && cardForm.get('cardHolderName')?.invalid">
+              <small>Cardholder Name is required</small>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Card Type (Tier) *</label>
+            <select formControlName="cardType">
+              <option value="" disabled>Select Card Tier</option>
+              <option value="Classic">Classic</option>
+              <option value="Gold">Gold</option>
+              <option value="Platinum">Platinum</option>
+            </select>
+            <div class="error" *ngIf="cardForm.get('cardType')?.touched && cardForm.get('cardType')?.invalid">
+              <small>Card Type is required</small>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Card Brand *</label>
+            <select formControlName="cardBrand">
+              <option value="" disabled>Select Card Brand</option>
+              <option value="VISA">VISA</option>
+              <option value="MASTERCARD">MASTERCARD</option>
+              <option value="AMEX">AMEX</option>
+            </select>
+            <div class="error" *ngIf="cardForm.get('cardBrand')?.touched && cardForm.get('cardBrand')?.invalid">
+              <small>Card Brand is required</small>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Card Mode *</label>
+            <select formControlName="cardMode">
+              <option value="PHYSICAL">PHYSICAL</option>
+              <option value="VIRTUAL">VIRTUAL</option>
+            </select>
+            <div class="error" *ngIf="cardForm.get('cardMode')?.touched && cardForm.get('cardMode')?.invalid">
+              <small>Card Mode is required</small>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="cancel-btn" (click)="cancel()">Cancel</button>
+        <button type="submit" class="submit-btn">Save Changes</button>
+      </div>
+
+    </form>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-state">
+    <p>Loading card details...</p>
+  </div>
+</div>
+
+<!-- ================= MESSAGE MODAL ================= -->
+<div *ngIf="showMessageModal" class="modal-overlay">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Message</h3>
+      <button class="close-btn" (click)="closeMessage()">&times;</button>
+    </div>
+    <p>{{ modalMessage }}</p>
+    <div class="modal-actions">
+      <button class="submit-btn" (click)="closeMessage()">OK</button>
+    </div>
+  </div>
+</div>

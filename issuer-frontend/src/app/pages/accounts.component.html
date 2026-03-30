@@ -1,31 +1,239 @@
-<h2>Account Management</h2>
+<app-top-navbar></app-top-navbar>
 
-<form [formGroup]="accountForm" (ngSubmit)="onSubmit()">
-  <label for="customerId">Customer:</label>
-  <select formControlName="customerId" required>
-    <option *ngFor="let c of customers" [value]="c.id">
-      {{ c.name }} ({{ c.email }})
-    </option>
-  </select>
+<div class="page-container">
 
-  <label for="accountType">Account Type:</label>
-  <input formControlName="accountType" placeholder="SAVINGS / CURRENT" />
+  <!-- HEADER -->
+  <div class="page-header">
+    <h2>Account Management</h2>
+  </div>
 
-  <label for="balance">Balance:</label>
-  <input formControlName="balance" type="number" />
+  <div class="content-layout">
 
-  <button type="submit">{{ isEditing ? 'Update Account' : 'Add Account' }}</button>
-  <button type="button" (click)="cancelEdit()" *ngIf="isEditing">Cancel</button>
-</form>
+    <!-- ================= FILTER PANEL ================= -->
+    <div class="filter-panel card">
+      <h3>Filters</h3>
 
-<hr />
+      <div class="filter-group">
+        <label>Customer No / Name</label>
+        <input type="text" [(ngModel)]="filterCustomer" (keyup.enter)="applyFilters()" placeholder="CUST-1001" />
+      </div>
 
-<div *ngIf="loading">Loading accounts...</div>
+      <div class="filter-group">
+        <label>Account Type</label>
+        <select [(ngModel)]="filterType" (change)="applyFilters()">
+          <option value="">All Types</option>
+          <option value="CREDIT">CREDIT</option>
+        </select>
+      </div>
 
-<ul>
-  <li *ngFor="let a of accounts">
-    {{ a.id }} - {{ a.accountNumber }} ({{ a.accountType }}) - Balance: {{ a.balance }} - {{ a.customer.name }}
-    <button (click)="edit(a)">Edit</button>
-    <button (click)="delete(a.id!)">Delete</button>
-  </li>
-</ul>
+      <div class="filter-group">
+        <label>Account No</label>
+        <input type="text" [(ngModel)]="keyword" (keyup.enter)="applyFilters()" placeholder="Account No" />
+      </div>
+
+      <button class="search-btn" (click)="applyFilters()">
+        <span>SEARCH</span>
+      </button>
+
+    </div>
+
+    <!-- ================= MAIN SECTION ================= -->
+    <div class="main-section">
+
+      <!-- ACTION BAR -->
+      <div class="top-bar">
+        <div class="tabs">
+          <button class="tab active">Live</button>
+        </div>
+
+        <button class="create-btn" (click)="openCreateAccount()">
+          + Account
+        </button>
+      </div>
+
+      <!-- ================= LIVE ACCOUNTS ================= -->
+      <div class="card">
+        <h3>Live Accounts</h3>
+
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>No.</th>
+              <th>Account No.</th>
+              <th>Customer No.</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngIf="loading">
+              <td colspan="5" class="empty">Loading accounts...</td>
+            </tr>
+            <tr *ngIf="!loading && filteredAccounts.length === 0">
+              <td colspan="5" class="empty">No Accounts Available</td>
+            </tr>
+            <tr *ngFor="let a of filteredAccounts; let i = index">
+              <td>{{ i + 1 }}</td>
+              <td>{{ a.accountNumber }}</td>
+              <td>{{ a.customer?.customerNo || 'N/A' }}</td>
+              <td>
+                <span class="badge" [ngClass]="{
+                    'active': a.status === 'ACTIVE',
+                    'inactive': a.status === 'INACTIVE'
+                  }">
+                  {{ a.status || 'N/A' }}
+                </span>
+              </td>
+                <td class="actions">
+                  <button class="view-btn" (click)="view(a)">View</button>
+                  <ng-container *ngIf="a.status === 'ACTIVE'">
+                    <button class="edit-btn" (click)="edit(a)">Edit</button>
+                    <button class="deactivate-btn" (click)="deactivate(a)">Deactivate</button>
+                  </ng-container>
+                  <ng-container *ngIf="a.status === 'INACTIVE'">
+                    <button class="activate-btn" (click)="activate(a)">Activate</button>
+                  </ng-container>
+                </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- ================= REJECTED REQUESTS ================= -->
+      <div class="card">
+        <h3>Rejected Account Requests</h3>
+
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>No.</th>
+              <th>Account No.</th>
+              <th>Customer No.</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngIf="rejectedRequests.length === 0">
+              <td colspan="5" class="empty">
+                No Rejected / Draft Requests
+              </td>
+            </tr>
+            <tr *ngFor="let r of rejectedRequests; let i = index">
+              <td>{{ i + 1 }}</td>
+              <td>{{ r.accountNumber || 'N/A' }}</td>
+              <td>{{ r.customerNo || 'N/A' }}</td>
+              <td>
+                <span class="badge rejected">REJECTED</span>
+              </td>
+              <td class="actions">
+                <button class="view-btn" (click)="viewRejectedAccount(r)">View</button>
+                <button class="edit-btn" (click)="editRejectedRequest(r)">Edit</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- ================= PENDING REQUESTS ================= -->
+      <div class="card">
+        <h3>Pending Approval Requests</h3>
+
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>No.</th>
+              <th>Account No.</th>
+              <th>Customer No.</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngIf="pendingRequests.length === 0">
+              <td colspan="5" class="empty">Nothing Pending</td>
+            </tr>
+            <tr *ngFor="let p of pendingRequests; let i = index">
+              <td>{{ i + 1 }}</td>
+              <td>{{ p.accountNumber || 'N/A' }}</td>
+              <td>{{ p.customerNo || 'N/A' }}</td>
+              <td>
+                <span class="badge pending">PENDING</span>
+              </td>
+              <td class="actions">
+                <button class="view-btn" (click)="viewRequest(p)">View</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ================= MESSAGE MODAL ================= -->
+<div *ngIf="showMessageModal" class="modal-overlay">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Message</h3>
+      <button class="close-btn" (click)="closeMessage()"></button>
+    </div>
+    <p>{{ modalMessage }}</p>
+    <div class="modal-actions">
+      <button class="submit-btn" (click)="closeMessage()">OK</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================= VIEW REQUEST MODAL ================= -->
+<div class="modal-overlay" *ngIf="showRequestModal">
+  <div class="modal-content">
+
+    <div class="modal-header">
+      <h3>Request Details</h3>
+      <button class="close-btn" (click)="closeRequestModal()">&times;</button>
+    </div>
+
+    <div class="view-details" *ngIf="selectedRequest">
+      <div class="detail-row">
+        <span class="detail-label">Status:</span>
+        <span class="badge"
+          [ngClass]="{'pending': selectedRequest.status === 'PENDING', 'rejected': selectedRequest.status === 'REJECTED'}">
+          {{ selectedRequest.status }}
+        </span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-label">Operation:</span>
+        <span class="detail-value">{{ selectedRequest.operation }}</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-label">Account Type:</span>
+        <span class="detail-value">{{ selectedRequest.accountType || 'N/A' }}</span>
+      </div>
+      <div class="detail-row" *ngIf="selectedRequest.status === 'REJECTED'">
+        <span class="detail-label">Rejection Reason:</span>
+        <span class="detail-value" style="color: #dc3545; font-weight: bold;">{{ selectedRequest.reason }}</span>
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="cancel-btn" (click)="closeRequestModal()">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================= CONFIRM MODAL ================= -->
+<div *ngIf="showConfirmModal" class="modal-overlay">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Confirm Action</h3>
+      <button class="close-btn" (click)="cancelConfirm()">&times;</button>
+    </div>
+    <p>{{ confirmMessage }}</p>
+    <div class="modal-actions">
+      <button class="cancel-btn" (click)="cancelConfirm()">Cancel</button>      
+      <button class="submit-btn" (click)="executeConfirm()">Confirm</button>
+    </div>
+  </div>
+</div>

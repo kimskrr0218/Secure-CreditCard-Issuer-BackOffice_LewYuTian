@@ -26,8 +26,8 @@ export interface PendingRequest {
   providedIn: 'root'
 })
 export class AccountService {
-  private accountsUrl = 'http://localhost:8080/api/accounts';
-  private pendingUrl = 'http://localhost:8080/api/pending';
+  private accountsUrl = '/api/accounts';
+  private pendingUrl = '/api/pending';
 
   constructor(private http: HttpClient) {}
 

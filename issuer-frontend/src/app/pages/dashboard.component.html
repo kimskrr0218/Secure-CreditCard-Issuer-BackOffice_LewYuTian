@@ -3,15 +3,61 @@
   <header class="topbar">
     <h2>Issuer Back-Office</h2>
     <div class="user-info">
-      <span>Logged in as: <strong>{{ role }}</strong> – {{ username }}</span>
+      <span class="welcome-text">Welcome, {{ username }}</span>
       <button (click)="logout()">Logout</button>
     </div>
   </header>
 
   <main class="content">
-    <h1>Welcome, {{ role }}!</h1>
 
+    <!-- ================= SYSTEM OVERVIEW ================= -->
+    <section class="overview-section">
+
+      <div class="summary-grid" *ngIf="!summaryLoading">
+
+        <!-- Primary Stats -->
+        <div class="summary-card customers">
+          <div class="summary-icon">👥</div>
+          <div class="summary-info">
+            <span class="summary-number">{{ totalCustomers }}</span>
+            <span class="summary-label">Total Customers</span>
+          </div>
+        </div>
+
+        <div class="summary-card accounts">
+          <div class="summary-icon">🏦</div>
+          <div class="summary-info">
+            <span class="summary-number">{{ activeAccounts }}</span>
+            <span class="summary-label">Active Accounts</span>
+          </div>
+        </div>
+
+        <div class="summary-card cards-stat">
+          <div class="summary-icon">💳</div>
+          <div class="summary-info">
+            <span class="summary-number">{{ activeCards }}</span>
+            <span class="summary-label">Active Cards</span>
+          </div>
+        </div>
+
+        <div class="summary-card pending">
+          <div class="summary-icon">⏳</div>
+          <div class="summary-info">
+            <span class="summary-number">{{ pendingRequests }}</span>
+            <span class="summary-label">Pending Requests</span>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="summary-loading" *ngIf="summaryLoading">
+        <p>Loading statistics...</p>
+      </div>
+    </section>
+
+    <!-- ================= STAFF ================= -->
     <div class="cards-container" *ngIf="role === 'STAFF'">
+      
       <div class="card" (click)="navigateTo('/customers')">
         <h3>Customer Management</h3>
         <p>Manage and view all registered customers.</p>
@@ -26,8 +72,16 @@
         <h3>Card Management</h3>
         <p>Issue, activate, or block cards.</p>
       </div>
+
+      <!-- ✅ NEW: Pending Requests for Staff -->
+      <div class="card" (click)="navigateTo('/pending')">
+        <h3>View Pending Requests</h3>
+        <p>Track request status and rejection reasons.</p>
+      </div>
+
     </div>
 
+    <!-- ================= MANAGER ================= -->
     <div class="cards-container" *ngIf="role === 'MANAGER'">
       <div class="card" (click)="navigateTo('/pending')">
         <h3>Pending Requests</h3>
@@ -35,11 +89,13 @@
       </div>
     </div>
 
+    <!-- ================= ADMIN ================= -->
     <div class="cards-container" *ngIf="role === 'ADMIN'">
       <div class="card" (click)="navigateTo('/roles')">
         <h3>Role Management</h3>
         <p>Create users and assign roles within the back-office system.</p>
       </div>
     </div>
+
   </main>
 </div>

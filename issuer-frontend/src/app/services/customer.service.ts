@@ -22,8 +22,8 @@ export interface PendingRequest {
   providedIn: 'root'
 })
 export class CustomerService {
-  private customerUrl = 'http://localhost:8080/api/customers';
-  private pendingUrl = 'http://localhost:8080/api/pending';
+  private customerUrl = '/api/customers';
+  private pendingUrl = '/api/pending';
 
   constructor(private http: HttpClient) {}
 

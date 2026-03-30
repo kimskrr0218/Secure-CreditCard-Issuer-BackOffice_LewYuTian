@@ -1,0 +1,54 @@
+<div class="registration-container">
+  <div class="split-layout">
+    <div class="info-section">
+      <h2>Request Registration</h2>
+      <p class="subtitle">Submit your details for Maker-Checker approval.</p>
+    </div>
+
+    <div class="registration-card">
+      <div *ngIf="errorMessage" class="error-msg">
+        {{ errorMessage }}
+      </div>
+      <div *ngIf="successMessage" class="success-msg" style="color: green; background: #e6ffe6; padding: 10px; border-radius: 4px; margin-bottom: 15px; text-align: center;">
+        {{ successMessage }}
+      </div>
+
+      <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" *ngIf="!successMessage">
+        <div class="form-group">
+          <input id="username" type="text" formControlName="username" class="form-control" placeholder="Username">
+        </div>
+
+        <div class="form-group">
+          <input id="email" type="email" formControlName="email" class="form-control" placeholder="Email">
+        </div>
+
+        <div class="form-group">
+          <select formControlName="role" class="form-control">
+            <option value="" disabled selected>Select role</option>
+            <option value="ROLE_STAFF">Staff</option>
+            <option value="ROLE_MANAGER">Manager</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <input id="password" type="password" formControlName="password" class="form-control" placeholder="Password">
+        </div>
+
+        <div class="form-group">
+          <input id="confirmPassword" type="password" formControlName="confirmPassword" class="form-control" placeholder="Confirm Password">
+          <div *ngIf="registerForm.hasError('mismatch') && registerForm.get('confirmPassword')?.touched" class="error-msg" style="font-size: 0.8em; margin-top: 5px; color: red;">
+            Passwords do not match.
+          </div>
+        </div>
+
+        <button type="submit" class="register-btn" [disabled]="registerForm.invalid || loading">
+          {{ loading ? 'Submitting...' : 'Register' }}
+        </button>      
+      </form>
+      
+      <div style="margin-top: 20px; text-align: center;">
+        <a routerLink="/login" style="color: #2563eb; text-decoration: none; font-size: 0.9em;">Back to Login</a>
+      </div>
+    </div>
+  </div>
+</div>

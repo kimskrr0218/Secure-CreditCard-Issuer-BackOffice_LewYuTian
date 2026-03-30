@@ -1,18 +1,19 @@
 <div class="role-management">
-  <!-- Header -->
+  <!-- Header Bar -->
   <div class="header">
     <h2>Admin Role Management</h2>
     <div class="admin-info">
-      Logged in as: <strong>ADMIN</strong>
+      <span>Logged in as: <strong>{{ currentUser }}</strong> ({{ currentRole }})</span>
       <button class="logout-btn" (click)="logout()">Logout</button>
     </div>
   </div>
 
-  <!-- Create new user -->
+  <!-- Create new user section -->
   <div class="card create-section">
     <h3>Create New User</h3>
     <form (ngSubmit)="createUser()" class="create-form">
       <input type="text" [(ngModel)]="username" name="username" placeholder="Username" required />
+      <input type="email" [(ngModel)]="email" name="email" placeholder="Email" required />
       <input type="password" [(ngModel)]="password" name="password" placeholder="Password" required />
 
       <select [(ngModel)]="role" name="role" required>
@@ -26,33 +27,101 @@
     </form>
   </div>
 
-  <!-- Existing Users -->
+  <!-- Existing Users list -->
   <div class="card">
     <h3>Existing Users</h3>
-    <table>
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Username</th>
-          <th>Role</th>
-          <th>Change Role</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let u of users">
-          <td>{{ u.id }}</td>
-          <td>{{ u.username }}</td>
-          <td>{{ u.role.name }}</td>
-          <td>
-            <select [(ngModel)]="u.newRole">
-              <option value="ADMIN">Admin</option>
-              <option value="MANAGER">Manager</option>
-              <option value="STAFF">Staff</option>
-            </select>
-            <button class="update-btn" (click)="updateRole(u)">Update</button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Username</th>
+            <th>Email</th>
+            <th>Role</th>
+            <th>Change Role</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let u of users">
+            <td>{{ u.id }}</td>
+            <td><strong>{{ u.username }}</strong></td>
+            <td>{{ u.email }}</td>
+            <td><span class="badge approved">{{ u.role.name }}</span></td>
+            <td>
+              <select [(ngModel)]="u.newRole">
+                <option value="ADMIN">Admin</option>
+                <option value="MANAGER">Manager</option>
+                <option value="STAFF">Staff</option>
+              </select>
+              <button class="update-btn" (click)="updateRole(u)">Update</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- User Pending Requests Section -->
+  <div class="card">
+    <h3>User Pending Request</h3>
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Username</th>
+            <th>Email</th>
+            <th>Role</th>
+            <th>Request Type</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngIf="pendingRequests.length === 0">
+            <td colspan="7" style="text-align: center; color: #64748b; padding: 30px;">
+              No pending requests found.
+            </td>
+          </tr>
+          <tr *ngFor="let r of pendingRequests">
+            <td>#{{ r.id }}</td>
+            <td><strong>{{ r.username }}</strong></td>
+            <td>{{ r.email || '-' }}</td>
+            <td>{{ r.role || '-' }}</td>
+            <td>{{ r.requestType }}</td>
+            <td>
+              <span
+                class="badge"
+                [ngClass]="{
+                  'pending': r.status === 'PENDING',
+                  'approved': r.status === 'APPROVED',
+                  'rejected': r.status === 'REJECTED'
+                }"
+              >
+                {{ r.status }}
+              </span>
+            </td>
+            <td>
+              <button class="approve-btn action-btn" (click)="approveRequest(r.id)">Approve</button>
+              <button class="reject-btn action-btn" (click)="rejectRequest(r.id)">Reject</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Professional Styled Alert Modal for Messages -->
+<div *ngIf="showMessageModal" class="modal-overlay">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Message Info</h3>
+      <button class="close-btn" (click)="closeMessage()">&times;</button>
+    </div>
+    <p>{{ modalMessage }}</p>
+    <div class="modal-actions">
+      <button class="submit-btn" (click)="closeMessage()">OK</button>
+    </div>
   </div>
 </div>

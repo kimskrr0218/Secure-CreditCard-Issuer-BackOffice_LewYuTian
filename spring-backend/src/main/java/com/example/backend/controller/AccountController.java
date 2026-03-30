@@ -2,50 +2,59 @@ package com.example.backend.controller;
 
 import com.example.backend.entity.Account;
 import com.example.backend.repository.AccountRepository;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/accounts")  // ✅ Defines the base API endpoint for all account-related operations
+@RequestMapping("/api/accounts")
 public class AccountController {
 
-    private final AccountRepository repository;  // Repository used to interact with the Account table in the database
+    private final AccountRepository repository;
 
     public AccountController(AccountRepository repository) {
         this.repository = repository;
     }
 
-    // Retrieve all accounts from the database
+    // 🔍 Both STAFF and MANAGER can view all accounts
     @GetMapping
+    @PreAuthorize("hasAnyRole('STAFF', 'MANAGER', 'ADMIN')")
     public List<Account> getAllAccounts() {
         return repository.findAll();
     }
 
-    // Retrieve a specific account by its ID
+    // 🔍 Both STAFF and MANAGER can view account details
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('STAFF', 'MANAGER', 'ADMIN')")
     public Account getAccountById(@PathVariable Long id) {
-        return repository.findById(id).orElseThrow();
+        return repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Account not found"));
     }
 
-    // Create a new account record in the database
+    // ✏️ Create accounts
     @PostMapping
+    @PreAuthorize("hasAnyRole('STAFF', 'MANAGER', 'ADMIN')")
     public Account createAccount(@RequestBody Account account) {
         return repository.save(account);
     }
 
-    // Update existing account details such as account number or balance
+    // ✏️ Update accounts
     @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('STAFF', 'MANAGER', 'ADMIN')")
     public Account updateAccount(@PathVariable Long id, @RequestBody Account updated) {
         return repository.findById(id).map(acc -> {
             acc.setAccountNumber(updated.getAccountNumber());
             acc.setBalance(updated.getBalance());
+            acc.setCreditLimit(updated.getCreditLimit());
+            acc.setStatus(updated.getStatus());
             return repository.save(acc);
-        }).orElseThrow();
+        }).orElseThrow(() -> new RuntimeException("Account not found"));
     }
 
-    // Delete an account from the database using its ID
+    // ❌ Delete accounts
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAnyRole('STAFF', 'MANAGER', 'ADMIN')")
     public void deleteAccount(@PathVariable Long id) {
         repository.deleteById(id);
     }

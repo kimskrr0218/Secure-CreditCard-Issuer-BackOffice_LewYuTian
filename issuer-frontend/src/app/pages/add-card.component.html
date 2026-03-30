@@ -1,0 +1,100 @@
+<app-top-navbar></app-top-navbar>
+
+<div class="page-container">
+  <div class="page-header">
+    <h2>Issue New Credit Card</h2>
+  </div>
+
+  <div class="card add-customer-card">
+
+    <!-- No active accounts warning -->
+    <div *ngIf="!isLoadingAccounts && accounts.length === 0" class="no-accounts-notice">
+      <span class="notice-icon">&#9432;</span>
+      <div>
+        <strong>No active accounts available.</strong>
+        <p>A credit card can only be issued against an <strong>ACTIVE</strong> account. Please ensure an account has been created and approved by a manager before issuing a card.</p>
+      </div>
+    </div>
+
+    <form [formGroup]="cardForm" (ngSubmit)="onSubmit()">
+
+      <div class="form-section">
+        <h3>Card Configuration</h3>
+        <div class="form-grid">
+
+          <div class="form-group">
+            <label>Linked Account *</label>
+            <select formControlName="accountId">
+              <option value="" disabled>{{ accounts.length === 0 ? 'No active accounts available' : 'Select an Account' }}</option>
+              <option *ngFor="let a of accounts" [value]="a.id">
+                {{ a.accountNumber }} ({{ a.currency }}) - {{ a.customer?.customerNo }} {{ a.customer?.name }}
+              </option>
+            </select>
+            <div class="error" *ngIf="cardForm.get('accountId')?.invalid && cardForm.get('accountId')?.touched">
+              <small>Linked Account is required.</small>
+            </div>
+          </div>
+
+          <div class="form-group" *ngIf="customerDisplay">
+            <label>Customer</label>
+            <input type="text" [value]="customerDisplay" readonly class="readonly-field">
+          </div>
+
+          <div class="form-group">
+            <label>Card Type (Tier) *</label>
+            <select formControlName="cardType">
+              <option value="" disabled>Select Card Tier</option>
+              <option value="Classic">Classic</option>
+              <option value="Gold">Gold</option>
+              <option value="Platinum">Platinum</option>
+            </select>
+            <div class="error" *ngIf="cardForm.get('cardType')?.invalid && cardForm.get('cardType')?.touched">
+              <small>Card Type is required.</small>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Card Brand *</label>
+            <select formControlName="cardBrand">
+              <option value="" disabled>Select Card Brand</option>
+              <option value="VISA">VISA</option>
+              <option value="MASTERCARD">MASTERCARD</option>
+              <option value="AMEX">AMEX</option>
+            </select>
+            <div class="error" *ngIf="cardForm.get('cardBrand')?.invalid && cardForm.get('cardBrand')?.touched">
+              <small>Card Brand is required.</small>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Card Mode *</label>
+            <select formControlName="cardMode">
+              <option value="PHYSICAL">PHYSICAL</option>
+              <option value="VIRTUAL">VIRTUAL</option>
+            </select>
+            <div class="error" *ngIf="cardForm.get('cardMode')?.invalid && cardForm.get('cardMode')?.touched">
+              <small>Card Mode is required.</small>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Cardholder Name *</label>
+            <input type="text" formControlName="cardHolderName" placeholder="Name on Card">
+            <div class="error" *ngIf="cardForm.get('cardHolderName')?.invalid && cardForm.get('cardHolderName')?.touched">
+              <small>Cardholder Name is required.</small>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="cancel-btn" (click)="cancel()">Cancel</button>
+        <button type="submit" class="submit-btn" [disabled]="isSubmitting">
+          {{ isSubmitting ? 'Submitting...' : 'Submit Request' }}
+        </button>
+      </div>
+
+    </form>
+  </div>
+</div>

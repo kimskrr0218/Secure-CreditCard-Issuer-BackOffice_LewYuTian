@@ -1,0 +1,18 @@
+# System files
+.DS_Store
+Thumbs.db
+
+# IDEs
+.idea/
+.vscode/
+
+# Ignore log files
+*.log
+
+# Ignore OS-generated files
+ehthumbs.db
+[Tt]humbs.db
+[Dd]esktop.ini
+
+# Global ignore
+node_modules/

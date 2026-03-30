@@ -2,42 +2,47 @@ package com.example.backend.controller;
 
 import com.example.backend.entity.Card;
 import com.example.backend.repository.CardRepository;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/cards")
-@CrossOrigin(origins = "http://localhost:4200") // Allows Angular frontend access to this API
+@CrossOrigin(origins = "http://localhost:4200")
 public class CardController {
 
-    private final CardRepository repository; // Repository for performing CRUD operations on Card entity
+    private final CardRepository repository;
 
     public CardController(CardRepository repository) {
         this.repository = repository;
     }
 
-    // Retrieve all cards from the database
+    // 🔍 MANAGER can view all cards
     @GetMapping
+    @PreAuthorize("hasAnyRole('STAFF','MANAGER','ADMIN')")
     public List<Card> getAllCards() {
         return repository.findAll();
     }
 
-    // Retrieve specific card details by card ID
+    // 🔍 MANAGER can view card details
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('STAFF','MANAGER','ADMIN')")
     public Card getCardById(@PathVariable Long id) {
         return repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Card not found"));
     }
 
-    // Normally, card creation is done via PendingRequest (Maker–Checker approval flow)
-    // This endpoint is only used for direct testing or by system admin
+    // ✏️ STAFF creates cards (normally via PendingRequest)
     @PostMapping
+    @PreAuthorize("hasRole('STAFF')")
     public Card createCard(@RequestBody Card card) {
         return repository.save(card);
     }
 
-    // Update an existing card’s type or status
+    // ✏️ STAFF updates card details
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('STAFF')")
     public Card updateCard(@PathVariable Long id, @RequestBody Card updated) {
         return repository.findById(id).map(c -> {
             c.setCardType(updated.getCardType());
@@ -46,8 +51,9 @@ public class CardController {
         }).orElseThrow(() -> new RuntimeException("Card not found"));
     }
 
-    // Delete a card record by ID
+    // ❌ STAFF deletes card (via PendingRequest)
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('STAFF')")
     public void deleteCard(@PathVariable Long id) {
         repository.deleteById(id);
     }

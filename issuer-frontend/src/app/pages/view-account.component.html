@@ -1,0 +1,84 @@
+<app-top-navbar></app-top-navbar>
+
+<div class="page-container">
+  <div class="page-header">
+    <h2>Account Details</h2>
+  </div>
+
+  <div class="card view-account-card" *ngIf="account">
+
+    <div class="form-section">
+      <h3>Account Information</h3>
+      <div class="form-grid">
+
+        <div class="form-group">
+          <label>Customer No</label>
+          <input type="text" [value]="account.customer?.customerNo + ' - ' + account.customer?.name" readonly class="readonly-field">
+        </div>
+
+        <div class="form-group">
+          <label>Account No</label>
+          <input type="text" [value]="account.accountNumber || 'N/A'" readonly class="readonly-field">
+        </div>
+
+        <div class="form-group">
+          <label>Account Type</label>
+          <input type="text" [value]="account.accountType || 'N/A'" readonly class="readonly-field">
+        </div>
+
+        <div class="form-group">
+          <label>Currency</label>
+          <input type="text" [value]="account.currency || 'N/A'" readonly class="readonly-field">
+        </div>
+
+        <div class="form-group">
+          <label>Initial Balance</label>
+          <input type="text" [value]="account.balance !== null ? account.balance : 'N/A'" readonly class="readonly-field">
+        </div>
+
+        <div class="form-group">
+          <label>Credit Limit</label>
+          <input type="text" [value]="account.creditLimit !== null ? account.creditLimit : 'N/A'" readonly class="readonly-field">
+        </div>
+
+        <div class="form-group">
+          <label>Billing Cycle</label>
+          <input type="text" [value]="account.billingCycle || 'N/A'" readonly class="readonly-field">
+        </div>
+
+        <div class="form-group">
+          <label>Interest Rate (%)</label>
+          <input type="text" [value]="account.interestRate !== null ? account.interestRate : 'N/A'" readonly class="readonly-field">
+        </div>
+
+        <div class="form-group">
+          <label>Open Date</label>
+          <input type="text" [value]="account.openDate || 'N/A'" readonly class="readonly-field">
+        </div>
+
+        <div class="form-group">
+          <label>Status</label>
+          <input type="text" [value]="account.status || 'N/A'" readonly class="readonly-field">
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Rejected Reason Section -->
+    <div class="rejection-reason" *ngIf="requestStatus === 'REJECTED'">
+      <h3>Rejected Reason</h3>
+      <p>{{ rejectionReason }}</p>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="form-actions">
+      <button type="button" class="cancel-btn" (click)="goBack()">{{ backLabel }}</button>
+    </div>
+
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="!account" class="loading-state">
+    <p>Loading account details...</p>
+  </div>
+</div>

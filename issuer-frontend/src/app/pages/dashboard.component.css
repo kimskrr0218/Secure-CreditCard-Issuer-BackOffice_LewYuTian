@@ -8,7 +8,7 @@ body {
 .dashboard-container {
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  min-height: 100vh;
 }
 
 .topbar {
@@ -29,7 +29,13 @@ body {
 .user-info {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 14px;
+}
+
+.welcome-text {
+  font-size: 0.92rem;
+  font-weight: 500;
+  color: #cbd5e1;
 }
 
 .user-info button {
@@ -47,15 +53,86 @@ body {
 
 .content {
   text-align: center;
-  margin-top: 40px;
+  margin-top: 24px;
   flex: 1;
+  padding: 0 2rem 2rem;
 }
 
-h1 {
-  font-size: 1.8rem;
-  margin-bottom: 30px;
-  color: #222;
+/* ================= SYSTEM OVERVIEW ================= */
+
+.overview-section {
+  max-width: 1100px;
+  margin: 0 auto 30px auto;
+  text-align: left;
 }
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+
+.summary-card {
+  background: white;
+  border-radius: 14px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  padding: 22px 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  border-left: 4px solid transparent;
+}
+
+.summary-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+}
+
+.summary-icon {
+  font-size: 2rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.summary-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.summary-number {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #1e293b;
+  line-height: 1;
+}
+
+.summary-label {
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+/* Color accents per card type */
+.summary-card.customers { border-left-color: #2563eb; }
+.summary-card.accounts { border-left-color: #059669; }
+.summary-card.cards-stat { border-left-color: #0891b2; }
+.summary-card.pending { border-left-color: #f59e0b; }
+.summary-card.blocked { border-left-color: #ef4444; }
+.summary-card.rejected { border-left-color: #dc2626; }
+.summary-card.inactive { border-left-color: #94a3b8; }
+
+.summary-loading {
+  text-align: center;
+  padding: 30px;
+  color: #64748b;
+  font-size: 0.95rem;
+}
+
+/* ================= NAVIGATION CARDS ================= */
 
 .cards-container {
   display: flex;
@@ -88,4 +165,22 @@ h1 {
 .card p {
   color: #555;
   font-size: 0.95rem;
+}
+
+/* ================= RESPONSIVE ================= */
+
+@media (max-width: 1024px) {
+  .summary-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .summary-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .content {
+    padding: 0 1rem 1rem;
+  }
 }

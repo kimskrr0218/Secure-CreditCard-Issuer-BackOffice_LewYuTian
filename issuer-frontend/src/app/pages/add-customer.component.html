@@ -1,0 +1,206 @@
+<app-top-navbar></app-top-navbar>
+
+<div class="page-container">
+  <div class="page-header">
+    <h2>Add Customer</h2>
+  </div>
+
+  <div class="card add-customer-card">
+    <form [formGroup]="customerForm" (ngSubmit)="onSubmit()">
+      
+      <!-- Personal Information -->
+      <div class="form-section">
+        <h3>Personal Information</h3>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>First Name *</label>
+            <input type="text" formControlName="firstName" placeholder="Enter first name">
+            <div class="error" *ngIf="customerForm.get('firstName')?.touched && customerForm.get('firstName')?.invalid">
+              <small>First Name is required</small>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Last Name *</label>
+            <input type="text" formControlName="lastName" placeholder="Enter last name">
+            <div class="error" *ngIf="customerForm.get('lastName')?.touched && customerForm.get('lastName')?.invalid">
+              <small>Last Name is required</small>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Gender *</label>
+            <select formControlName="gender">
+              <option value="" disabled>Select Gender</option>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+              <option value="Other">Other</option>
+            </select>
+            <div class="error" *ngIf="customerForm.get('gender')?.touched && customerForm.get('gender')?.invalid">
+              <small>Gender is required</small>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Nationality *</label>
+            <select formControlName="nationality">
+              <option value="" disabled>Select Nationality</option>
+              <option *ngFor="let n of nationalities" [value]="n">{{ n }}</option>
+            </select>
+            <div class="error" *ngIf="customerForm.get('nationality')?.touched && customerForm.get('nationality')?.invalid">
+              <small>Nationality is required</small>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Company Name</label>
+            <input type="text" formControlName="companyName" placeholder="Company Name (optional)">
+            <div class="error"></div>
+          </div>
+          <div class="form-group">
+            <label>Date of Birth *</label>
+            <input type="date" formControlName="dob">
+            <div class="error" *ngIf="customerForm.get('dob')?.touched && customerForm.get('dob')?.invalid">
+              <small>Date of Birth is required</small>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Identification Number *</label>
+            <input type="text" formControlName="idNumber" placeholder="ID Number">
+            <div class="error" *ngIf="customerForm.get('idNumber')?.touched && customerForm.get('idNumber')?.invalid">
+              <small>ID Number is required</small>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Contact Information -->
+      <div class="form-section">
+        <h3>Contact Information</h3>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Email</label>
+            <input type="email" formControlName="email" placeholder="example@email.com">
+            <div class="error" *ngIf="customerForm.get('email')?.touched && customerForm.get('email')?.invalid">
+              <small *ngIf="customerForm.get('email')?.errors?.['required']">Email is required</small>
+              <small *ngIf="customerForm.get('email')?.errors?.['email']">Enter a valid email address</small>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Phone Number</label>
+            <input type="text" formControlName="phoneNumber" placeholder="Phone Number">
+            <div class="error" *ngIf="customerForm.get('phoneNumber')?.touched && customerForm.get('phoneNumber')?.invalid">
+              <small>Phone Number is required</small>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Address Information -->
+      <div class="form-section">
+        <h3>Address Information</h3>
+        <div class="form-grid">
+          <div class="form-group full-width">
+            <label>Home Address</label>
+            <input type="text" formControlName="homeAddress" placeholder="Enter residential address">
+            <div class="error" *ngIf="customerForm.get('homeAddress')?.touched && customerForm.get('homeAddress')?.invalid">
+              <small>Home Address is required</small>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Financial Information -->
+      <div class="form-section">
+        <h3>Financial Information</h3>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Employment Status *</label>
+            <select formControlName="employmentStatus">
+              <option value="" disabled>Select Employment Status</option>
+              <option value="Full-time">Full-time</option>
+              <option value="Part-time">Part-time</option>
+              <option value="Self-employed">Self-employed</option>
+              <option value="Unemployed">Unemployed</option>
+            </select>
+            <div class="error" *ngIf="customerForm.get('employmentStatus')?.touched && customerForm.get('employmentStatus')?.invalid">
+              <small>Employment Status is required</small>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Gross Annual Income *</label>
+            <input type="number" formControlName="annualIncome" placeholder="0.00">
+            <div class="error" *ngIf="customerForm.get('annualIncome')?.touched && customerForm.get('annualIncome')?.invalid">
+              <small>Gross Annual Income is required</small>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Employer Name *</label>
+            <input type="text" formControlName="employerName" placeholder="Employer Name">
+            <div class="error" *ngIf="customerForm.get('employerName')?.touched && customerForm.get('employerName')?.invalid">
+              <small>Employer Name is required</small>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- System Information -->
+      <div class="form-section">
+        <h3>System Information</h3>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Organization</label>
+            <select formControlName="organization">
+              <option value="" disabled>Select Organization</option>
+              <option value="Retail Banking">Retail Banking</option>
+              <option value="Private Banking">Private Banking</option>
+            </select>
+            <div class="error" *ngIf="customerForm.get('organization')?.touched && customerForm.get('organization')?.invalid">
+              <small>Organization is required</small>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Currency</label>
+            <select formControlName="currency">
+              <option value="" disabled>Select Currency</option>
+              <option value="USD">USD</option>
+              <option value="MYR">MYR</option>
+              <option value="EUR">EUR</option>
+              <option value="SGD">SGD</option>
+            </select>
+            <div class="error" *ngIf="customerForm.get('currency')?.touched && customerForm.get('currency')?.invalid">
+              <small>Currency is required</small>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Customer Type</label>
+            <select formControlName="type">
+              <option value="" disabled>Select Type</option>
+              <option value="INDIVIDUAL">Individual</option>
+              <option value="CORPORATE">Corporate</option>
+            </select>
+            <div class="error" *ngIf="customerForm.get('type')?.touched && customerForm.get('type')?.invalid">
+              <small>Customer Type is required</small>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="cancel-btn" (click)="cancel()">Cancel</button>
+        <button type="submit" class="submit-btn">Submit for Approval</button>
+      </div>
+
+    </form>
+  </div>
+</div>
+
+<!-- ================= MESSAGE MODAL ================= -->
+<div *ngIf="showMessageModal" class="modal-overlay">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Message</h3>
+      <button class="close-btn" (click)="closeMessage()">&times;</button>
+    </div>
+    <p>{{ modalMessage }}</p>
+    <div class="modal-actions">
+      <button class="submit-btn" (click)="closeMessage()">OK</button>
+    </div>
+  </div>
+</div>

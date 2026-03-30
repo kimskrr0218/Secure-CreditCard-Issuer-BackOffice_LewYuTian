@@ -1,0 +1,129 @@
+<app-top-navbar></app-top-navbar>
+
+<div class="page-container">
+  <div class="page-header">
+    <h2>Add Customer Account</h2>
+  </div>
+
+  <div class="card add-customer-card">
+    <form [formGroup]="accountForm" (ngSubmit)="onSubmit()">
+      
+      <!-- Account Information -->
+      <div class="form-section">
+        <h3>Account Information</h3>
+        <div class="form-grid">
+          
+          <div class="form-group">
+            <label>Customer No</label>
+            <select formControlName="customerId">
+              <option value="" disabled>Select Customer</option>
+              <option *ngFor="let c of customers" [value]="c.id">
+                {{ c.customerNo }} - {{ c.name }}
+              </option>
+            </select>
+            <div class="error" *ngIf="accountForm.get('customerId')?.touched && accountForm.get('customerId')?.invalid">
+              <small>Customer is required</small>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Account No</label>
+            <input type="text" formControlName="accountNumber" readonly>
+            <div class="error"></div>
+          </div>
+
+          <div class="form-group">
+            <label>Account Type</label>
+            <input type="text" formControlName="accountType" readonly class="readonly-field">
+          </div>
+
+          <div class="form-group">
+            <label>Currency *</label>
+            <select formControlName="currency">
+              <option value="" disabled>Select Currency</option>
+              <option value="USD">USD</option>
+              <option value="EUR">EUR</option>
+              <option value="GBP">GBP</option>
+              <option value="MYR">MYR</option>
+              <option value="SGD">SGD</option>
+            </select>
+            <div class="error" *ngIf="accountForm.get('currency')?.touched && accountForm.get('currency')?.invalid">
+              <small>Currency is required</small>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Initial Balance *</label>
+            <input type="number" formControlName="balance" placeholder="0.00">
+            <div class="error" *ngIf="accountForm.get('balance')?.touched && accountForm.get('balance')?.invalid">
+              <small>Initial Balance is required</small>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Credit Limit *</label>
+            <input type="number" formControlName="creditLimit" placeholder="0.00">
+            <div class="error" *ngIf="accountForm.get('creditLimit')?.touched && accountForm.get('creditLimit')?.invalid">
+              <small>Credit Limit is required</small>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Billing Cycle *</label>
+            <select formControlName="billingCycle">
+              <option value="" disabled>Select Billing Cycle</option>
+              <option value="1st of Month">1st of Month</option>
+              <option value="15th of Month">15th of Month</option>
+              <option value="End of Month">End of Month</option>
+            </select>
+            <div class="error" *ngIf="accountForm.get('billingCycle')?.touched && accountForm.get('billingCycle')?.invalid">
+              <small>Billing Cycle is required</small>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Interest Rate (%) *</label>
+            <input type="number" formControlName="interestRate" placeholder="18.0" step="0.1">
+            <div class="error" *ngIf="accountForm.get('interestRate')?.touched && accountForm.get('interestRate')?.invalid">
+              <small>Interest Rate is required</small>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Open Date</label>
+            <input type="date" formControlName="openDate" readonly>
+            <div class="error"></div>
+          </div>
+
+          <div class="form-group">
+            <label>Initial Status</label>
+            <input type="text" value="INACTIVE" readonly class="readonly-field">
+            <div class="field-hint">New accounts start as INACTIVE and require manager approval to become ACTIVE before cards can be issued.</div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="form-actions">
+        <button type="button" class="cancel-btn" (click)="cancel()">Cancel</button>
+        <button type="submit" class="submit-btn">Submit Account Request</button>
+      </div>
+
+    </form>
+  </div>
+</div>
+
+<!-- SUCCESS MODAL -->
+<div *ngIf="showMessageModal" class="modal-overlay">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Message</h3>
+      <button class="close-btn" (click)="closeMessage()">&times;</button>
+    </div>
+    <p>{{ modalMessage }}</p>
+    <div class="modal-actions">
+      <button class="submit-btn" (click)="closeMessage()">OK</button>
+    </div>
+  </div>
+</div>

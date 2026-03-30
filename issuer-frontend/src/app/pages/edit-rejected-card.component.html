@@ -1,0 +1,111 @@
+<app-top-navbar></app-top-navbar>
+
+<div class="page-container">
+  <div class="page-header">
+    <h2>Edit Rejected Card Request</h2>
+  </div>
+
+  <div class="card add-customer-card" *ngIf="!loading">
+
+    <!-- Rejected Reason -->
+    <div class="rejection-reason" *ngIf="rejectionReason">
+      <h3>Rejected Reason</h3>
+      <p>{{ rejectionReason }}</p>
+    </div>
+
+    <form [formGroup]="cardForm" (ngSubmit)="onResubmit()">
+
+      <div class="form-section">
+        <h3>Card Configuration</h3>
+        <div class="form-grid">
+
+          <div class="form-group">
+            <label>Linked Account</label>
+            <input type="text" [value]="accountDisplay || 'N/A'" readonly class="readonly-field">
+          </div>
+
+          <div class="form-group">
+            <label>Customer</label>
+            <input type="text" [value]="customerDisplay || 'N/A'" readonly class="readonly-field">
+          </div>
+
+          <div class="form-group">
+            <label>Card Number</label>
+            <input type="text" [value]="cardNumberDisplay" readonly class="readonly-field">
+          </div>
+
+          <div class="form-group">
+            <label>Card Type (Tier) *</label>
+            <select formControlName="cardType">
+              <option value="" disabled>Select Card Tier</option>
+              <option value="Classic">Classic</option>
+              <option value="Gold">Gold</option>
+              <option value="Platinum">Platinum</option>
+            </select>
+            <div class="error" *ngIf="cardForm.get('cardType')?.touched && cardForm.get('cardType')?.invalid">
+              <small>Card Type is required.</small>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Card Brand *</label>
+            <select formControlName="cardBrand">
+              <option value="" disabled>Select Card Brand</option>
+              <option value="VISA">VISA</option>
+              <option value="MASTERCARD">MASTERCARD</option>
+              <option value="AMEX">AMEX</option>
+            </select>
+            <div class="error" *ngIf="cardForm.get('cardBrand')?.touched && cardForm.get('cardBrand')?.invalid">
+              <small>Card Brand is required.</small>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Card Mode *</label>
+            <select formControlName="cardMode">
+              <option value="PHYSICAL">PHYSICAL</option>
+              <option value="VIRTUAL">VIRTUAL</option>
+            </select>
+            <div class="error" *ngIf="cardForm.get('cardMode')?.touched && cardForm.get('cardMode')?.invalid">
+              <small>Card Mode is required.</small>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Cardholder Name *</label>
+            <input type="text" formControlName="cardHolderName" placeholder="Name on Card">
+            <div class="error" *ngIf="cardForm.get('cardHolderName')?.touched && cardForm.get('cardHolderName')?.invalid">
+              <small>Cardholder Name is required.</small>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="cancel-btn" (click)="cancel()">Cancel</button>
+        <button type="submit" class="resubmit-btn">Resubmit Request</button>
+      </div>
+
+    </form>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-state">
+    <p>Loading request details...</p>
+  </div>
+</div>
+
+<!-- ================= MESSAGE MODAL ================= -->
+<div *ngIf="showMessageModal" class="modal-overlay">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Message</h3>
+      <button class="close-btn" (click)="closeMessage()">&times;</button>
+    </div>
+    <p>{{ modalMessage }}</p>
+    <div class="modal-actions">
+      <button class="resubmit-btn" (click)="closeMessage()">OK</button>
+    </div>
+  </div>
+</div>

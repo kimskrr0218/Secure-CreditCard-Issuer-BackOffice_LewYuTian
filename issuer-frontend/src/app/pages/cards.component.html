@@ -1,42 +1,310 @@
-<h2>Card Management</h2>
+<app-top-navbar></app-top-navbar>
 
-<form [formGroup]="cardForm" (ngSubmit)="onSubmit()">
-  <label>Account:</label>
-  <select formControlName="accountId" required>
-    <option value="" disabled selected>Select an account</option>
-    <option *ngFor="let acc of accounts" [value]="acc.id">
-      {{ acc.accountNumber }} ({{ acc.accountType }})
-    </option>
-  </select>
+<div class="page-container">
+  <div class="page-header">
+    <h2>Credit Card Management</h2>
+  </div>
 
-  <label>Card Type:</label>
-  <select formControlName="cardType" required>
-    <option value="" disabled selected>Select a card type</option>
-    <option value="CREDIT CARD - SILVER">Credit Card - Silver</option>
-    <option value="CREDIT CARD - GOLD">Credit Card - Gold</option>
-    <option value="CREDIT CARD - PLATINUM">Credit Card - Platinum</option>
-  </select>
+  <div class="content-layout">
 
-  <button type="submit" [disabled]="cardForm.invalid">
-    {{ isEditing ? 'Submit Update Request' : 'Submit Create Request' }}
-  </button>
+    <!-- ================= FILTER PANEL ================= -->
+    <div class="filter-panel card">
+      <h3>Filters</h3>
 
-  <button type="button" *ngIf="isEditing" (click)="cancelEdit()">Cancel</button>
-</form>
+      <div class="filter-group">
+        <label>Customer No / Name</label>
+        <input type="text" [(ngModel)]="filterCustomer" (keyup.enter)="applyFilters()" placeholder="CUST-1001" />
+      </div>
 
-<hr />
+      <div class="filter-group">
+        <label>Card Tier</label>
+        <select [(ngModel)]="filterType" (change)="applyFilters()">
+          <option value="">All Types</option>
+          <option value="Classic">Classic</option>
+          <option value="Gold">Gold</option>
+          <option value="Platinum">Platinum</option>
+        </select>
+      </div>
 
-<h3>Existing Cards</h3>
-<div *ngIf="loading">Loading cards...</div>
+      <div class="filter-group">
+        <label>Keyword</label>
+        <input type="text" [(ngModel)]="keyword" (keyup.enter)="applyFilters()" placeholder="Card Number" />
+      </div>
 
-<ul *ngIf="!loading && cards.length > 0">
-  <li *ngFor="let c of cards">
-    <strong>{{ c.cardNumber }}</strong> — {{ c.cardType }} ({{ c.status }})
-    <button (click)="edit(c)">Edit</button>
-    <button (click)="delete(c.id!)">Delete</button>
-  </li>
-</ul>
+      <button class="search-btn" (click)="applyFilters()">
+        <span>SEARCH</span>
+      </button>
 
-<div *ngIf="!loading && cards.length === 0">
-  No cards available.
+    </div>
+
+    <!-- ================= MAIN SECTION ================= -->
+    <div class="main-section">
+
+      <!-- ACTION BAR -->
+      <div class="top-bar">
+        <div class="tabs">
+          <button class="tab active">Live</button>
+        </div>
+
+        <button class="create-btn" *ngIf="isStaff" (click)="navigateToAdd()">
+          + Card
+        </button>
+      </div>
+
+      <!-- ================= LIVE CARDS ================= -->
+      <div class="card">
+        <h3>Live Cards</h3>
+
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>No.</th>
+              <th>Card Number</th>
+              <th>Cardholder Name</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngIf="loading">
+              <td colspan="5" class="empty">Loading cards...</td>
+            </tr>
+            <tr *ngIf="!loading && filteredCards.length === 0">
+              <td colspan="5" class="empty">No Cards Available</td>
+            </tr>
+            <tr *ngFor="let card of filteredCards; let i = index">
+              <td>{{ i + 1 }}</td>
+              <td>{{ maskCardNumber(card.cardNumber) }}</td>
+              <td>{{ card.cardHolderName || card.customer?.name || 'N/A' }}</td>
+              <td>
+                <span class="badge" [ngClass]="{
+                    'active': card.status === 'ACTIVE',
+                    'blocked': card.status === 'BLOCKED',
+                    'inactive': card.status === 'INACTIVE',
+                    'deactivated': card.status === 'DEACTIVATED'
+                  }">
+                  {{ card.status }}
+                </span>
+              </td>
+              <td class="actions">
+                <!-- ACTIVE -->
+                <ng-container *ngIf="card.status === 'ACTIVE'">
+                  <button class="view-btn" (click)="viewLiveCard(card.id)">View</button>
+                  <button class="edit-btn" *ngIf="isStaff && !card.issued" (click)="editCard(card.id)">Edit</button>
+                  <button class="issue-btn" *ngIf="isStaff && !card.issued" (click)="issueCard(card.id)">Issue Card</button>
+                  <button class="block-btn" *ngIf="isStaff" (click)="blockCard(card)">Block</button>
+                  <span class="badge issued" *ngIf="card.issued">Issued</span>
+                </ng-container>
+                <!-- BLOCKED -->
+                <ng-container *ngIf="card.status === 'BLOCKED'">
+                  <button class="view-btn" (click)="viewLiveCard(card.id)">View</button>
+                  <button class="replace-btn" *ngIf="isStaff" (click)="replaceCard(card)">Replace</button>
+                  <button class="delete-btn" *ngIf="isStaff" (click)="deactivateCard(card.id)">Deactivate</button>
+                </ng-container>
+                <!-- INACTIVE -->
+                <ng-container *ngIf="card.status === 'INACTIVE'">
+                  <button class="view-btn" (click)="viewLiveCard(card.id)">View</button>
+                  <button class="activate-btn" *ngIf="isStaff" (click)="activateCard(card.id)">Activate</button>
+                </ng-container>
+                <!-- DEACTIVATED -->
+                <ng-container *ngIf="card.status === 'DEACTIVATED'">
+                  <button class="view-btn" (click)="viewLiveCard(card.id)">View</button>
+                  <button class="delete-btn" *ngIf="isStaff" (click)="deleteCard(card.id)">Delete</button>
+                </ng-container>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- ================= REJECTED REQUESTS ================= -->
+      <div class="card">
+        <h3>Rejected Card Requests</h3>
+
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>No.</th>
+              <th>Card Number</th>
+              <th>Cardholder Name</th>
+              <th>Operation</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngIf="!loading && rejectedRequests.length === 0">
+              <td colspan="6" class="empty">
+                No Rejected / Draft Requests
+              </td>
+            </tr>
+            <tr *ngFor="let req of rejectedRequests; let i = index">
+              <td>{{ i + 1 }}</td>
+              <td>{{ req.parsedPayload?.cardNumber ? maskCardNumber(req.parsedPayload.cardNumber) : 'N/A' }}</td>
+              <td>{{ req.parsedPayload?.cardHolderName || req.customerNo || 'N/A' }}</td>
+              <td>
+                <span class="badge" [ngClass]="{
+                  'blocked': req.operation === 'BLOCK',
+                  'active': req.operation === 'CREATE' || req.operation === 'ACTIVATE',
+                  'inactive': req.operation === 'DEACTIVATE',
+                  'issued': req.operation === 'ISSUE',
+                  'pending': req.operation === 'REPLACE' || req.operation === 'UPDATE'
+                }">
+                  {{ req.operation }}
+                </span>
+              </td>
+              <td>
+                <span class="badge rejected">{{ req.status }}</span>
+              </td>
+              <td class="actions">
+                <button class="view-btn" (click)="viewPendingCard(req.id)">View</button>
+                <button class="edit-btn" *ngIf="isStaff && (req.operation === 'CREATE' || req.operation === 'UPDATE')" (click)="editRejectedRequest(req)">Edit</button>
+                <button class="delete-btn" *ngIf="isStaff" (click)="removeRejected(req.id)">Remove</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- ================= PENDING REQUESTS ================= -->
+      <div class="card">
+        <h3>Pending Approval Requests</h3>
+
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>No.</th>
+              <th>Card Number</th>
+              <th>Cardholder Name</th>
+              <th>Operation</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngIf="!loading && pendingRequests.length === 0">
+              <td colspan="6" class="empty">Nothing Pending</td>
+            </tr>
+            <tr *ngFor="let req of pendingRequests; let i = index">
+              <td>{{ i + 1 }}</td>
+              <td>{{ req.parsedPayload?.cardNumber ? maskCardNumber(req.parsedPayload.cardNumber) : 'N/A' }}</td>
+              <td>{{ req.parsedPayload?.cardHolderName || req.customerNo || 'N/A' }}</td>
+              <td>
+                <span class="badge" [ngClass]="{
+                  'blocked': req.operation === 'BLOCK',
+                  'active': req.operation === 'CREATE' || req.operation === 'ACTIVATE',
+                  'inactive': req.operation === 'DEACTIVATE',
+                  'issued': req.operation === 'ISSUE',
+                  'pending': req.operation === 'REPLACE' || req.operation === 'UPDATE'
+                }">
+                  {{ req.operation }}
+                </span>
+              </td>
+              <td>
+                <span class="badge pending">{{ req.status }}</span>
+              </td>
+              <td class="actions">
+                <button class="view-btn" (click)="viewPendingCard(req.id)">View</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ================= CONFIRM MODAL ================= -->
+<div *ngIf="showConfirmModal" class="modal-overlay">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Confirm Action</h3>
+      <button class="close-btn" (click)="cancelConfirm()">&times;</button>
+    </div>
+    <p>{{ confirmMessage }}</p>
+    <div class="modal-actions">
+      <button class="cancel-btn" (click)="cancelConfirm()">Cancel</button>
+      <button class="submit-btn" (click)="executeConfirm()">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================= MESSAGE MODAL ================= -->
+<div *ngIf="showMessageModal" class="modal-overlay">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Message</h3>
+      <button class="close-btn" (click)="closeMessage()">&times;</button>
+    </div>
+    <p>{{ modalMessage }}</p>
+    <div class="modal-actions">
+      <button class="submit-btn" (click)="closeMessage()">OK</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================= BLOCK CARD MODAL ================= -->
+<div *ngIf="showBlockModal" class="modal-overlay">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Block Card</h3>
+      <button class="close-btn" (click)="cancelBlock()">&times;</button>
+    </div>
+
+    <div class="modal-body">
+      <div class="form-row">
+        <label>Reason for Blocking *</label>
+        <select [(ngModel)]="blockReason" class="modal-select">
+          <option value="" disabled>Select Reason</option>
+          <option *ngFor="let r of blockReasons" [value]="r">{{ r }}</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <label>Additional Notes (optional)</label>
+        <textarea [(ngModel)]="blockNotes" rows="3" placeholder="Enter additional details..."></textarea>
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="cancel-btn" (click)="cancelBlock()">Cancel</button>
+      <button class="submit-btn" (click)="submitBlock()" [disabled]="!blockReason">Submit Block Request</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================= REPLACE CARD MODAL ================= -->
+<div *ngIf="showReplaceModal" class="modal-overlay">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Replace Card</h3>
+      <button class="close-btn" (click)="cancelReplace()">&times;</button>
+    </div>
+
+    <div class="modal-body">
+      <div class="info-row" *ngIf="replaceOldCard">
+        <span class="info-label">Old Card Number:</span>
+        <span class="info-value">{{ maskCardNumber(replaceOldCard.cardNumber) }}</span>
+      </div>
+      <div class="info-row" *ngIf="replaceOldCard">
+        <span class="info-label">Card Type:</span>
+        <span class="info-value">{{ replaceOldCard.cardBrand }} {{ replaceOldCard.cardType }}</span>
+      </div>
+      <div class="info-row" *ngIf="replaceOldCard">
+        <span class="info-label">New Card Status:</span>
+        <span class="badge inactive">INACTIVE</span>
+        <span class="info-hint">(Must be activated after approval)</span>
+      </div>
+
+      <div class="form-row" style="margin-top: 16px;">
+        <label>Cardholder Name *</label>
+        <input type="text" [(ngModel)]="replaceCardHolderName" placeholder="Name on new card">
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="cancel-btn" (click)="cancelReplace()">Cancel</button>
+      <button class="submit-btn" (click)="submitReplace()" [disabled]="!replaceCardHolderName.trim()">Submit Replacement Request</button>
+    </div>
+  </div>
 </div>

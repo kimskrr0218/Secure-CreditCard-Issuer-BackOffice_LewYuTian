@@ -1,8 +1,14 @@
 package com.example.backend.entity;
 
 import jakarta.persistence.*;
+import lombok.*;
+
+import java.time.LocalDateTime;
 
 @Entity
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "cards")
 public class Card {
 
@@ -10,32 +16,35 @@ public class Card {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "account_id", nullable = false)
-    private Account account;   // each card belongs to an account
-
     @Column(nullable = false, unique = true)
     private String cardNumber; // auto-generated, unique
 
     @Column(name = "card_type", nullable = false)
-    private String cardType;   // CREDIT CARD - GOLD
+    private String cardType;   // Classic, Gold, Platinum
+
+    private String cardBrand;  // VISA, MASTERCARD, AMEX
+
+    private String cardMode;   // PHYSICAL, VIRTUAL
+
+    private String cardHolderName;
+
+    private String expiryDate;
+
+    private String cvv;
+
+    private LocalDateTime createdDate;
 
     @Column(nullable = false)
-    private String status = "INACTIVE"; // default: INACTIVE until approved
+    private String status = "PENDING"; // default: PENDING until approved
 
-    // --- Getters & Setters ---
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    @Column(nullable = false)
+    private boolean issued = false; // true after ISSUE approval — card is sent to customer
 
-    public Account getAccount() { return account; }
-    public void setAccount(Account account) { this.account = account; }
+    @ManyToOne
+    @JoinColumn(name = "customer_id", nullable = false)
+    private Customer customer;
 
-    public String getCardNumber() { return cardNumber; }
-    public void setCardNumber(String cardNumber) { this.cardNumber = cardNumber; }
-
-    public String getCardType() { return cardType; }
-    public void setCardType(String cardType) { this.cardType = cardType; }
-
-    public String getStatus() { return status; }
-    public void setStatus(String status) { this.status = status; }
+    @ManyToOne
+    @JoinColumn(name = "account_id", nullable = false)
+    private Account account;
 }

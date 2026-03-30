@@ -1,0 +1,85 @@
+<app-top-navbar></app-top-navbar>
+
+<div class="page-container">
+  <div class="page-header">
+    <h2>Credit Card Details</h2>
+  </div>
+
+  <div class="card view-card-card" *ngIf="card">
+
+    <div class="form-section">
+      <h3>Card Information</h3>
+      <div class="form-grid">
+
+        <div class="form-group" *ngIf="card.account">
+          <label>Linked Account</label>
+          <input type="text" [value]="card.account?.accountNumber ? (card.account.accountNumber + ' (' + (card.account.currency || '') + ')') : 'N/A'" readonly class="readonly-field">
+        </div>
+
+        <div class="form-group" *ngIf="card.customer || card.customerName">
+          <label>Customer</label>
+          <input type="text" [value]="card.customer ? (card.customer.customerNo + ' - ' + card.customer.name) : (card.customerName || 'N/A')" readonly class="readonly-field">
+        </div>
+
+        <div class="form-group">
+          <label>Cardholder Name</label>
+          <input type="text" [value]="card.cardHolderName || card.customerName || 'N/A'" readonly class="readonly-field">
+        </div>
+
+        <div class="form-group">
+          <label>Card Number</label>
+          <input type="text" [value]="maskCardNumber(card.cardNumber)" readonly class="readonly-field">
+        </div>
+
+        <div class="form-group">
+          <label>Card Type</label>
+          <input type="text" [value]="card.cardType || 'N/A'" readonly class="readonly-field">
+        </div>
+
+        <div class="form-group">
+          <label>Card Brand</label>
+          <input type="text" [value]="card.cardBrand || 'N/A'" readonly class="readonly-field">
+        </div>
+
+        <div class="form-group">
+          <label>Card Mode</label>
+          <input type="text" [value]="card.cardMode || 'N/A'" readonly class="readonly-field">
+        </div>
+
+        <div class="form-group" *ngIf="card.expiryDate">
+          <label>Expiry Date</label>
+          <input type="text" [value]="card.expiryDate" readonly class="readonly-field">
+        </div>
+
+        <div class="form-group" *ngIf="card.cvv">
+          <label>CVV</label>
+          <!-- Using password type to mask CVV -->
+          <input type="password" [value]="card.cvv" readonly class="readonly-field">
+        </div>
+
+        <div class="form-group">
+          <label>Status</label>
+          <input type="text" [value]="card.status || 'N/A'" readonly class="readonly-field">
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Rejected Reason Section -->
+    <div class="rejection-reason" *ngIf="requestStatus === 'REJECTED'">
+      <h3>Rejected Reason</h3>
+      <p>{{ rejectionReason }}</p>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="form-actions">
+      <button type="button" class="cancel-btn" (click)="goBack()">Back</button>
+    </div>
+
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="!card" class="loading-state">
+    <p>Loading card details...</p>
+  </div>
+</div>
