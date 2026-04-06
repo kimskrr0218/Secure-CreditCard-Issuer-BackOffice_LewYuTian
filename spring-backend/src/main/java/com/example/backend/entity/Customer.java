@@ -3,6 +3,7 @@ package com.example.backend.entity;
 import com.example.backend.enums.CustomerStatus;
 import com.example.backend.enums.CustomerType;
 import com.example.backend.util.SensitiveFieldConverter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
@@ -36,10 +37,12 @@ public class Customer {
     private String companyName;
     private LocalDate dob;
 
+    @JsonIgnore
     @Convert(converter = SensitiveFieldConverter.class)
     @Column(length = 512)
     private String idNumber; // encrypted at rest
 
+    @JsonIgnore
     @Convert(converter = SensitiveFieldConverter.class)
     @Column(length = 512)
     private String phoneNumber; // encrypted at rest

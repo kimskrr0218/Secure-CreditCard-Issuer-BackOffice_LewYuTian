@@ -3,6 +3,7 @@ import { Router, RouterLink, RouterOutlet, NavigationEnd } from '@angular/router
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
 import { CommonModule } from '@angular/common';
+import { HttpClient } from '@angular/common/http';
 import { GlobalModalComponent } from './components/global-modal.component';
 import { ChatWidgetComponent } from './components/chat-widget.component';
 
@@ -20,7 +21,7 @@ import { ChatWidgetComponent } from './components/chat-widget.component';
 export class AppComponent {
   role: string | null = null;
 
-  constructor(private router: Router) {
+  constructor(private router: Router, private http: HttpClient) {
     // Read role at start
     this.role = localStorage.getItem('role');
 
@@ -33,8 +34,17 @@ export class AppComponent {
   }
 
   logout(): void {
-    localStorage.clear();
-    this.role = null;
-    this.router.navigate(['/login']);
+    this.http.post('http://localhost:8080/api/logout', {}, { withCredentials: true }).subscribe({
+      complete: () => {
+        localStorage.clear();
+        this.role = null;
+        this.router.navigate(['/login']);
+      },
+      error: () => {
+        localStorage.clear();
+        this.role = null;
+        this.router.navigate(['/login']);
+      }
+    });
   }
 }

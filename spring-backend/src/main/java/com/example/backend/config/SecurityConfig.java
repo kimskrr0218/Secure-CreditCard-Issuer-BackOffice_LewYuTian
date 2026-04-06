@@ -45,9 +45,10 @@ public class SecurityConfig {
                         // Preflight
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
-                        // Public login
+                        // Public login & logout
                         .requestMatchers(HttpMethod.POST, "/api/login").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/login/verify-2fa").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/logout").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/users/register-request").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/maker-checker/requests").permitAll()
 

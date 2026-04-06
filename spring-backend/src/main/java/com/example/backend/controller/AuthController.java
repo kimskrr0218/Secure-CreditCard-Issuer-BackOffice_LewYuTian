@@ -135,6 +135,17 @@ public class AuthController {
         }
     }
 
+    // ─── Server-side logout: invalidate session & clear context ──────
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(HttpServletRequest request) {
+        SecurityContextHolder.clearContext();
+        jakarta.servlet.http.HttpSession session = request.getSession(false);
+        if (session != null) {
+            session.invalidate();
+        }
+        return ResponseEntity.ok(Map.of("message", "Logged out successfully"));
+    }
+
     // ─── Helper: finish authentication & create session ─────────────
     private ResponseEntity<?> completeLogin(User user, String rawPassword,
                                             HttpServletRequest httpRequest,

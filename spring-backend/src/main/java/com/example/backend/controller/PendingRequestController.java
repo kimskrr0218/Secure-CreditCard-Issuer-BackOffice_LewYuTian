@@ -553,7 +553,7 @@ public class PendingRequestController {
                 .orElseThrow(() -> new RuntimeException("User not found: " + finalTargetUsername));
                     
             String tempPassword = UUID.randomUUID().toString().substring(0,8);
-            System.out.println("Temporary password for " + user.getUsername() + ": " + tempPassword);
+            log.info("Temporary password generated and emailed for user: {}", user.getUsername());
             
             user.setPassword(passwordEncoder.encode(tempPassword));
             user.setForcePasswordChange(true);

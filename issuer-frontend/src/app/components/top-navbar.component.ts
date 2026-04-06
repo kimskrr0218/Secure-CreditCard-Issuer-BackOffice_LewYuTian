@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-top-navbar',
@@ -98,13 +99,21 @@ export class TopNavbarComponent {
   username: string = '';
   role: string = '';
 
-  constructor(private router: Router) {
+  constructor(private router: Router, private http: HttpClient) {
     this.username = localStorage.getItem('username') || 'Unknown';
     this.role = localStorage.getItem('role') || 'User';
   }
 
   logout() {
-    localStorage.clear();
-    this.router.navigate(['/login']);
+    this.http.post('http://localhost:8080/api/logout', {}, { withCredentials: true }).subscribe({
+      complete: () => {
+        localStorage.clear();
+        this.router.navigate(['/login']);
+      },
+      error: () => {
+        localStorage.clear();
+        this.router.navigate(['/login']);
+      }
+    });
   }
 }

@@ -58,7 +58,15 @@ export class DashboardComponent implements OnInit {
   }
 
   logout(): void {
-    localStorage.clear();
-    this.router.navigate(['/login']);
+    this.http.post('http://localhost:8080/api/logout', {}, { withCredentials: true }).subscribe({
+      complete: () => {
+        localStorage.clear();
+        this.router.navigate(['/login']);
+      },
+      error: () => {
+        localStorage.clear();
+        this.router.navigate(['/login']);
+      }
+    });
   }
 }

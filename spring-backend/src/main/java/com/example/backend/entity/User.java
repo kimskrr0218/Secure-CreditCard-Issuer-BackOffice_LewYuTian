@@ -1,6 +1,7 @@
 package com.example.backend.entity;
 
 import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 @Entity
@@ -34,6 +35,7 @@ public class User {
     @Column(name = "two_factor_enabled", nullable = false)
     private Boolean twoFactorEnabled = false;
 
+    @JsonIgnore
     @Column(name = "two_factor_secret")
     private String twoFactorSecret;
 

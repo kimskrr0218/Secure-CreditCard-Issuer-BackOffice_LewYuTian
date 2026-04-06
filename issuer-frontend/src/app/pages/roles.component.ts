@@ -156,7 +156,15 @@ export class RolesComponent implements OnInit {
 
   //  Add logout function to match HTML
   logout(): void {
-    localStorage.clear();
-    this.router.navigate(['/login']);
+    this.http.post('http://localhost:8080/api/logout', {}, { withCredentials: true }).subscribe({
+      complete: () => {
+        localStorage.clear();
+        this.router.navigate(['/login']);
+      },
+      error: () => {
+        localStorage.clear();
+        this.router.navigate(['/login']);
+      }
+    });
   }
 }
