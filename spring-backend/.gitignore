@@ -41,3 +41,7 @@ app.log
 run.log
 local-repo/
 package-lock.json
+
+### Secrets — NEVER commit! ###
+src/main/resources/application-secret.properties
+src/test/resources/application-secret.properties

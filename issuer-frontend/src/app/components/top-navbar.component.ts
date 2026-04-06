@@ -19,6 +19,7 @@ import { Router, RouterModule } from '@angular/router';
         <div class="nav-icon" title="Pending" routerLink="/pending">⏳</div>
       </div>
       <div class="nav-right">
+        <div class="nav-icon profile-icon" title="My Profile" routerLink="/profile">⚙️</div>
         <div class="nav-icon logout-icon" title="Logout" (click)="logout()">🚪</div>
       </div>
     </nav>
@@ -85,6 +86,11 @@ import { Router, RouterModule } from '@angular/router';
     .logout-icon:hover {
       background: rgba(239, 68, 68, 0.25) !important;
       filter: drop-shadow(0 0 8px #ef4444) !important;
+    }
+
+    .profile-icon:hover {
+      background: rgba(56, 189, 248, 0.25) !important;
+      filter: drop-shadow(0 0 8px #38bdf8) !important;
     }
   `]
 })

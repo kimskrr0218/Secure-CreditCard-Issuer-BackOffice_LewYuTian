@@ -33,16 +33,16 @@ public class CardController {
                 .orElseThrow(() -> new RuntimeException("Card not found"));
     }
 
-    // ✏️ STAFF creates cards (normally via PendingRequest)
+    // ✏️ Direct create — MANAGER/ADMIN only (STAFF must go through maker-checker)
     @PostMapping
-    @PreAuthorize("hasRole('STAFF')")
+    @PreAuthorize("hasAnyRole('MANAGER','ADMIN')")
     public Card createCard(@RequestBody Card card) {
         return repository.save(card);
     }
 
-    // ✏️ STAFF updates card details
+    // ✏️ Direct update — MANAGER/ADMIN only (STAFF must go through maker-checker)
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('STAFF')")
+    @PreAuthorize("hasAnyRole('MANAGER','ADMIN')")
     public Card updateCard(@PathVariable Long id, @RequestBody Card updated) {
         return repository.findById(id).map(c -> {
             c.setCardType(updated.getCardType());
@@ -51,9 +51,9 @@ public class CardController {
         }).orElseThrow(() -> new RuntimeException("Card not found"));
     }
 
-    // ❌ STAFF deletes card (via PendingRequest)
+    // ❌ Direct delete — MANAGER/ADMIN only (STAFF must go through maker-checker)
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('STAFF')")
+    @PreAuthorize("hasAnyRole('MANAGER','ADMIN')")
     public void deleteCard(@PathVariable Long id) {
         repository.deleteById(id);
     }

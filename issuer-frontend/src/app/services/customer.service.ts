@@ -4,8 +4,27 @@ import { Observable } from 'rxjs';
 
 export interface Customer {
   id?: number;
+  customerNo?: string;
   name: string;
+  firstName?: string;
+  lastName?: string;
+  gender?: string;
+  nationality?: string;
+  employmentStatus?: string;
+  companyName?: string;
+  dob?: string;
+  idNumber?: string;
+  phoneNumber?: string;
+  maskedIdNumber?: string;
+  maskedPhoneNumber?: string;
+  homeAddress?: string;
+  annualIncome?: number;
+  employerName?: string;
   email: string;
+  organization?: string;
+  currency?: string;
+  type?: string;
+  status?: string;
 }
 
 export interface PendingRequest {

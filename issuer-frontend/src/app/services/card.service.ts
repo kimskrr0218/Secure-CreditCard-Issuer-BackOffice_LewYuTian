@@ -6,13 +6,17 @@ export interface Card {
   id?: number;
   cardNumber?: string;
   cardType: string;
+  cardBrand?: string;
+  cardMode?: string;
   cardHolderName?: string;
   creditLimit?: number;
   availableLimit?: number;
   expiryDate?: string;
   cvv?: string;
   status?: string;
-  account: { id: number };
+  issued?: boolean;
+  customer?: { id: number; name?: string };
+  account: { id: number; accountNumber?: string };
 }
 
 @Injectable({

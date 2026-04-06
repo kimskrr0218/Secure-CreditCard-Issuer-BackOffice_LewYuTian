@@ -18,8 +18,7 @@ public class PendingRequest {
     @Column(nullable = false)
     private String operation;   // CREATE, UPDATE, DELETE
 
-    @Lob
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "TEXT")
     private String payload;     // JSON or text data
 
     @Column(name = "entity_id")

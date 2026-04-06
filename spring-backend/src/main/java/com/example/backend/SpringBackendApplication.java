@@ -4,6 +4,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.scheduling.annotation.EnableAsync;
 
 import com.example.backend.entity.Role;
 import com.example.backend.entity.User;
@@ -12,6 +13,7 @@ import com.example.backend.repository.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 @SpringBootApplication
+@EnableAsync
 public class SpringBackendApplication {
 
     public static void main(String[] args) {

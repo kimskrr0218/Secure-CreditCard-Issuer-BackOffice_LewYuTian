@@ -32,16 +32,16 @@ public class AccountController {
                 .orElseThrow(() -> new RuntimeException("Account not found"));
     }
 
-    // ✏️ Create accounts
+    // ✏️ Direct create — MANAGER/ADMIN only (STAFF must go through maker-checker)
     @PostMapping
-    @PreAuthorize("hasAnyRole('STAFF', 'MANAGER', 'ADMIN')")
+    @PreAuthorize("hasAnyRole('MANAGER','ADMIN')")
     public Account createAccount(@RequestBody Account account) {
         return repository.save(account);
     }
 
-    // ✏️ Update accounts
+    // ✏️ Direct update — MANAGER/ADMIN only (STAFF must go through maker-checker)
     @PutMapping("/{id}")
-    @PreAuthorize("hasAnyRole('STAFF', 'MANAGER', 'ADMIN')")
+    @PreAuthorize("hasAnyRole('MANAGER','ADMIN')")
     public Account updateAccount(@PathVariable Long id, @RequestBody Account updated) {
         return repository.findById(id).map(acc -> {
             acc.setAccountNumber(updated.getAccountNumber());
@@ -52,9 +52,9 @@ public class AccountController {
         }).orElseThrow(() -> new RuntimeException("Account not found"));
     }
 
-    // ❌ Delete accounts
+    // ❌ Direct delete — MANAGER/ADMIN only (STAFF must go through maker-checker)
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAnyRole('STAFF', 'MANAGER', 'ADMIN')")
+    @PreAuthorize("hasAnyRole('MANAGER','ADMIN')")
     public void deleteAccount(@PathVariable Long id) {
         repository.deleteById(id);
     }

@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TopNavbarComponent } from '../components/top-navbar.component';
@@ -37,15 +37,9 @@ export class PendingComponent implements OnInit {
 
     if (!this.selectedRequestId || !this.isManager) return;
 
-    const token = localStorage.getItem('token') || '';
-    const headers = new HttpHeaders({
-      'Authorization': `Bearer ${token}`
-    });
-
     this.http.put(
       `${this.apiUrl}/${this.selectedRequestId}/reject`,
-      { reason: this.rejectReason },
-      { headers, withCredentials: true }
+      { reason: this.rejectReason }
     ).subscribe({
       next: () => {
         this.showRejectModal = false;
@@ -55,7 +49,8 @@ export class PendingComponent implements OnInit {
       },
       error: (err) => {
         console.error('Error rejecting request:', err);
-        this.modalMessage = "Failed to reject request.";
+        const msg = err.error?.error || err.error?.message || 'Failed to reject request.';
+        this.modalMessage = msg;
         this.showMessageModal = true;
       }
     });
@@ -77,7 +72,7 @@ export class PendingComponent implements OnInit {
   // 🔥 ROLE CONTROL
   isManager: boolean = false;
 
-  private apiUrl = 'http://localhost:8080/api/pending';
+  private apiUrl = '/api/pending';
 
   constructor(private http: HttpClient, private router: Router) {}
 
@@ -92,7 +87,7 @@ export class PendingComponent implements OnInit {
   }
 
   loadRequests(): void {
-    this.http.get<any[]>(this.apiUrl, { withCredentials: true }).subscribe({
+    this.http.get<any[]>(this.apiUrl).subscribe({
       next: (data) => {
         this.requests = data.map(req => {
           let parsed = {};
@@ -140,15 +135,9 @@ export class PendingComponent implements OnInit {
 
     if (!this.isManager) return; // extra safety
 
-    const token = localStorage.getItem('token') || '';
-    const headers = new HttpHeaders({
-      'Authorization': `Bearer ${token}`
-    });
-
     this.http.put(
       `${this.apiUrl}/${id}/approve`,
-      {},
-      { headers, withCredentials: true }
+      {}
     ).subscribe({
       next: () => {
         this.modalMessage = "Request approved successfully.";
@@ -157,8 +146,9 @@ export class PendingComponent implements OnInit {
       },
       error: (err) => {
         console.error('Error approving request:', err);
-        this.modalMessage = "Failed to approve request.";
-          this.showMessageModal = true;
+        const msg = err.error?.error || err.error?.message || 'Failed to approve request.';
+        this.modalMessage = msg;
+        this.showMessageModal = true;
       }
     });
   }

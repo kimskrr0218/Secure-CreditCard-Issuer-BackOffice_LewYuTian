@@ -1,18 +1,83 @@
-# System files
+# ========================================
+# OS-generated files
+# ========================================
 .DS_Store
 Thumbs.db
-
-# IDEs
-.idea/
-.vscode/
-
-# Ignore log files
-*.log
-
-# Ignore OS-generated files
 ehthumbs.db
-[Tt]humbs.db
 [Dd]esktop.ini
 
-# Global ignore
+# ========================================
+# IDEs & Editors
+# ========================================
+.idea/
+.vscode/
+*.iws
+*.iml
+*.ipr
+*.sublime-workspace
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# ========================================
+# Logs
+# ========================================
+*.log
+run.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ========================================
+# Node / Angular (issuer-frontend)
+# ========================================
 node_modules/
+dist/
+tmp/
+out-tsc/
+.angular/cache
+.sass-cache/
+coverage/
+testem.log
+package-lock.json
+
+# ========================================
+# Java / Maven (spring-backend)
+# ========================================
+target/
+!**/src/main/**/target/
+!**/src/test/**/target/
+*.class
+*.jar
+!.mvn/wrapper/maven-wrapper.jar
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings/
+.springBeans
+.sts4-cache
+/nbproject/private/
+/nbbuild/
+/nbdist/
+/.nb-gradle/
+
+# ========================================
+# Secrets & Environment — NEVER commit!
+# ========================================
+**/application-secret.properties
+
+# ========================================
+# Local Maven repository (large binaries)
+# ========================================
+local-repo/
+spring-backend/local-repo/
+
+# ========================================
+# Misc
+# ========================================
+*.tmp
+*.bak
+*.swp

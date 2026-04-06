@@ -11,19 +11,26 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import com.example.backend.enums.CustomerType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/pending")
 @CrossOrigin(origins = "http://localhost:4200")
 public class PendingRequestController {
+
+    private static final Logger log = LoggerFactory.getLogger(PendingRequestController.class);
 
     private final PendingRequestRepository repository;
     private final CustomerRepository customerRepository;
@@ -238,7 +245,8 @@ public class PendingRequestController {
                         if (payloadNode.isObject()) {
                             ObjectNode node = (ObjectNode) payloadNode;
                             if (card.getCardNumber() != null && !node.has("cardNumber")) {
-                                node.put("cardNumber", card.getCardNumber());
+                                // Mask card number — never expose full number in API responses
+                                node.put("cardNumber", card.getMaskedCardNumber());
                             }
                             if (card.getCardHolderName() != null && !node.has("cardHolderName")) {
                                 node.put("cardHolderName", card.getCardHolderName());
@@ -326,36 +334,47 @@ public class PendingRequestController {
 
     @PutMapping("/{id}/approve")
     @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
+    @Transactional
     public ResponseEntity<?> approve(
             @PathVariable Long id,
             @AuthenticationPrincipal UserDetails user
-    ) throws Exception {
+    ) {
+        try {
+            PendingRequest req = repository.findById(id)
+                    .orElseThrow(() -> new RuntimeException("Request not found"));
 
-        PendingRequest req = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Request not found"));
+            if (req.getStatus() != RequestStatus.PENDING) {
+                return ResponseEntity.badRequest()
+                        .body(Map.of("error", "Only PENDING requests can be approved."));
+            }
 
-        if (req.getStatus() != RequestStatus.PENDING) {
-            throw new RuntimeException("Only PENDING requests can be approved.");
+            if (req.getCreatedBy() != null &&
+                    req.getCreatedBy().equals(user.getUsername())) {
+                return ResponseEntity.badRequest()
+                        .body(Map.of("error", "Maker cannot approve own request."));
+            }
+
+            switch (req.getEntityType().toUpperCase()) {
+                case "USER" -> handleUser(req);
+                case "CUSTOMER" -> handleCustomer(req);
+                case "ACCOUNT" -> handleAccount(req);
+                case "CARD" -> handleCard(req);
+                default -> {
+                    return ResponseEntity.badRequest()
+                            .body(Map.of("error", "Unsupported entity type"));
+                }
+            }
+
+            req.setStatus(RequestStatus.APPROVED);
+            req.setApprovedBy(user.getUsername());
+            req.setUpdatedAt(LocalDateTime.now());
+
+            return ResponseEntity.ok(repository.save(req));
+        } catch (Exception e) {
+            log.error("Error approving request {}: {}", id, e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", e.getMessage() != null ? e.getMessage() : "Unknown error"));
         }
-
-        if (req.getCreatedBy() != null &&
-                req.getCreatedBy().equals(user.getUsername())) {
-            throw new RuntimeException("Maker cannot approve own request.");
-        }
-
-        switch (req.getEntityType().toUpperCase()) {
-            case "USER" -> handleUser(req);
-            case "CUSTOMER" -> handleCustomer(req);
-            case "ACCOUNT" -> handleAccount(req);
-            case "CARD" -> handleCard(req);
-            default -> throw new RuntimeException("Unsupported entity type");
-        }
-
-        req.setStatus(RequestStatus.APPROVED);
-        req.setApprovedBy(user.getUsername());
-        req.setUpdatedAt(LocalDateTime.now());
-
-        return ResponseEntity.ok(repository.save(req));
     }
 
     // ================= REJECT =================
@@ -367,29 +386,37 @@ public class PendingRequestController {
             @AuthenticationPrincipal UserDetails user,
             @RequestBody RejectRequest request
     ) {
+        try {
+            PendingRequest req = repository.findById(id)
+                    .orElseThrow(() -> new RuntimeException("Request not found"));
 
-        PendingRequest req = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Request not found"));
+            if (req.getStatus() != RequestStatus.PENDING) {
+                return ResponseEntity.badRequest()
+                        .body(Map.of("error", "Only PENDING requests can be rejected."));
+            }
 
-        if (req.getStatus() != RequestStatus.PENDING) {
-            throw new RuntimeException("Only PENDING requests can be rejected.");
+            if (req.getCreatedBy() != null &&
+                    req.getCreatedBy().equals(user.getUsername())) {
+                return ResponseEntity.badRequest()
+                        .body(Map.of("error", "Maker cannot reject own request."));
+            }
+
+            if (request.getReason() == null || request.getReason().isBlank()) {
+                return ResponseEntity.badRequest()
+                        .body(Map.of("error", "Rejection reason is required."));
+            }
+
+            req.setStatus(RequestStatus.REJECTED);
+            req.setApprovedBy(user.getUsername());
+            req.setRejectionReason(request.getReason());
+            req.setUpdatedAt(LocalDateTime.now());
+
+            return ResponseEntity.ok(repository.save(req));
+        } catch (Exception e) {
+            log.error("Error rejecting request {}: {}", id, e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", e.getMessage() != null ? e.getMessage() : "Unknown error"));
         }
-
-        if (req.getCreatedBy() != null &&
-                req.getCreatedBy().equals(user.getUsername())) {
-            throw new RuntimeException("Maker cannot reject own request.");
-        }
-
-        if (request.getReason() == null || request.getReason().isBlank()) {
-            throw new RuntimeException("Rejection reason is required.");
-        }
-
-        req.setStatus(RequestStatus.REJECTED);
-        req.setApprovedBy(user.getUsername());
-        req.setRejectionReason(request.getReason());
-        req.setUpdatedAt(LocalDateTime.now());
-
-        return ResponseEntity.ok(repository.save(req));
     }
 
     // ================= CREATE =================
@@ -777,19 +804,21 @@ public class PendingRequestController {
             account.setStatus("ACTIVE");
             accountRepository.save(account);
 
-            // Send activation email to customer
-            try {
-                Customer customer = account.getCustomer();
-                if (customer != null && customer.getEmail() != null && !customer.getEmail().isBlank()) {
-                    emailService.sendAccountActivationEmail(
-                            customer.getEmail(),
-                            customer.getFirstName(),
-                            account.getAccountNumber()
-                    );
-                }
-            } catch (Exception emailEx) {
-                // Email failure must NOT rollback account activation
-                System.err.println("Failed to send account activation email: " + emailEx.getMessage());
+            // Send activation email to customer (async — won't block the response)
+            Customer customer = account.getCustomer();
+            log.info("Attempting to send activation email for account {} to customer {}",
+                    account.getAccountNumber(),
+                    customer != null ? customer.getEmail() : "null");
+            if (customer != null && customer.getEmail() != null && !customer.getEmail().isBlank()) {
+                emailService.sendAccountActivationEmail(
+                        customer.getEmail(),
+                        customer.getFirstName(),
+                        account.getAccountNumber()
+                );
+            } else {
+                log.warn("Cannot send activation email: customer={}, email={}",
+                        customer != null ? customer.getId() : "null",
+                        customer != null ? customer.getEmail() : "null");
             }
 
         } else if ("DEACTIVATE".equalsIgnoreCase(req.getOperation())) {
@@ -975,21 +1004,16 @@ public class PendingRequestController {
             card.setIssued(true);
             cardRepository.save(card);
 
-            // Send card issued email to customer
-            try {
-                Customer customer = card.getCustomer();
-                if (customer != null && customer.getEmail() != null && !customer.getEmail().isBlank()) {
-                    String masked = card.getCardNumber().substring(0, 4) + " **** **** "
-                            + card.getCardNumber().substring(card.getCardNumber().length() - 4);
-                    emailService.sendCardIssuedEmail(
-                            customer.getEmail(),
-                            card.getCardHolderName(),
-                            masked
-                    );
-                }
-            } catch (Exception emailEx) {
-                // Email failure must NOT rollback card issuing
-                System.err.println("Failed to send card issued email: " + emailEx.getMessage());
+            // Send card issued email to customer (async — won't block the response)
+            Customer customer = card.getCustomer();
+            if (customer != null && customer.getEmail() != null && !customer.getEmail().isBlank()) {
+                String masked = card.getCardNumber().substring(0, 4) + " **** **** "
+                        + card.getCardNumber().substring(card.getCardNumber().length() - 4);
+                emailService.sendCardIssuedEmail(
+                        customer.getEmail(),
+                        card.getCardHolderName(),
+                        masked
+                );
             }
 
         } else if ("DEACTIVATE".equalsIgnoreCase(req.getOperation())) {

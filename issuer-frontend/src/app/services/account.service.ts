@@ -5,10 +5,15 @@ import { Customer } from './customer.service';
 
 export interface Account {
   id?: number;
-  accountNumber?: string; // generated after approval
+  accountNumber?: string;
   accountType: string;
   balance: number;
+  creditLimit?: number;
   status?: string;
+  currency?: string;
+  billingCycle?: string;
+  interestRate?: number;
+  openDate?: string;
   customer: Customer;
 }
 

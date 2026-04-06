@@ -28,6 +28,12 @@ export class LoginComponent {
 
   errorMessage: string = '';
 
+  // ─── 2FA fields ──────────────────────────────────────────
+  show2FAInput = false;
+  totpCode = '';
+  pending2FAUsername = '';
+  pending2FAPassword = '';
+
   showForgotPasswordModal: boolean = false;
   resetRequestUsername: string = '';
   resetRequestMessage: string = '';
@@ -91,6 +97,15 @@ export class LoginComponent {
         next: (res) => {
           this.loading = false;
 
+          // ── 2FA required? Show OTP input ───────────────────
+          if (res.twoFactorRequired) {
+            this.show2FAInput = true;
+            this.pending2FAUsername = res.username;
+            this.pending2FAPassword = password;
+            this.totpCode = '';
+            return;
+          }
+
           if (res.message === 'Login successful') {
             //  Store credentials
             localStorage.setItem('username', res.username);
@@ -121,5 +136,56 @@ export class LoginComponent {
         }
       });
     }
+  }
+
+  // ─── Verify 2FA code ────────────────────────────────────────
+  verify2FA(): void {
+    if (!this.totpCode || this.totpCode.length !== 6) {
+      this.modalMessage = 'Please enter a 6-digit verification code';
+      this.showMessageModal = true;
+      return;
+    }
+
+    this.loading = true;
+
+    this.http.post<any>('/api/login/verify-2fa', {
+      username: this.pending2FAUsername,
+      password: this.pending2FAPassword,
+      code: this.totpCode
+    }).subscribe({
+      next: (res) => {
+        this.loading = false;
+
+        if (res.message === 'Login successful') {
+          localStorage.setItem('username', res.username);
+          localStorage.setItem('role', res.role);
+
+          if (res.role === 'ADMIN') {
+            this.router.navigate(['/roles']);
+          } else if (res.role === 'MANAGER') {
+            this.router.navigate(['/pending']);
+          } else if (res.role === 'STAFF') {
+            this.router.navigate(['/dashboard']);
+          } else {
+            this.router.navigate(['/dashboard']);
+          }
+        } else {
+          this.modalMessage = res.message || '2FA verification failed';
+          this.showMessageModal = true;
+        }
+      },
+      error: (err) => {
+        this.loading = false;
+        this.modalMessage = err.error?.message || 'Invalid verification code';
+        this.showMessageModal = true;
+      }
+    });
+  }
+
+  cancel2FA(): void {
+    this.show2FAInput = false;
+    this.totpCode = '';
+    this.pending2FAUsername = '';
+    this.pending2FAPassword = '';
   }
 }

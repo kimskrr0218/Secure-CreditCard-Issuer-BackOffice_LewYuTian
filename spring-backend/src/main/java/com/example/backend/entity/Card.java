@@ -1,5 +1,8 @@
 package com.example.backend.entity;
 
+import com.example.backend.util.SensitiveFieldConverter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -16,8 +19,20 @@ public class Card {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true)
-    private String cardNumber; // auto-generated, unique
+    @JsonIgnore // Never expose full card number in API responses
+    @Convert(converter = SensitiveFieldConverter.class)
+    @Column(nullable = false, unique = true, length = 512)
+    private String cardNumber; // auto-generated, unique — encrypted at rest
+
+    /**
+     * Returns a masked card number (first 4 + last 4) for API responses.
+     * The full card number is never serialized.
+     */
+    @JsonProperty("cardNumber")
+    public String getMaskedCardNumber() {
+        if (cardNumber == null || cardNumber.length() < 8) return cardNumber;
+        return cardNumber.substring(0, 4) + "********" + cardNumber.substring(cardNumber.length() - 4);
+    }
 
     @Column(name = "card_type", nullable = false)
     private String cardType;   // Classic, Gold, Platinum
@@ -30,7 +45,18 @@ public class Card {
 
     private String expiryDate;
 
-    private String cvv;
+    @JsonIgnore // Never expose CVV in API responses
+    @Convert(converter = SensitiveFieldConverter.class)
+    @Column(length = 512)
+    private String cvv; // encrypted at rest
+
+    /**
+     * Returns masked CVV for API responses (allows frontend *ngIf check).
+     */
+    @JsonProperty("cvv")
+    public String getMaskedCvv() {
+        return cvv != null ? "***" : null;
+    }
 
     private LocalDateTime createdDate;
 

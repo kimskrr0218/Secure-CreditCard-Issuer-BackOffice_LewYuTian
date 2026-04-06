@@ -39,16 +39,24 @@ body {
 }
 
 .user-info button {
-  background-color: #dc3545;
   border: none;
   color: white;
   padding: 5px 12px;
   border-radius: 4px;
   cursor: pointer;
+  background-color: #dc3545;
 }
 
 .user-info button:hover {
   background-color: #b02a37;
+}
+
+.user-info .profile-btn {
+  background-color: #2563eb;
+}
+
+.user-info .profile-btn:hover {
+  background-color: #1d4ed8;
 }
 
 .content {

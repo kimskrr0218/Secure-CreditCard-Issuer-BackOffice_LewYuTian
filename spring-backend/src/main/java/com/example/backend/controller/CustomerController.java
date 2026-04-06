@@ -31,18 +31,18 @@ public class CustomerController {
         return repository.findById(id).orElseThrow(() -> new RuntimeException("Customer not found"));
     }
 
-    // ✏️ STAFF creates customers (goes through PendingRequest)
+    // ✏️ Direct create — MANAGER/ADMIN only (STAFF must go through maker-checker)
     @PostMapping
-    @PreAuthorize("hasRole('STAFF')")
+    @PreAuthorize("hasAnyRole('MANAGER','ADMIN')")
     public Customer createCustomer(@RequestBody Customer customer) {
         long count = repository.count() + 1;
         customer.setCustomerNo("CUST-" + (1000 + count));
         return repository.save(customer);
     }
 
-    // ✏️ STAFF updates customers (goes through PendingRequest)
+    // ✏️ Direct update — MANAGER/ADMIN only (STAFF must go through maker-checker)
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('STAFF')")
+    @PreAuthorize("hasAnyRole('MANAGER','ADMIN')")
     public Customer updateCustomer(@PathVariable Long id, @RequestBody Customer updated) {
         return repository.findById(id).map(c -> {
             c.setName(updated.getName());
@@ -51,9 +51,9 @@ public class CustomerController {
         }).orElseThrow(() -> new RuntimeException("Customer not found"));
     }
 
-    // ❌ STAFF deletes customers (goes through PendingRequest)
+    // ❌ Direct delete — MANAGER/ADMIN only (STAFF must go through maker-checker)
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('STAFF')")
+    @PreAuthorize("hasAnyRole('MANAGER','ADMIN')")
     public void deleteCustomer(@PathVariable Long id) {
         repository.deleteById(id);
     }

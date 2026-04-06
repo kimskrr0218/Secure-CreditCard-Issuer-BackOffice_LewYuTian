@@ -78,6 +78,7 @@
           <th>ID</th>
           <th>Account No</th>
           <th>Customer No</th>
+          <th>Operation</th>
           <th>Status</th>
           <th>Action</th>
         </tr>
@@ -87,6 +88,16 @@
           <td>#{{ r.id }}</td>
           <td>{{ r.accountNumber || r.parsedPayload?.accountNumber || '-' }}</td>
           <td>{{ r.customerNo || r.parsedPayload?.customerNo || '-' }}</td>
+          <!-- OPERATION -->
+          <td>
+            <span class="badge" [ngClass]="{
+              'active': r.operation === 'CREATE' || r.operation === 'ACTIVATE',
+              'inactive': r.operation === 'DEACTIVATE',
+              'pending': r.operation === 'UPDATE'
+            }">
+              {{ r.operation }}
+            </span>
+          </td>
           <!-- STATUS -->
           <td>
             <span

@@ -19,6 +19,7 @@ import { DashboardComponent } from './pages/dashboard.component';
 import { LoginComponent } from './pages/login.component';
 import { RegisterComponent } from './pages/register/register.component';
 import { PendingComponent } from './pages/pending.component';
+import { ProfileComponent } from './pages/profile.component';
 import { authGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
@@ -132,6 +133,13 @@ export const routes: Routes = [
     component: RolesComponent, 
     canActivate: [authGuard], 
     data: { roles: ['ADMIN'] } 
+  },
+
+  // User Profile (all authenticated users)
+  {
+    path: 'profile',
+    component: ProfileComponent,
+    canActivate: [authGuard]
   },
 
   { path: '**', redirectTo: 'login' }

@@ -47,11 +47,9 @@ public class SecurityConfig {
 
                         // Public login
                         .requestMatchers(HttpMethod.POST, "/api/login").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/login/verify-2fa").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/users/register-request").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/maker-checker/requests").permitAll()
-
-                        // H2 console
-                        .requestMatchers("/h2-console/**").permitAll()
 
                         // ADMIN endpoints
                         .requestMatchers("/api/users/**")
@@ -76,11 +74,17 @@ public class SecurityConfig {
                         .requestMatchers("/api/dashboard/**")
                         .hasAnyRole("ADMIN", "MANAGER", "STAFF")
 
+                        // AI Chat
+                        .requestMatchers("/api/chat/**")
+                        .hasAnyRole("ADMIN", "MANAGER", "STAFF")
+
+                        // User Profile (any authenticated user)
+                        .requestMatchers("/api/profile/**")
+                        .hasAnyRole("ADMIN", "MANAGER", "STAFF")
+
                         // Everything else must be authenticated
                         .anyRequest().authenticated()
                 )
-
-                .headers(headers -> headers.frameOptions(frame -> frame.disable()))
 
                 .securityContext(context -> context
                         .securityContextRepository(securityContextRepository())

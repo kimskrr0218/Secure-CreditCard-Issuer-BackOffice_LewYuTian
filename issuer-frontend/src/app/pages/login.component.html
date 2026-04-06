@@ -3,7 +3,8 @@
     <h2>Issuer Back-Office</h2>
     <p class="subtitle">Sign in to continue</p>
 
-    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+    <!-- ─── Normal Login Form ─── -->
+    <form *ngIf="!show2FAInput" [formGroup]="loginForm" (ngSubmit)="onSubmit()">
       <div class="form-group">
                   <input
             id="username"
@@ -27,6 +28,33 @@
         {{ loading ? 'Logging in...' : 'Login' }}
       </button>
     </form>
+
+    <!-- ─── 2FA Verification Step ─── -->
+    <div *ngIf="show2FAInput" class="tfa-login-section">
+      <div class="tfa-icon">🔐</div>
+      <p class="tfa-prompt">Two-Factor Authentication</p>
+      <p class="tfa-sub">Enter the 6-digit code from your Google Authenticator app</p>
+
+      <div class="form-group">
+        <input
+          type="text"
+          [(ngModel)]="totpCode"
+          placeholder="Enter 6-digit code"
+          maxlength="6"
+          class="totp-input"
+          (keyup.enter)="verify2FA()"
+          autofocus
+        >
+      </div>
+
+      <button (click)="verify2FA()" [disabled]="loading || totpCode.length !== 6" class="verify-btn">
+        {{ loading ? 'Verifying...' : 'Verify & Login' }}
+      </button>
+
+      <button (click)="cancel2FA()" class="cancel-link">
+        ← Back to Login
+      </button>
+    </div>
 
     <p class="footer-text">© 2025 Secure Issuer Portal</p>
   </div>

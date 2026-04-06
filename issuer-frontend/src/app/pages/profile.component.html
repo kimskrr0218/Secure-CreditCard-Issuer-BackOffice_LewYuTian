@@ -1,0 +1,164 @@
+<app-top-navbar></app-top-navbar>
+
+<div class="page-container">
+  <div class="page-header">
+    <h2>👤 My Profile</h2>
+  </div>
+
+  <div class="card profile-card" *ngIf="!loading && profile">
+
+    <!-- Account Information (Read-only) -->
+    <div class="form-section">
+      <h3>Account Information</h3>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Username</label>
+          <input type="text" [value]="profile.username" readonly class="readonly-field">
+        </div>
+        <div class="form-group">
+          <label>Role</label>
+          <input type="text" [value]="profile.role || '-'" readonly class="readonly-field">
+        </div>
+        <div class="form-group">
+          <label>Status</label>
+          <input type="text" [value]="profile.status || '-'" readonly class="readonly-field">
+        </div>
+      </div>
+    </div>
+
+    <!-- Update Email -->
+    <div class="form-section">
+      <h3>Email Address</h3>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" [(ngModel)]="newEmail" placeholder="your@email.com">
+        </div>
+        <div class="form-group form-action-group">
+          <label>&nbsp;</label>
+          <button class="submit-btn" (click)="updateEmail()">Update Email</button>
+        </div>
+      </div>
+      <div class="inline-message" *ngIf="emailMessage" [class.error]="emailError" [class.success]="!emailError">
+        {{ emailMessage }}
+      </div>
+    </div>
+
+    <!-- Change Password -->
+    <div class="form-section">
+      <h3>Change Password</h3>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Current Password</label>
+          <input type="password" [(ngModel)]="oldPassword" placeholder="Enter current password">
+        </div>
+        <div class="form-group">
+          <label>New Password</label>
+          <input type="password" [(ngModel)]="newPassword" placeholder="At least 6 characters">
+        </div>
+        <div class="form-group">
+          <label>Confirm New Password</label>
+          <input type="password" [(ngModel)]="confirmPassword" placeholder="Re-enter new password">
+        </div>
+      </div>
+      <div class="inline-message" *ngIf="passwordMessage" [class.error]="passwordError" [class.success]="!passwordError">
+        {{ passwordMessage }}
+      </div>
+      <div class="section-actions">
+        <button class="submit-btn" (click)="changePassword()">Change Password</button>
+      </div>
+    </div>
+
+    <!-- Two-Factor Authentication -->
+    <div class="form-section">
+      <h3>Two-Factor Authentication</h3>
+
+      <!-- ─── Status row (when not in setup/disable mode) ─── -->
+      <div class="tfa-row" *ngIf="!tfaSetupMode && !tfaDisableMode">
+        <div class="tfa-info">
+          <span class="tfa-status" [class.enabled]="twoFactorEnabled" [class.disabled]="!twoFactorEnabled">
+            {{ twoFactorEnabled ? '🟢 Enabled' : '🔴 Disabled' }}
+          </span>
+          <p class="tfa-description">
+            Add an extra layer of security to your account. When enabled, you'll need to provide a verification code from Google Authenticator in addition to your password.
+          </p>
+        </div>
+        <button *ngIf="!twoFactorEnabled" class="tfa-toggle-btn enable-btn" (click)="startSetup2FA()" [disabled]="tfaSetupLoading">
+          {{ tfaSetupLoading ? 'Setting up...' : 'Enable 2FA' }}
+        </button>
+        <button *ngIf="twoFactorEnabled" class="tfa-toggle-btn disable-btn" (click)="startDisable2FA()">
+          Disable 2FA
+        </button>
+      </div>
+
+      <!-- ─── 2FA Setup: QR Code + Verification ─── -->
+      <div *ngIf="tfaSetupMode" class="tfa-setup-panel">
+        <p class="setup-step"><strong>Step 1:</strong> Scan this QR code with Google Authenticator</p>
+        <div class="qr-container">
+          <img [src]="getQrImageUrl()" alt="QR Code" class="qr-image" />
+        </div>
+        <p class="secret-label">Or enter this key manually:</p>
+        <code class="secret-code">{{ tfaSecret }}</code>
+
+        <p class="setup-step" style="margin-top: 20px;"><strong>Step 2:</strong> Enter the 6-digit code from the app to verify</p>
+        <div class="verify-input-row">
+          <input
+            type="text"
+            [(ngModel)]="tfaVerifyCode"
+            placeholder="000000"
+            maxlength="6"
+            class="totp-verify-input"
+            (keyup.enter)="confirmSetup2FA()"
+          >
+          <button class="submit-btn" (click)="confirmSetup2FA()" [disabled]="tfaVerifyCode.length !== 6">Verify & Enable</button>
+        </div>
+        <button class="cancel-btn" (click)="cancelSetup2FA()" style="margin-top: 10px;">Cancel</button>
+      </div>
+
+      <!-- ─── 2FA Disable: Requires verification code ─── -->
+      <div *ngIf="tfaDisableMode" class="tfa-setup-panel">
+        <p class="setup-step">Enter your Google Authenticator code to confirm disabling 2FA:</p>
+        <div class="verify-input-row">
+          <input
+            type="text"
+            [(ngModel)]="tfaDisableCode"
+            placeholder="000000"
+            maxlength="6"
+            class="totp-verify-input"
+            (keyup.enter)="confirmDisable2FA()"
+          >
+          <button class="submit-btn disable-confirm-btn" (click)="confirmDisable2FA()" [disabled]="tfaDisableCode.length !== 6">Confirm Disable</button>
+        </div>
+        <button class="cancel-btn" (click)="cancelDisable2FA()" style="margin-top: 10px;">Cancel</button>
+      </div>
+
+      <div class="inline-message" *ngIf="tfaMessage" [class.error]="tfaError" [class.success]="!tfaError">
+        {{ tfaMessage }}
+      </div>
+    </div>
+
+    <!-- Back button -->
+    <div class="form-actions">
+      <button class="cancel-btn" (click)="goBack()">← Back to Dashboard</button>
+    </div>
+  </div>
+
+  <!-- Loading state -->
+  <div class="card profile-card" *ngIf="loading">
+    <p style="text-align: center; color: #64748b;">Loading profile...</p>
+  </div>
+</div>
+
+<!-- Success Modal -->
+<div class="modal-overlay" *ngIf="showModal" (click)="closeModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>{{ modalTitle }}</h3>
+      <button class="close-btn" (click)="closeModal()">&times;</button>
+    </div>
+    <p>{{ modalMessage }}</p>
+    <div class="modal-actions">
+      <button class="submit-btn" (click)="closeModal()">OK</button>
+    </div>
+  </div>
+</div>

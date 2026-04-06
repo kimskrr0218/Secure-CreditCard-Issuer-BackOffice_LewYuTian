@@ -4,6 +4,7 @@
     <h2>Issuer Back-Office</h2>
     <div class="user-info">
       <span class="welcome-text">Welcome, {{ username }}</span>
+      <button class="profile-btn" (click)="navigateTo('/profile')">⚙️ Profile</button>
       <button (click)="logout()">Logout</button>
     </div>
   </header>
