@@ -28,9 +28,14 @@
         <input type="text" [(ngModel)]="filterCardholderName" placeholder="John Doe" />
       </div>
 
-      <button class="search-btn" (click)="clearFilters()">
-        <span>CLEAR</span>
-      </button>
+      <div class="filter-actions">
+        <button class="search-btn" (click)="triggerSearch()">
+          <span>SEARCH</span>
+        </button>
+        <button class="clear-btn" (click)="clearFilters()">
+          <span>CLEAR</span>
+        </button>
+      </div>
     </div>
 
     <!-- ================= MAIN SECTION ================= -->
@@ -52,19 +57,30 @@
     <table class="request-table">
       <thead>
         <tr>
-          <th>ID</th>
-          <th>Customer No</th>
+          <th>No.</th>
+          <th>Customer No.</th>
           <th>Name</th>
-          <th>Status</th>
+          <th>Operation</th>
+          <th>Approval Status</th>
           <th>Action</th>
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let r of customerRequests">
-          <td>#{{ r.id }}</td>
+        <tr *ngFor="let r of customerRequests; let i = index">
+          <td>{{ i + 1 }}</td>
           <td>{{ r.customerNo || r.parsedPayload?.customerNo || '-' }}</td>
-          <td>{{ r.name || '-' }}</td>
-          <!-- STATUS -->
+          <td>{{ r.name || r.parsedPayload?.name || '-' }}</td>
+          <!-- OPERATION -->
+          <td>
+            <span class="badge" [ngClass]="{
+              'active': r.operation === 'CREATE' || r.operation === 'ACTIVATE',
+              'inactive': r.operation === 'DEACTIVATE' || r.operation === 'DELETE',
+              'pending': r.operation === 'UPDATE'
+            }">
+              {{ r.operation }}
+            </span>
+          </td>
+          <!-- APPROVAL STATUS -->
           <td>
             <span
               class="badge"
@@ -79,10 +95,6 @@
           </td>
           <!-- ACTION BUTTONS -->
           <td>
-            <ng-container *ngIf="r.status === 'PENDING' && isManager">
-              <button class="approve-btn" (click)="approve(r.id)">Approve</button>
-              <button class="reject-btn" (click)="reject(r.id)">Reject</button>
-            </ng-container>
             <button class="view-btn" (click)="viewCustomer(r)">View</button>
           </td>
         </tr>
@@ -102,17 +114,17 @@
     <table class="request-table">
       <thead>
         <tr>
-          <th>ID</th>
-          <th>Account No</th>
-          <th>Customer No</th>
+          <th>No.</th>
+          <th>Account No.</th>
+          <th>Customer No.</th>
           <th>Operation</th>
-          <th>Status</th>
+          <th>Approval Status</th>
           <th>Action</th>
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let r of accountRequests">
-          <td>#{{ r.id }}</td>
+        <tr *ngFor="let r of accountRequests; let i = index">
+          <td>{{ i + 1 }}</td>
           <td>{{ r.accountNumber || r.parsedPayload?.accountNumber || '-' }}</td>
           <td>{{ r.customerNo || r.parsedPayload?.customerNo || '-' }}</td>
           <!-- OPERATION -->
@@ -125,7 +137,7 @@
               {{ r.operation }}
             </span>
           </td>
-          <!-- STATUS -->
+          <!-- APPROVAL STATUS -->
           <td>
             <span
               class="badge"
@@ -140,11 +152,7 @@
           </td>
           <!-- ACTION BUTTONS -->
           <td>
-            <ng-container *ngIf="r.status === 'PENDING' && isManager">
-              <button class="approve-btn" (click)="approve(r.id)">Approve</button>
-              <button class="reject-btn" (click)="reject(r.id)">Reject</button>
-            </ng-container>
-            <button class="view-btn" (click)="viewAccount(r.id)">View</button>
+            <button class="view-btn" (click)="viewAccount(r)">View</button>
           </td>
         </tr>
       </tbody>
@@ -163,35 +171,32 @@
     <table class="request-table">
       <thead>
         <tr>
-          <th>ID</th>
+          <th>No.</th>
           <th>Card Number</th>
           <th>Cardholder Name</th>
           <th>Operation</th>
-          <th>Reason</th>
-          <th>Notes</th>
-          <th>Status</th>
+          <th>Approval Status</th>
           <th>Action</th>
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let r of cardRequests">
-          <td>#{{ r.id }}</td>
+        <tr *ngFor="let r of cardRequests; let i = index">
+          <td>{{ i + 1 }}</td>
           <td>{{ r.parsedPayload?.cardNumber ? maskCardNumber(r.parsedPayload.cardNumber) : '-' }}</td>
           <td>{{ r.parsedPayload?.cardHolderName || r.customerNo || '-' }}</td>
+          <!-- OPERATION -->
           <td>
             <span class="badge" [ngClass]="{
               'blocked': r.operation === 'BLOCK',
               'active': r.operation === 'CREATE' || r.operation === 'ACTIVATE',
-              'inactive': r.operation === 'DEACTIVATE',
+              'inactive': r.operation === 'DEACTIVATE' || r.operation === 'DELETE',
               'issued': r.operation === 'ISSUE',
-              'pending': r.operation === 'REPLACE' || r.operation === 'UPDATE'
+              'pending': r.operation === 'REPLACE' || r.operation === 'UPDATE' || r.operation === 'UNBLOCK'
             }">
               {{ r.operation }}
             </span>
           </td>
-          <td>{{ r.parsedPayload?.reason || '-' }}</td>
-          <td>{{ r.parsedPayload?.notes || '-' }}</td>
-          <!-- STATUS -->
+          <!-- APPROVAL STATUS -->
           <td>
             <span
               class="badge"
@@ -206,11 +211,7 @@
           </td>
           <!-- ACTION BUTTONS -->
           <td>
-            <ng-container *ngIf="r.status === 'PENDING' && isManager">
-              <button class="approve-btn" (click)="approve(r.id)">Approve</button>
-              <button class="reject-btn" (click)="reject(r.id)">Reject</button>
-            </ng-container>
-            <button class="view-btn" (click)="viewCard(r.id)">View</button>
+            <button class="view-btn" (click)="viewCard(r)">View</button>
           </td>
         </tr>
       </tbody>

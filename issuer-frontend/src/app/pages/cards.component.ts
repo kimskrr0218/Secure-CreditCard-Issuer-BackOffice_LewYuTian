@@ -27,6 +27,8 @@ export class CardsComponent implements OnInit {
   filterCustNo: string = '';
   filterType: string = '';
   filterCardholderName: string = '';
+  filterStatus: string = '';
+  filterPendingStatus: string = '';
 
   isManager: boolean = false;
   isStaff: boolean = false;
@@ -69,6 +71,9 @@ export class CardsComponent implements OnInit {
     this.loadAllData();
   }
 
+  // Store all pending data for cross-referencing
+  allPendingData: any[] = [];
+
   loadAllData(): void {
     this.loading = true;
     
@@ -76,6 +81,7 @@ export class CardsComponent implements OnInit {
     this.http.get<any[]>(this.cardsApiUrl, { withCredentials: true }).subscribe({
       next: (data) => {
         this.cards = data;
+        this.enrichCardsWithPendingStatus();
         this.filteredCards = [...this.cards];
         this.loading = false;
       },
@@ -98,11 +104,44 @@ export class CardsComponent implements OnInit {
         
         this.pendingRequests = cardReqs.filter(req => req.status === 'PENDING');
         this.rejectedRequests = cardReqs.filter(req => req.status === 'REJECTED');
+
+        // Enrich live cards with their pending status
+        this.allPendingData = data.filter(req => req.entityType === 'CARD');
+        this.enrichCardsWithPendingStatus();
+        this.filteredCards = [...this.cards];
       },
       error: (err) => {
         console.error('Error loading card requests', err);
       }
     });
+  }
+
+  /** Enrich each live card with their latest pending request approval status */
+  enrichCardsWithPendingStatus(): void {
+    if (!this.cards.length || !this.allPendingData.length) return;
+
+    for (const card of this.cards) {
+      const relatedRequests = this.allPendingData
+        .filter(req => {
+          if (req.entityId === card.id) return true;
+          try {
+            const payload = JSON.parse(req.payload);
+            if (payload.id === card.id || payload.oldCardId === card.id) return true;
+          } catch (e) {}
+          return false;
+        })
+        .sort((a: any, b: any) => {
+          const dateA = new Date(a.createdAt || 0).getTime();
+          const dateB = new Date(b.createdAt || 0).getTime();
+          return dateB - dateA;
+        });
+
+      if (relatedRequests.length > 0) {
+        card.pendingStatus = relatedRequests[0].status; // PENDING, APPROVED, REJECTED
+      } else {
+        card.pendingStatus = null;
+      }
+    }
   }
 
   applyFilters(): void {
@@ -114,6 +153,11 @@ export class CardsComponent implements OnInit {
       if (custNo && !(c.customer?.customerNo && c.customer.customerNo.toLowerCase().includes(custNo))) return false;
       if (cardType && c.cardType !== cardType) return false;
       if (holderName && !(c.cardHolderName && c.cardHolderName.toLowerCase().includes(holderName))) return false;
+      if (this.filterStatus && c.status !== this.filterStatus) return false;
+      if (this.filterPendingStatus) {
+        if (this.filterPendingStatus === 'NONE' && c.pendingStatus !== null) return false;
+        if (this.filterPendingStatus !== 'NONE' && c.pendingStatus !== this.filterPendingStatus) return false;
+      }
       return true;
     });
   }
@@ -122,6 +166,8 @@ export class CardsComponent implements OnInit {
     this.filterCustNo = '';
     this.filterType = '';
     this.filterCardholderName = '';
+    this.filterStatus = '';
+    this.filterPendingStatus = '';
     this.applyFilters();
   }
 
@@ -235,13 +281,13 @@ export class CardsComponent implements OnInit {
   }
 
   activateCard(id: number): void {
-    this.confirmMessage = 'Are you sure you want to activate this card?';
+    this.confirmMessage = 'Are you sure you want to activate this card? The card will become ACTIVE and ready for use. An email notification will be sent.';
     this.pendingAction = () => this.submitCardAction('ACTIVATE', id, 'Activate request submitted for approval.');
     this.showConfirmModal = true;
   }
 
   issueCard(id: number): void {
-    this.confirmMessage = 'Are you sure you want to issue this card to the customer? An email notification will be sent.';
+    this.confirmMessage = 'Are you sure you want to issue this card? The card status will change to ISSUED. An email notification will be sent.';
     this.pendingAction = () => this.submitCardAction('ISSUE', id, 'Issue card request submitted for approval.');
     this.showConfirmModal = true;
   }

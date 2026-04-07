@@ -101,9 +101,32 @@
       <p>{{ rejectionReason }}</p>
     </div>
 
+    <!-- Request Info Section (from Pending page) -->
+    <div class="request-info" *ngIf="pendingRequest">
+      <h3>Request Information</h3>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Operation</label>
+          <input type="text" [value]="pendingRequest.operation || '-'" readonly class="readonly-field">
+        </div>
+        <div class="form-group">
+          <label>Requested By</label>
+          <input type="text" [value]="pendingRequest.createdBy || '-'" readonly class="readonly-field">
+        </div>
+        <div class="form-group">
+          <label>Approval Status</label>
+          <input type="text" [value]="pendingRequest.status || '-'" readonly class="readonly-field">
+        </div>
+      </div>
+    </div>
+
     <!-- Action Buttons -->
     <div class="form-actions">
       <button type="button" class="cancel-btn" (click)="goBack()">{{ backLabel }}</button>
+      <ng-container *ngIf="canApproveReject">
+        <button type="button" class="approve-btn" (click)="approve()">Approve</button>
+        <button type="button" class="reject-btn" (click)="openRejectModal()">Reject</button>
+      </ng-container>
     </div>
 
   </div>
@@ -111,5 +134,43 @@
   <!-- Loading State -->
   <div *ngIf="!account" class="loading-state">
     <p>Loading account details...</p>
+  </div>
+</div>
+
+<!-- ================= REJECT MODAL ================= -->
+<div *ngIf="showRejectModal" class="modal-overlay">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Reject Request</h3>
+      <button class="close-btn" (click)="closeRejectModal()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <label>Enter rejection reason:</label>
+        <textarea
+          [(ngModel)]="rejectReason"
+          rows="4"
+          placeholder="Reason is required to reject..."
+        ></textarea>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="modal-cancel-btn" (click)="closeRejectModal()">Cancel</button>
+      <button class="modal-submit-btn" (click)="confirmReject()" [disabled]="!rejectReason.trim()">Confirm Rejection</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================= MESSAGE MODAL ================= -->
+<div *ngIf="showMessageModal" class="modal-overlay">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Message</h3>
+      <button class="close-btn" (click)="closeMessage()">&times;</button>
+    </div>
+    <p style="padding: 0 20px;">{{ modalMessage }}</p>
+    <div class="modal-actions">
+      <button class="modal-submit-btn" (click)="closeMessage()">OK</button>
+    </div>
   </div>
 </div>

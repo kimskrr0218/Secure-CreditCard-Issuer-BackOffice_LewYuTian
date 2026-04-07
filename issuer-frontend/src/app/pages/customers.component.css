@@ -114,9 +114,15 @@
   color: #94a3b8;
 }
 
-.search-btn {
+.filter-actions {
+  display: flex;
+  gap: 10px;
   margin-top: 10px;
-  background: #ef4444;
+}
+
+.search-btn {
+  flex: 1;
+  background: #2563eb;
   color: white;
   border: none;
   padding: 12px;
@@ -134,12 +140,41 @@
 }
 
 .search-btn:hover {
+  background: #1d4ed8;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+}
+
+.search-btn:active {
+  transform: translateY(0);
+}
+
+.clear-btn {
+  flex: 1;
+  background: #ef4444;
+  color: white;
+  border: none;
+  padding: 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.clear-btn:hover {
   background: #dc2626;
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
 }
 
-.search-btn:active {
+.clear-btn:active {
   transform: translateY(0);
 }
 
@@ -287,6 +322,11 @@
 .pending {
   background: #fef3c7;
   color: #92400e;
+}
+
+.no-pending {
+  background: #f1f5f9;
+  color: #94a3b8;
 }
 
 /* ================= ACTION BUTTONS ================= */

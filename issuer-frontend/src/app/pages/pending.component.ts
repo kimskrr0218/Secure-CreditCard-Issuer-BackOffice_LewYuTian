@@ -154,6 +154,13 @@ export class PendingComponent implements OnInit {
     this.filterCardholderName = '';
   }
 
+  triggerSearch(): void {
+    // Getters (customerRequests, accountRequests, cardRequests) already
+    // read the filter values on every change-detection cycle.
+    // Clicking the button triggers change detection, so the tables
+    // re-render with the current filter values automatically.
+  }
+
   setFilter(status: string): void {
     this.currentFilter = status;
     this.selectedStatus = status;
@@ -189,23 +196,50 @@ export class PendingComponent implements OnInit {
   viewCustomer(req: any): void {
     if (req.entityType === 'CUSTOMER') {
       const id = req.entityId || req.id;
-      // Pass the customer data in router state so the View page can show it immediately
-      // (especially for new requests which are not in the database yet)
       this.router.navigate(['/customers/view', id], {
-        state: { customer: req.parsedPayload },
+        state: {
+          customer: req.parsedPayload,
+          pendingRequest: {
+            id: req.id,
+            status: req.status,
+            operation: req.operation,
+            createdBy: req.createdBy,
+            rejectionReason: req.rejectionReason || req.reason
+          }
+        },
         queryParams: { from: 'pending' }
       });
     }
   }
 
-  viewAccount(requestId: number): void {
-    this.router.navigate(['/accounts/view', requestId], {
+  viewAccount(req: any): void {
+    this.router.navigate(['/accounts/view', req.id], {
+      state: {
+        request: req,
+        pendingRequest: {
+          id: req.id,
+          status: req.status,
+          operation: req.operation,
+          createdBy: req.createdBy,
+          rejectionReason: req.rejectionReason || req.reason
+        }
+      },
       queryParams: { from: 'pending' }
     });
   }
 
-  viewCard(requestId: number): void {
-    this.router.navigate(['/cards/view', requestId], {
+  viewCard(req: any): void {
+    this.router.navigate(['/cards/view', req.id], {
+      state: {
+        request: req,
+        pendingRequest: {
+          id: req.id,
+          status: req.status,
+          operation: req.operation,
+          createdBy: req.createdBy,
+          rejectionReason: req.rejectionReason || req.reason
+        }
+      },
       queryParams: { from: 'pending' }
     });
   }

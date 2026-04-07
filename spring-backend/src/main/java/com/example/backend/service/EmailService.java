@@ -89,10 +89,22 @@ public class EmailService {
         String body = "Dear " + name + ",\n\n"
                 + "We are pleased to inform you that your credit card has been successfully issued.\n\n"
                 + "Card Number: " + maskedCardNumber + "\n\n"
-                + "Your card is now ready for use. Please keep your card details secure at all times.\n\n"
+                + "Your card is now ready for activation. Please wait for the activation to be processed.\n\n"
                 + "If you did not request this, please contact our support team immediately.\n\n"
                 + "Thank you for choosing our services.";
         sendEmail(email, "Your Credit Card Has Been Issued", body);
+    }
+
+    @Async
+    public void sendCardActivationEmail(String email, String cardHolderName, String maskedCardNumber) {
+        String name = (cardHolderName != null ? cardHolderName : "Valued Customer");
+        String body = "Dear " + name + ",\n\n"
+                + "We are pleased to inform you that your credit card has been successfully activated.\n\n"
+                + "Card Number: " + maskedCardNumber + "\n\n"
+                + "Your card is now ready for use. Please keep your card details secure at all times.\n\n"
+                + "If you did not request this, please contact our support team immediately.\n\n"
+                + "Thank you for choosing our services.";
+        sendEmail(email, "Your Credit Card Has Been Activated", body);
     }
 
     // ==================== HELPERS ====================

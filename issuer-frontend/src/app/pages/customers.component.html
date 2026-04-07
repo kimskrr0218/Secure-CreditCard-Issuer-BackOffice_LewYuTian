@@ -18,22 +18,47 @@
 
       <div class="filter-group">
         <label>Cust No</label>
-        <input type="text" [(ngModel)]="filterCustNo" (input)="applyFilters()" placeholder="CUST-1001" />
+        <input type="text" [(ngModel)]="filterCustNo" placeholder="CUST-1001" />
       </div>
 
       <div class="filter-group">
         <label>Email</label>
-        <input type="text" [(ngModel)]="filterEmail" (input)="applyFilters()" placeholder="john@example.com" />
+        <input type="text" [(ngModel)]="filterEmail" placeholder="john@example.com" />
       </div>
 
       <div class="filter-group">
         <label>Name</label>
-        <input type="text" [(ngModel)]="filterName" (input)="applyFilters()" placeholder="John Doe" />
+        <input type="text" [(ngModel)]="filterName" placeholder="John Doe" />
       </div>
 
-      <button class="search-btn" (click)="clearFilters()">
-        <span>CLEAR</span>
-      </button>
+      <div class="filter-group">
+        <label>Customer Status</label>
+        <select [(ngModel)]="filterStatus">
+          <option value="">All</option>
+          <option value="ACTIVE">Active</option>
+          <option value="INACTIVE">Inactive</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label>Pending Status</label>
+        <select [(ngModel)]="filterPendingStatus">
+          <option value="">All</option>
+          <option value="PENDING">Pending</option>
+          <option value="APPROVED">Approved</option>
+          <option value="REJECTED">Rejected</option>
+          <option value="NONE">No Pending</option>
+        </select>
+      </div>
+
+      <div class="filter-actions">
+        <button class="search-btn" (click)="applyFilters()">
+          <span>SEARCH</span>
+        </button>
+        <button class="clear-btn" (click)="clearFilters()">
+          <span>CLEAR</span>
+        </button>
+      </div>
 
     </div>
 
@@ -44,29 +69,16 @@
 
       <!-- ACTION BAR -->
       <div class="top-bar">
-
-        <div class="tabs">
-          <button class="tab" [class.active]="activeTab === 'live'" (click)="activeTab = 'live'">
-            Live ({{ filteredCustomers.length }})
-          </button>
-          <button class="tab" [class.active]="activeTab === 'rejected'" (click)="activeTab = 'rejected'">
-            Rejected ({{ rejectedCustomers.length }})
-          </button>
-          <button class="tab" [class.active]="activeTab === 'pending'" (click)="activeTab = 'pending'">
-            Pending ({{ pendingRequests.length }})
-          </button>
-        </div>
-
+        <div></div>
         <button class="create-btn" (click)="openCreateCustomer()">
           + Customer
         </button>
-
       </div>
 
 
       <!-- ================= LIVE CUSTOMERS ================= -->
 
-      <div class="card" *ngIf="activeTab === 'live'">
+      <div class="card">
         <h3>Live Customers</h3>
 
         <table class="data-table">
@@ -77,6 +89,7 @@
               <th>Customer No.</th>
               <th>Name</th>
               <th>Status</th>
+              <th>Pending Status</th>
               <th>Action</th>
             </tr>
           </thead>
@@ -98,13 +111,26 @@
                 </span>
               </td>
 
+              <td>
+                <span *ngIf="c.pendingStatus" class="badge" [ngClass]="{
+                    'pending': c.pendingStatus === 'PENDING',
+                    'approved': c.pendingStatus === 'APPROVED',
+                    'rejected': c.pendingStatus === 'REJECTED'
+                  }">
+                  {{ c.pendingStatus }}
+                </span>
+                <span *ngIf="!c.pendingStatus" class="badge no-pending">
+                  —
+                </span>
+              </td>
+
               <td class="actions">
 
                 <button class="view-btn" (click)="view(c)">
                   View
                 </button>
 
-                <ng-container *ngIf="c.status === 'ACTIVE'">
+                <ng-container *ngIf="c.status === 'ACTIVE' && c.pendingStatus !== 'PENDING'">
                   <button class="edit-btn" (click)="edit(c)">
                     Edit
                   </button>
@@ -114,7 +140,7 @@
                   </button>
                 </ng-container>
 
-                <ng-container *ngIf="c.status === 'INACTIVE'">
+                <ng-container *ngIf="c.status === 'INACTIVE' && c.pendingStatus !== 'PENDING'">
                   <button class="activate-btn" (click)="activate(c)">
                     Activate
                   </button>
@@ -122,120 +148,6 @@
                     Delete
                   </button>
                 </ng-container>
-
-              </td>
-
-            </tr>
-
-          </tbody>
-
-        </table>
-
-      </div>
-
-
-
-      <!-- ================= REJECTED CUSTOMER REQUESTS ================= -->
-
-      <div class="card" *ngIf="activeTab === 'rejected'">
-        <h3>Rejected Customer Requests</h3>
-
-        <table class="data-table">
-
-          <thead>
-            <tr>
-              <th>No.</th>
-              <th>Customer No.</th>
-              <th>Name</th>
-              <th>Status</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-
-          <tbody>
-
-            <tr *ngIf="rejectedCustomers.length === 0">
-              <td colspan="5" class="empty">
-                No Rejected / Draft Requests
-              </td>
-            </tr>
-
-            <tr *ngFor="let r of rejectedCustomers; let i = index">
-
-              <td>{{ i + 1 }}</td>
-              <td>{{ r.customerNo || 'N/A' }}</td>
-              <td>{{ r.name || 'N/A' }}</td>
-
-              <td>
-                <span class="badge rejected">
-                  REJECTED
-                </span>
-              </td>
-
-              <td>
-
-                <button class="view-btn" (click)="viewRequest(r)">
-                  View
-                </button>
-
-                <button class="edit-btn" (click)="editRequest(r)">
-                  Edit
-                </button>
-
-              </td>
-
-            </tr>
-
-          </tbody>
-
-        </table>
-
-      </div>
-
-
-
-      <!-- ================= PENDING APPROVAL REQUESTS ================= -->
-
-      <div class="card" *ngIf="activeTab === 'pending'">
-        <h3>Pending Approval Requests</h3>
-
-        <table class="data-table">
-
-          <thead>
-            <tr>
-              <th>No.</th>
-              <th>Customer No.</th>
-              <th>Name</th>
-              <th>Status</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-
-          <tbody>
-
-            <tr *ngIf="pendingRequests.length === 0">
-              <td colspan="5" class="empty">
-                Nothing Pending
-              </td>
-            </tr>
-
-            <tr *ngFor="let p of pendingRequests; let i = index">
-
-              <td>{{ i + 1 }}</td>
-              <td>{{ p.customerNo || 'N/A' }}</td>
-              <td>{{ p.name || 'N/A' }}</td>
-
-              <td>
-                <span class="badge pending">
-                  PENDING
-                </span>
-              </td>
-
-              <td>
-
-                <button class="view-btn" (click)="viewRequest(p)">
-                  View
-                </button>
 
               </td>
 

@@ -13,12 +13,12 @@
 
       <div class="filter-group">
         <label>Cust No</label>
-        <input type="text" [(ngModel)]="filterCustNo" (input)="applyFilters()" placeholder="CUST-1001" />
+        <input type="text" [(ngModel)]="filterCustNo" placeholder="CUST-1001" />
       </div>
 
       <div class="filter-group">
         <label>Card Type</label>
-        <select [(ngModel)]="filterType" (change)="applyFilters()">
+        <select [(ngModel)]="filterType">
           <option value="">All Types</option>
           <option value="Classic">Classic</option>
           <option value="Gold">Gold</option>
@@ -28,12 +28,40 @@
 
       <div class="filter-group">
         <label>Cardholder Name</label>
-        <input type="text" [(ngModel)]="filterCardholderName" (input)="applyFilters()" placeholder="John Doe" />
+        <input type="text" [(ngModel)]="filterCardholderName" placeholder="John Doe" />
       </div>
 
-      <button class="search-btn" (click)="clearFilters()">
-        <span>CLEAR</span>
-      </button>
+      <div class="filter-group">
+        <label>Card Status</label>
+        <select [(ngModel)]="filterStatus">
+          <option value="">All</option>
+          <option value="ACTIVE">Active</option>
+          <option value="INACTIVE">Inactive</option>
+          <option value="ISSUED">Issued</option>
+          <option value="BLOCKED">Blocked</option>
+          <option value="DEACTIVATED">Deactivated</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label>Pending Status</label>
+        <select [(ngModel)]="filterPendingStatus">
+          <option value="">All</option>
+          <option value="PENDING">Pending</option>
+          <option value="APPROVED">Approved</option>
+          <option value="REJECTED">Rejected</option>
+          <option value="NONE">No Pending</option>
+        </select>
+      </div>
+
+      <div class="filter-actions">
+        <button class="search-btn" (click)="applyFilters()">
+          <span>SEARCH</span>
+        </button>
+        <button class="clear-btn" (click)="clearFilters()">
+          <span>CLEAR</span>
+        </button>
+      </div>
 
     </div>
 
@@ -42,25 +70,14 @@
 
       <!-- ACTION BAR -->
       <div class="top-bar">
-        <div class="tabs">
-          <button class="tab" [class.active]="activeTab === 'live'" (click)="activeTab = 'live'">
-            Live ({{ filteredCards.length }})
-          </button>
-          <button class="tab" [class.active]="activeTab === 'rejected'" (click)="activeTab = 'rejected'">
-            Rejected ({{ rejectedRequests.length }})
-          </button>
-          <button class="tab" [class.active]="activeTab === 'pending'" (click)="activeTab = 'pending'">
-            Pending ({{ pendingRequests.length }})
-          </button>
-        </div>
-
+        <div></div>
         <button class="create-btn" *ngIf="isStaff" (click)="navigateToAdd()">
           + Card
         </button>
       </div>
 
       <!-- ================= LIVE CARDS ================= -->
-      <div class="card" *ngIf="activeTab === 'live'">
+      <div class="card">
         <h3>Live Cards</h3>
 
         <table class="data-table">
@@ -69,16 +86,17 @@
               <th>No.</th>
               <th>Card Number</th>
               <th>Cardholder Name</th>
-              <th>Status</th>
+              <th>Card Status</th>
+              <th>Pending Status</th>
               <th>Action</th>
             </tr>
           </thead>
           <tbody>
             <tr *ngIf="loading">
-              <td colspan="5" class="empty">Loading cards...</td>
+              <td colspan="6" class="empty">Loading cards...</td>
             </tr>
             <tr *ngIf="!loading && filteredCards.length === 0">
-              <td colspan="5" class="empty">No Cards Available</td>
+              <td colspan="6" class="empty">No Cards Available</td>
             </tr>
             <tr *ngFor="let card of filteredCards; let i = index">
               <td>{{ i + 1 }}</td>
@@ -89,106 +107,52 @@
                     'active': card.status === 'ACTIVE',
                     'blocked': card.status === 'BLOCKED',
                     'inactive': card.status === 'INACTIVE',
+                    'issued': card.status === 'ISSUED',
                     'deactivated': card.status === 'DEACTIVATED'
                   }">
                   {{ card.status }}
+                </span>
+              </td>
+              <td>
+                <span *ngIf="card.pendingStatus" class="badge" [ngClass]="{
+                    'pending': card.pendingStatus === 'PENDING',
+                    'approved': card.pendingStatus === 'APPROVED',
+                    'rejected': card.pendingStatus === 'REJECTED'
+                  }">
+                  {{ card.pendingStatus }}
+                </span>
+                <span *ngIf="!card.pendingStatus" class="badge no-pending">
+                  —
                 </span>
               </td>
               <td class="actions">
                 <!-- ACTIVE -->
                 <ng-container *ngIf="card.status === 'ACTIVE'">
                   <button class="view-btn" (click)="viewLiveCard(card.id)">View</button>
-                  <button class="edit-btn" *ngIf="isStaff && !card.issued" (click)="editCard(card.id)">Edit</button>
-                  <button class="issue-btn" *ngIf="isStaff && !card.issued" (click)="issueCard(card.id)">Issue Card</button>
-                  <button class="block-btn" *ngIf="isStaff" (click)="blockCard(card)">Block</button>
-                  <span class="badge issued" *ngIf="card.issued">Issued</span>
+                  <button class="edit-btn" *ngIf="isStaff && card.pendingStatus !== 'PENDING'" (click)="editCard(card.id)">Edit</button>
+                  <button class="block-btn" *ngIf="isStaff && card.pendingStatus !== 'PENDING'" (click)="blockCard(card)">Block</button>
+                </ng-container>
+                <!-- ISSUED -->
+                <ng-container *ngIf="card.status === 'ISSUED'">
+                  <button class="view-btn" (click)="viewLiveCard(card.id)">View</button>
+                  <button class="activate-btn" *ngIf="isStaff && card.pendingStatus !== 'PENDING'" (click)="activateCard(card.id)">Activate</button>
                 </ng-container>
                 <!-- BLOCKED -->
                 <ng-container *ngIf="card.status === 'BLOCKED'">
                   <button class="view-btn" (click)="viewLiveCard(card.id)">View</button>
-                  <button class="replace-btn" *ngIf="isStaff" (click)="replaceCard(card)">Replace</button>
-                  <button class="delete-btn" *ngIf="isStaff" (click)="deactivateCard(card.id)">Deactivate</button>
+                  <button class="replace-btn" *ngIf="isStaff && card.pendingStatus !== 'PENDING'" (click)="replaceCard(card)">Replace</button>
+                  <button class="delete-btn" *ngIf="isStaff && card.pendingStatus !== 'PENDING'" (click)="deactivateCard(card.id)">Deactivate</button>
                 </ng-container>
                 <!-- INACTIVE -->
                 <ng-container *ngIf="card.status === 'INACTIVE'">
                   <button class="view-btn" (click)="viewLiveCard(card.id)">View</button>
-                  <button class="activate-btn" *ngIf="isStaff" (click)="activateCard(card.id)">Activate</button>
+                  <button class="issue-btn" *ngIf="isStaff && card.pendingStatus !== 'PENDING'" (click)="issueCard(card.id)">Issue Card</button>
                 </ng-container>
                 <!-- DEACTIVATED -->
                 <ng-container *ngIf="card.status === 'DEACTIVATED'">
                   <button class="view-btn" (click)="viewLiveCard(card.id)">View</button>
-                  <button class="delete-btn" *ngIf="isStaff" (click)="deleteCard(card.id)">Delete</button>
+                  <button class="delete-btn" *ngIf="isStaff && card.pendingStatus !== 'PENDING'" (click)="deleteCard(card.id)">Delete</button>
                 </ng-container>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <!-- ================= REJECTED REQUESTS ================= -->
-      <div class="card" *ngIf="activeTab === 'rejected'">
-        <h3>Rejected Card Requests</h3>
-
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th>No.</th>
-              <th>Card Number</th>
-              <th>Cardholder Name</th>
-              <th>Status</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngIf="!loading && rejectedRequests.length === 0">
-              <td colspan="5" class="empty">
-                No Rejected / Draft Requests
-              </td>
-            </tr>
-            <tr *ngFor="let req of rejectedRequests; let i = index">
-              <td>{{ i + 1 }}</td>
-              <td>{{ req.parsedPayload?.cardNumber ? maskCardNumber(req.parsedPayload.cardNumber) : 'N/A' }}</td>
-              <td>{{ req.parsedPayload?.cardHolderName || req.customerNo || 'N/A' }}</td>
-              <td>
-                <span class="badge rejected">{{ req.status }}</span>
-              </td>
-              <td class="actions">
-                <button class="view-btn" (click)="viewPendingCard(req.id)">View</button>
-                <button class="edit-btn" *ngIf="isStaff && (req.operation === 'CREATE' || req.operation === 'UPDATE')" (click)="editRejectedRequest(req)">Edit</button>
-                <button class="delete-btn" *ngIf="isStaff" (click)="removeRejected(req.id)">Remove</button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <!-- ================= PENDING REQUESTS ================= -->
-      <div class="card" *ngIf="activeTab === 'pending'">
-        <h3>Pending Approval Requests</h3>
-
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th>No.</th>
-              <th>Card Number</th>
-              <th>Cardholder Name</th>
-              <th>Status</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngIf="!loading && pendingRequests.length === 0">
-              <td colspan="5" class="empty">Nothing Pending</td>
-            </tr>
-            <tr *ngFor="let req of pendingRequests; let i = index">
-              <td>{{ i + 1 }}</td>
-              <td>{{ req.parsedPayload?.cardNumber ? maskCardNumber(req.parsedPayload.cardNumber) : 'N/A' }}</td>
-              <td>{{ req.parsedPayload?.cardHolderName || req.customerNo || 'N/A' }}</td>
-              <td>
-                <span class="badge pending">{{ req.status }}</span>
-              </td>
-              <td class="actions">
-                <button class="view-btn" (click)="viewPendingCard(req.id)">View</button>
               </td>
             </tr>
           </tbody>

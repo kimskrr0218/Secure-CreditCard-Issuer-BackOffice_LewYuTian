@@ -1032,27 +1032,17 @@ public class PendingRequestController {
             if (!node.has("id")) throw new RuntimeException("Card ID missing in activate payload");
             Card card = cardRepository.findById(node.get("id").asLong())
                     .orElseThrow(() -> new RuntimeException("Card not found"));
-            if (!"INACTIVE".equalsIgnoreCase(card.getStatus())) {
-                throw new RuntimeException("Only INACTIVE cards can be activated. Current status: " + card.getStatus());
+            if (!"ISSUED".equalsIgnoreCase(card.getStatus())) {
+                throw new RuntimeException("Only ISSUED cards can be activated. Current status: " + card.getStatus());
             }
+
+            // Extract email data before modifying the entity
+            Customer activateCustomer = card.getCustomer();
+            String activateEmail = (activateCustomer != null) ? activateCustomer.getEmail() : null;
+            String activateHolderName = card.getCardHolderName();
+            String activateCardNum = card.getCardNumber();
+
             card.setStatus("ACTIVE");
-            // Audit trail
-            card.setUpdatedBy(req.getCreatedBy());
-            card.setUpdatedAt(LocalDateTime.now());
-            card.setApprovedBy(approverUsername);
-            cardRepository.save(card);
-
-        } else if ("ISSUE".equalsIgnoreCase(req.getOperation())) {
-
-            if (!node.has("id")) throw new RuntimeException("Card ID missing in issue payload");
-            Card card = cardRepository.findById(node.get("id").asLong())
-                    .orElseThrow(() -> new RuntimeException("Card not found"));
-            if (!"ACTIVE".equalsIgnoreCase(card.getStatus())) {
-                throw new RuntimeException("Only ACTIVE cards can be issued. Current status: " + card.getStatus());
-            }
-            if (card.isIssued()) {
-                throw new RuntimeException("Card has already been issued.");
-            }
             card.setIssued(true);
             // Audit trail
             card.setUpdatedBy(req.getCreatedBy());
@@ -1060,16 +1050,62 @@ public class PendingRequestController {
             card.setApprovedBy(approverUsername);
             cardRepository.save(card);
 
+            // Send card activation email to customer
+            log.info("Attempting to send card activation email for card {} to customer {}",
+                    card.getId(),
+                    activateCustomer != null ? activateEmail : "null");
+            if (activateEmail != null && !activateEmail.isBlank()) {
+                String maskedNum = activateCardNum.substring(0, 4) + " **** **** "
+                        + activateCardNum.substring(activateCardNum.length() - 4);
+                emailService.sendCardActivationEmail(
+                        activateEmail,
+                        activateHolderName,
+                        maskedNum
+                );
+            } else {
+                log.warn("Cannot send card activation email: customer={}, email={}",
+                        activateCustomer != null ? activateCustomer.getId() : "null",
+                        activateEmail);
+            }
+
+        } else if ("ISSUE".equalsIgnoreCase(req.getOperation())) {
+
+            if (!node.has("id")) throw new RuntimeException("Card ID missing in issue payload");
+            Card card = cardRepository.findById(node.get("id").asLong())
+                    .orElseThrow(() -> new RuntimeException("Card not found"));
+            if (!"INACTIVE".equalsIgnoreCase(card.getStatus())) {
+                throw new RuntimeException("Only INACTIVE cards can be issued. Current status: " + card.getStatus());
+            }
+
+            // Extract email data before modifying the entity
+            Customer issueCustomer = card.getCustomer();
+            String issueEmail = (issueCustomer != null) ? issueCustomer.getEmail() : null;
+            String issueHolderName = card.getCardHolderName();
+            String issueCardNum = card.getCardNumber();
+
+            card.setStatus("ISSUED");
+            // Audit trail
+            card.setUpdatedBy(req.getCreatedBy());
+            card.setUpdatedAt(LocalDateTime.now());
+            card.setApprovedBy(approverUsername);
+            cardRepository.save(card);
+
             // Send card issued email to customer (async — won't block the response)
-            Customer customer = card.getCustomer();
-            if (customer != null && customer.getEmail() != null && !customer.getEmail().isBlank()) {
-                String masked = card.getCardNumber().substring(0, 4) + " **** **** "
-                        + card.getCardNumber().substring(card.getCardNumber().length() - 4);
+            log.info("Attempting to send card issued email for card {} to customer {}",
+                    card.getId(),
+                    issueCustomer != null ? issueEmail : "null");
+            if (issueEmail != null && !issueEmail.isBlank()) {
+                String masked = issueCardNum.substring(0, 4) + " **** **** "
+                        + issueCardNum.substring(issueCardNum.length() - 4);
                 emailService.sendCardIssuedEmail(
-                        customer.getEmail(),
-                        card.getCardHolderName(),
+                        issueEmail,
+                        issueHolderName,
                         masked
                 );
+            } else {
+                log.warn("Cannot send card issued email: customer={}, email={}",
+                        issueCustomer != null ? issueCustomer.getId() : "null",
+                        issueEmail);
             }
 
         } else if ("DEACTIVATE".equalsIgnoreCase(req.getOperation())) {

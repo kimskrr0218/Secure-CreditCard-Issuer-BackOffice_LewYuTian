@@ -35,6 +35,8 @@ export class AccountsComponent implements OnInit {
   filterAccountNo: string = '';
   filterEmail: string = '';
   filterName: string = '';
+  filterStatus: string = '';
+  filterPendingStatus: string = '';
 
   accountForm!: FormGroup;
 
@@ -76,6 +78,9 @@ export class AccountsComponent implements OnInit {
 
   // ================= LOAD DATA =================
 
+  // Store all pending data for cross-referencing
+  allPendingData: any[] = [];
+
   loadAccounts(): void {
     this.loading = true;
 
@@ -83,6 +88,7 @@ export class AccountsComponent implements OnInit {
     this.http.get<any[]>(this.apiUrl, { withCredentials: true }).subscribe({
       next: (data) => {
         this.accounts = data;
+        this.enrichAccountsWithPendingStatus();
         this.filteredAccounts = [...this.accounts];
         this.loading = false;
       },
@@ -108,6 +114,7 @@ export class AccountsComponent implements OnInit {
               ...req,
               ...payloadObj,
               pendingRequestId: req.id,
+              approvalStatus: req.status || 'PENDING',
               status: req.status || 'PENDING',
               reason: req.rejectionReason || req.reason || req.rejectReason || 'No reason provided'
             };
@@ -115,9 +122,42 @@ export class AccountsComponent implements OnInit {
 
         this.pendingRequests = accountRequests.filter(req => req.status === 'PENDING');
         this.rejectedRequests = accountRequests.filter(req => req.status === 'REJECTED');
+
+        // Enrich live accounts with their pending status
+        this.allPendingData = data.filter(req => req.entityType === 'ACCOUNT');
+        this.enrichAccountsWithPendingStatus();
+        this.filteredAccounts = [...this.accounts];
       },
       error: (err) => console.error('Error loading pending requests:', err)
     });
+  }
+
+  /** Enrich each live account with their latest pending request approval status */
+  enrichAccountsWithPendingStatus(): void {
+    if (!this.accounts.length || !this.allPendingData.length) return;
+
+    for (const account of this.accounts) {
+      const relatedRequests = this.allPendingData
+        .filter(req => {
+          if (req.entityId === account.id) return true;
+          try {
+            const payload = JSON.parse(req.payload);
+            if (payload.id === account.id || payload.accountId === account.id) return true;
+          } catch (e) {}
+          return false;
+        })
+        .sort((a: any, b: any) => {
+          const dateA = new Date(a.createdAt || 0).getTime();
+          const dateB = new Date(b.createdAt || 0).getTime();
+          return dateB - dateA;
+        });
+
+      if (relatedRequests.length > 0) {
+        account.pendingStatus = relatedRequests[0].status; // PENDING, APPROVED, REJECTED
+      } else {
+        account.pendingStatus = null;
+      }
+    }
   }
 
   loadCustomers(): void {
@@ -138,6 +178,11 @@ export class AccountsComponent implements OnInit {
       if (accNo && !(a.accountNumber && a.accountNumber.toLowerCase().includes(accNo))) return false;
       if (email && !(a.customer?.email && a.customer.email.toLowerCase().includes(email))) return false;
       if (name && !(a.customer?.name && a.customer.name.toLowerCase().includes(name))) return false;
+      if (this.filterStatus && a.status !== this.filterStatus) return false;
+      if (this.filterPendingStatus) {
+        if (this.filterPendingStatus === 'NONE' && a.pendingStatus !== null) return false;
+        if (this.filterPendingStatus !== 'NONE' && a.pendingStatus !== this.filterPendingStatus) return false;
+      }
       return true;
     });
   }
@@ -146,6 +191,8 @@ export class AccountsComponent implements OnInit {
     this.filterAccountNo = '';
     this.filterEmail = '';
     this.filterName = '';
+    this.filterStatus = '';
+    this.filterPendingStatus = '';
     this.applyFilters();
   }
 

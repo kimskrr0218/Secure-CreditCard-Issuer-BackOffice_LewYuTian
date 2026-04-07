@@ -34,6 +34,8 @@ export class CustomersComponent implements OnInit {
   filterCustNo: string = '';
   filterEmail: string = '';
   filterName: string = '';
+  filterStatus: string = '';
+  filterPendingStatus: string = '';
 
   customerForm!: FormGroup;
 
@@ -85,6 +87,7 @@ export class CustomersComponent implements OnInit {
     this.http.get<any[]>(this.apiUrl, { withCredentials: true }).subscribe({
       next: (data) => {
         this.customers = data;
+        this.enrichCustomersWithPendingStatus();
         this.filteredCustomers = [...this.customers];
         this.loading = false;
       },
@@ -115,17 +118,57 @@ export class CustomersComponent implements OnInit {
               name: payloadObj.name || 'Unknown',
               maker: req.createdBy || 'STAFF', // fallback if backend doesn't have createdBy
               submittedDate: req.createdAt || new Date().toISOString().split('T')[0],
-              status: req.status || 'PENDING', // Ensures state reads 'PENDING' or 'REJECTED' instead of undefined
+              approvalStatus: req.status || 'PENDING', // The approval status (PENDING / APPROVED / REJECTED)
+              status: req.status || 'PENDING',
               reason: req.rejectionReason || req.reason || req.rejectReason || 'No reason provided'
             };
           });
 
         this.pendingRequests = customerRequests.filter(req => req.status === 'PENDING');
         this.rejectedCustomers = customerRequests.filter(req => req.status === 'REJECTED');
+
+        // Enrich live customers with their pending status
+        this.allPendingData = data.filter(req => req.entityType === 'CUSTOMER');
+        this.enrichCustomersWithPendingStatus();
+        this.filteredCustomers = [...this.customers];
       },
       error: (err) => console.error('Error loading pending requests:', err)
     });
 
+  }
+
+  // Store all pending data for cross-referencing
+  allPendingData: any[] = [];
+
+  /** Enrich each live customer with their latest pending request approval status */
+  enrichCustomersWithPendingStatus(): void {
+    if (!this.customers.length || !this.allPendingData.length) return;
+
+    for (const customer of this.customers) {
+      // Find pending requests that reference this customer's ID
+      const relatedRequests = this.allPendingData
+        .filter(req => {
+          if (req.entityId === customer.id) return true;
+          // Also check inside payload
+          try {
+            const payload = JSON.parse(req.payload);
+            if (payload.id === customer.id) return true;
+          } catch (e) {}
+          return false;
+        })
+        .sort((a: any, b: any) => {
+          // Sort by most recent first
+          const dateA = new Date(a.createdAt || 0).getTime();
+          const dateB = new Date(b.createdAt || 0).getTime();
+          return dateB - dateA;
+        });
+
+      if (relatedRequests.length > 0) {
+        customer.pendingStatus = relatedRequests[0].status; // PENDING, APPROVED, REJECTED
+      } else {
+        customer.pendingStatus = null; // No pending request
+      }
+    }
   }
 
   // ================= FILTERS =================
@@ -139,6 +182,11 @@ export class CustomersComponent implements OnInit {
       if (custNo && !(c.customerNo && c.customerNo.toString().toLowerCase().includes(custNo))) return false;
       if (email && !(c.email && c.email.toLowerCase().includes(email))) return false;
       if (name && !(c.name && c.name.toLowerCase().includes(name))) return false;
+      if (this.filterStatus && c.status !== this.filterStatus) return false;
+      if (this.filterPendingStatus) {
+        if (this.filterPendingStatus === 'NONE' && c.pendingStatus !== null) return false;
+        if (this.filterPendingStatus !== 'NONE' && c.pendingStatus !== this.filterPendingStatus) return false;
+      }
       return true;
     });
   }
@@ -147,6 +195,8 @@ export class CustomersComponent implements OnInit {
     this.filterCustNo = '';
     this.filterEmail = '';
     this.filterName = '';
+    this.filterStatus = '';
+    this.filterPendingStatus = '';
     this.applyFilters();
   }
 
