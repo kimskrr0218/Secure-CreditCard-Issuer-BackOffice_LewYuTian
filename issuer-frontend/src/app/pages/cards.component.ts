@@ -24,9 +24,9 @@ export class CardsComponent implements OnInit {
   activeTab: string = 'live';
 
   // Filters state
-  filterCustomer: string = '';
+  filterCustNo: string = '';
   filterType: string = '';
-  keyword: string = '';
+  filterCardholderName: string = '';
 
   isManager: boolean = false;
   isStaff: boolean = false;
@@ -107,23 +107,22 @@ export class CardsComponent implements OnInit {
 
   applyFilters(): void {
     this.filteredCards = this.cards.filter(c => {
-      const custNoOrName = c.customer?.customerNo || c.customer?.name || c.cardHolderName || '';
-      
-      const matchCustomer =
-        !this.filterCustomer ||
-        custNoOrName.toLowerCase().includes(this.filterCustomer.toLowerCase());
+      const custNo = this.filterCustNo.trim().toLowerCase();
+      const cardType = this.filterType;
+      const holderName = this.filterCardholderName.trim().toLowerCase();
 
-      const matchType =
-        !this.filterType ||
-        this.filterType === '' ||
-        c.cardType === this.filterType;
-
-      const matchKeyword =
-        !this.keyword ||
-        (c.cardNumber && c.cardNumber.toLowerCase().includes(this.keyword.toLowerCase()));
-
-      return matchCustomer && matchType && matchKeyword;
+      if (custNo && !(c.customer?.customerNo && c.customer.customerNo.toLowerCase().includes(custNo))) return false;
+      if (cardType && c.cardType !== cardType) return false;
+      if (holderName && !(c.cardHolderName && c.cardHolderName.toLowerCase().includes(holderName))) return false;
+      return true;
     });
+  }
+
+  clearFilters(): void {
+    this.filterCustNo = '';
+    this.filterType = '';
+    this.filterCardholderName = '';
+    this.applyFilters();
   }
 
   navigateToAdd(): void {

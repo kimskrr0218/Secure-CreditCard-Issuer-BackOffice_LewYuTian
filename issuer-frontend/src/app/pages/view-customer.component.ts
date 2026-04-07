@@ -13,6 +13,8 @@ import { TopNavbarComponent } from '../components/top-navbar.component';
 })
 export class ViewCustomerComponent implements OnInit {
   customer: any = null;
+  requestStatus: string | null = null;
+  rejectionReason: string | null = null;
   backLabel: string = 'Back to Customers';
   backPath: string = '/customers';
 
@@ -30,7 +32,15 @@ export class ViewCustomerComponent implements OnInit {
       this.backPath = '/pending';
     }
 
-    // 1. Check if data was passed in the router state (common for pending requests)
+    // Check for rejection info from router state
+    const stateStatus = history.state?.requestStatus;
+    const stateReason = history.state?.rejectionReason;
+    if (stateStatus) {
+      this.requestStatus = stateStatus;
+      this.rejectionReason = stateReason || 'No reason provided';
+    }
+
+    // 1. Check if data was passed in the router state (common for pending/rejected requests)
     const stateData = history.state?.customer;
 
     if (stateData) {

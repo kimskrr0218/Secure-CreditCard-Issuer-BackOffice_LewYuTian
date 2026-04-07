@@ -14,25 +14,22 @@
       <h3>Filters</h3>
 
       <div class="filter-group">
-        <label>Customer No / Name</label>
-        <input type="text" [(ngModel)]="filterCustomer" (keyup.enter)="applyFilters()" placeholder="CUST-1001" />
-      </div>
-
-      <div class="filter-group">
-        <label>Account Type</label>
-        <select [(ngModel)]="filterType" (change)="applyFilters()">
-          <option value="">All Types</option>
-          <option value="CREDIT">CREDIT</option>
-        </select>
-      </div>
-
-      <div class="filter-group">
         <label>Account No</label>
-        <input type="text" [(ngModel)]="keyword" (keyup.enter)="applyFilters()" placeholder="Account No" />
+        <input type="text" [(ngModel)]="filterAccountNo" (input)="applyFilters()" placeholder="ACC-2001" />
       </div>
 
-      <button class="search-btn" (click)="applyFilters()">
-        <span>SEARCH</span>
+      <div class="filter-group">
+        <label>Email</label>
+        <input type="text" [(ngModel)]="filterEmail" (input)="applyFilters()" placeholder="john@example.com" />
+      </div>
+
+      <div class="filter-group">
+        <label>Name</label>
+        <input type="text" [(ngModel)]="filterName" (input)="applyFilters()" placeholder="John Doe" />
+      </div>
+
+      <button class="search-btn" (click)="clearFilters()">
+        <span>CLEAR</span>
       </button>
 
     </div>

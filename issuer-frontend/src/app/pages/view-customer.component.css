@@ -113,3 +113,26 @@
 .cancel-btn:hover {
   background: #f1f5f9;
 }
+
+/* ===== Rejected Reason ===== */
+.rejection-reason {
+  background-color: #fff3cd;
+  border-left: 4px solid #f59e0b;
+  padding: 12px;
+  margin-top: 20px;
+  border-radius: 4px;
+}
+
+.rejection-reason h3 {
+  color: #854d0e;
+  margin-top: 0;
+  margin-bottom: 8px;
+  font-size: 16px;
+}
+
+.rejection-reason p {
+  color: #92400e;
+  margin: 0;
+  font-size: 14px;
+  font-weight: 500;
+}

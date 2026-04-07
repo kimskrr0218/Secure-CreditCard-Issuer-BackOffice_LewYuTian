@@ -69,6 +69,11 @@ export class PendingComponent implements OnInit {
   currentFilter: string = 'ALL';
   selectedStatus: string = 'ALL';
 
+  // 🔥 SEARCH FILTER STATE
+  filterCustomerNo: string = '';
+  filterAccountNo: string = '';
+  filterCardholderName: string = '';
+
   // 🔥 ROLE CONTROL
   isManager: boolean = false;
 
@@ -103,27 +108,50 @@ export class PendingComponent implements OnInit {
 
   // 🔥 FILTER LOGIC
   get customerRequests(): any[] {
-    const custReqs = this.requests.filter(r => r.entityType === 'CUSTOMER');
-    if (this.currentFilter === 'ALL') {
-      return custReqs;
+    let custReqs = this.requests.filter(r => r.entityType === 'CUSTOMER');
+    if (this.currentFilter !== 'ALL') {
+      custReqs = custReqs.filter(r => r.status === this.currentFilter);
     }
-    return custReqs.filter(r => r.status === this.currentFilter);
+    return this.applySearchFilters(custReqs);
   }
 
   get accountRequests(): any[] {
-    const accReqs = this.requests.filter(r => r.entityType === 'ACCOUNT');
-    if (this.currentFilter === 'ALL') {
-      return accReqs;
+    let accReqs = this.requests.filter(r => r.entityType === 'ACCOUNT');
+    if (this.currentFilter !== 'ALL') {
+      accReqs = accReqs.filter(r => r.status === this.currentFilter);
     }
-    return accReqs.filter(r => r.status === this.currentFilter);
+    return this.applySearchFilters(accReqs);
   }
 
   get cardRequests(): any[] {
-    const cardReqs = this.requests.filter(r => r.entityType === 'CARD');
-    if (this.currentFilter === 'ALL') {
-      return cardReqs;
+    let cardReqs = this.requests.filter(r => r.entityType === 'CARD');
+    if (this.currentFilter !== 'ALL') {
+      cardReqs = cardReqs.filter(r => r.status === this.currentFilter);
     }
-    return cardReqs.filter(r => r.status === this.currentFilter);
+    return this.applySearchFilters(cardReqs);
+  }
+
+  applySearchFilters(reqs: any[]): any[] {
+    const custNo = this.filterCustomerNo.trim().toLowerCase();
+    const accNo = this.filterAccountNo.trim().toLowerCase();
+    const name = this.filterCardholderName.trim().toLowerCase();
+
+    return reqs.filter(r => {
+      const rCustNo = (r.customerNo || r.parsedPayload?.customerNo || '').toLowerCase();
+      const rAccNo = (r.accountNumber || r.parsedPayload?.accountNumber || '').toLowerCase();
+      const rName = (r.name || r.parsedPayload?.cardHolderName || r.parsedPayload?.name || '').toLowerCase();
+
+      if (custNo && !rCustNo.includes(custNo)) return false;
+      if (accNo && !rAccNo.includes(accNo)) return false;
+      if (name && !rName.includes(name)) return false;
+      return true;
+    });
+  }
+
+  clearFilters(): void {
+    this.filterCustomerNo = '';
+    this.filterAccountNo = '';
+    this.filterCardholderName = '';
   }
 
   setFilter(status: string): void {

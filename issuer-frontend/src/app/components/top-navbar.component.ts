@@ -8,31 +8,31 @@ import { HttpClient } from '@angular/common/http';
   standalone: true,
   imports: [CommonModule, RouterModule],
   template: `
-    <nav class="emoji-navbar">
+    <nav class="top-navbar">
       <div class="nav-left">
         <span class="user-info">Signed in as: <strong>{{ username }}</strong> — {{ role }}</span>
       </div>
       <div class="nav-center">
-        <div class="nav-icon" title="Dashboard" routerLink="/dashboard">🏠</div>
-        <div class="nav-icon" title="Customers" routerLink="/customers">👤</div>
-        <div class="nav-icon" title="Accounts" routerLink="/accounts">💳</div>
-        <div class="nav-icon" title="Cards" routerLink="/cards">🪪</div>
-        <div class="nav-icon" title="Pending" routerLink="/pending">⏳</div>
+        <a class="nav-link" routerLink="/dashboard" routerLinkActive="active">Dashboard</a>
+        <a class="nav-link" routerLink="/customers" routerLinkActive="active">Customers</a>
+        <a class="nav-link" routerLink="/accounts" routerLinkActive="active">Accounts</a>
+        <a class="nav-link" routerLink="/cards" routerLinkActive="active">Cards</a>
+        <a class="nav-link" routerLink="/pending" routerLinkActive="active">Pending</a>
       </div>
       <div class="nav-right">
-        <div class="nav-icon profile-icon" title="My Profile" routerLink="/profile">⚙️</div>
-        <div class="nav-icon logout-icon" title="Logout" (click)="logout()">🚪</div>
+        <a class="nav-link profile-link" routerLink="/profile" routerLinkActive="active">Profile</a>
+        <button class="logout-btn" (click)="logout()">Logout</button>
       </div>
     </nav>
   `,
   styles: [`
-    .emoji-navbar {
+    .top-navbar {
       display: flex;
       justify-content: space-between;
       align-items: center;
       background: #1e293b;
-      padding: 12px 25px;
-      margin-bottom: 20px;
+      padding: 0 25px;
+      height: 56px;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
       color: white;
     }
@@ -54,44 +54,67 @@ import { HttpClient } from '@angular/common/http';
 
     .nav-right {
       justify-content: flex-end;
+      gap: 8px;
     }
 
     .nav-center {
       display: flex;
-      gap: 30px;
+      gap: 4px;
       justify-content: center;
     }
 
-    .nav-icon {
-      font-size: 24px;
-      padding: 10px;
-      border-radius: 8px;
+    .nav-link {
+      font-size: 14px;
+      font-weight: 500;
+      padding: 8px 16px;
+      border-radius: 6px;
       cursor: pointer;
-      transition: all 0.25s ease;
-      user-select: none;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      transition: all 0.2s ease;
+      color: #94a3b8;
+      text-decoration: none;
+      white-space: nowrap;
     }
 
-    .nav-icon:hover {
-      transform: scale(1.25) translateY(-2px);
+    .nav-link:hover {
+      color: white;
       background: rgba(255, 255, 255, 0.1);
-      filter: drop-shadow(0 0 8px #38bdf8);
     }
 
-    .nav-icon:active {
-      transform: scale(1.1);
+    .nav-link.active {
+      color: white;
+      background: #2563eb;
     }
 
-    .logout-icon:hover {
-      background: rgba(239, 68, 68, 0.25) !important;
-      filter: drop-shadow(0 0 8px #ef4444) !important;
+    .profile-link {
+      color: #94a3b8;
     }
 
-    .profile-icon:hover {
-      background: rgba(56, 189, 248, 0.25) !important;
-      filter: drop-shadow(0 0 8px #38bdf8) !important;
+    .profile-link:hover {
+      color: #38bdf8;
+      background: rgba(56, 189, 248, 0.15);
+    }
+
+    .profile-link.active {
+      color: #38bdf8;
+      background: rgba(56, 189, 248, 0.15);
+    }
+
+    .logout-btn {
+      font-size: 14px;
+      font-weight: 500;
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      color: #fca5a5;
+      background: transparent;
+      border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    .logout-btn:hover {
+      color: white;
+      background: rgba(239, 68, 68, 0.25);
+      border-color: #ef4444;
     }
   `]
 })

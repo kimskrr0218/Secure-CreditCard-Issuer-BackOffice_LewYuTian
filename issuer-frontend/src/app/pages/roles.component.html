@@ -1,12 +1,39 @@
+<app-top-navbar></app-top-navbar>
+
 <div class="role-management">
-  <!-- Header Bar -->
-  <div class="header">
+  <!-- Header -->
+  <div class="page-header">
     <h2>Admin Role Management</h2>
-    <div class="admin-info">
-      <span>Logged in as: <strong>{{ currentUser }}</strong> ({{ currentRole }})</span>
-      <button class="logout-btn" (click)="logout()">Logout</button>
-    </div>
   </div>
+
+  <div class="content-layout">
+
+    <!-- ================= FILTER PANEL ================= -->
+    <div class="filter-panel card">
+      <h3>Filters</h3>
+
+      <div class="filter-group">
+        <label>Username</label>
+        <input type="text" [(ngModel)]="filterUsername" placeholder="Search username" />
+      </div>
+
+      <div class="filter-group">
+        <label>Role</label>
+        <select [(ngModel)]="filterRole">
+          <option value="">All Roles</option>
+          <option value="ADMIN">Admin</option>
+          <option value="MANAGER">Manager</option>
+          <option value="STAFF">Staff</option>
+        </select>
+      </div>
+
+      <button class="clear-btn" (click)="clearFilters()">
+        <span>CLEAR</span>
+      </button>
+    </div>
+
+    <!-- ================= MAIN SECTION ================= -->
+    <div class="main-section">
 
   <!-- Create new user section -->
   <div class="card create-section">
@@ -42,7 +69,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let u of users">
+          <tr *ngFor="let u of filteredUsers">
             <td>{{ u.id }}</td>
             <td><strong>{{ u.username }}</strong></td>
             <td>{{ u.email }}</td>
@@ -110,6 +137,8 @@
       </table>
     </div>
   </div>
+    </div> <!-- end main-section -->
+  </div> <!-- end content-layout -->
 </div>
 
 <!-- Professional Styled Alert Modal for Messages -->

@@ -118,6 +118,12 @@
         </div>
       </div>
 
+      <!-- Rejected Reason Section -->
+      <div class="rejection-reason" *ngIf="requestStatus === 'REJECTED'">
+        <h3>Rejected Reason</h3>
+        <p>{{ rejectionReason }}</p>
+      </div>
+
       <div class="form-actions">
         <button type="button" class="cancel-btn" (click)="goBack()">{{ backLabel }}</button>
       </div>

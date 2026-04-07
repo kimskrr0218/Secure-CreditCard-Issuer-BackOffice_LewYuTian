@@ -2,11 +2,12 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
+import { TopNavbarComponent } from '../components/top-navbar.component';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, TopNavbarComponent],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css']
 })
@@ -55,18 +56,5 @@ export class DashboardComponent implements OnInit {
 
   navigateTo(path: string): void {
     this.router.navigate([path]);
-  }
-
-  logout(): void {
-    this.http.post('http://localhost:8080/api/logout', {}, { withCredentials: true }).subscribe({
-      complete: () => {
-        localStorage.clear();
-        this.router.navigate(['/login']);
-      },
-      error: () => {
-        localStorage.clear();
-        this.router.navigate(['/login']);
-      }
-    });
   }
 }

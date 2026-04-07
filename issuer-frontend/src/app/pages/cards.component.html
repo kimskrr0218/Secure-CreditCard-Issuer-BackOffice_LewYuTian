@@ -12,12 +12,12 @@
       <h3>Filters</h3>
 
       <div class="filter-group">
-        <label>Customer No / Name</label>
-        <input type="text" [(ngModel)]="filterCustomer" (keyup.enter)="applyFilters()" placeholder="CUST-1001" />
+        <label>Cust No</label>
+        <input type="text" [(ngModel)]="filterCustNo" (input)="applyFilters()" placeholder="CUST-1001" />
       </div>
 
       <div class="filter-group">
-        <label>Card Tier</label>
+        <label>Card Type</label>
         <select [(ngModel)]="filterType" (change)="applyFilters()">
           <option value="">All Types</option>
           <option value="Classic">Classic</option>
@@ -27,12 +27,12 @@
       </div>
 
       <div class="filter-group">
-        <label>Keyword</label>
-        <input type="text" [(ngModel)]="keyword" (keyup.enter)="applyFilters()" placeholder="Card Number" />
+        <label>Cardholder Name</label>
+        <input type="text" [(ngModel)]="filterCardholderName" (input)="applyFilters()" placeholder="John Doe" />
       </div>
 
-      <button class="search-btn" (click)="applyFilters()">
-        <span>SEARCH</span>
+      <button class="search-btn" (click)="clearFilters()">
+        <span>CLEAR</span>
       </button>
 
     </div>

@@ -3,11 +3,12 @@ import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { TopNavbarComponent } from '../components/top-navbar.component';
 
 @Component({
   selector: 'app-roles',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, TopNavbarComponent],
   templateUrl: './roles.component.html',
   styleUrls: ['./roles.component.css']
 })
@@ -27,6 +28,25 @@ export class RolesComponent implements OnInit {
   role = 'STAFF'; // Default value
   currentUser = '';
   currentRole = '';
+
+  // Filter state
+  filterUsername: string = '';
+  filterRole: string = '';
+
+  get filteredUsers(): any[] {
+    return this.users.filter(u => {
+      const uName = (u.username || '').toLowerCase();
+      const uRole = (u.role?.name || '').toUpperCase();
+      if (this.filterUsername && !uName.includes(this.filterUsername.trim().toLowerCase())) return false;
+      if (this.filterRole && uRole !== this.filterRole) return false;
+      return true;
+    });
+  }
+
+  clearFilters(): void {
+    this.filterUsername = '';
+    this.filterRole = '';
+  }
 
   private apiUrl = 'http://localhost:8080/api/users';
   private pendingApiUrl = 'http://localhost:8080/api/pending';

@@ -31,8 +31,9 @@ export class CustomersComponent implements OnInit {
   activeTab: string = 'live';
 
   // Filters state
-  emailFilter: string = '';
-  keyword: string = '';
+  filterCustNo: string = '';
+  filterEmail: string = '';
+  filterName: string = '';
 
   customerForm!: FormGroup;
 
@@ -131,20 +132,22 @@ export class CustomersComponent implements OnInit {
 
   applyFilters(): void {
     this.filteredCustomers = this.customers.filter(c => {
+      const custNo = this.filterCustNo.trim().toLowerCase();
+      const email = this.filterEmail.trim().toLowerCase();
+      const name = this.filterName.trim().toLowerCase();
 
-      // Email check
-      const matchEmail =
-        !this.emailFilter ||
-        (c.email && c.email.toLowerCase().includes(this.emailFilter.toLowerCase()));
-
-      // Keyword check (name or customer no)
-      const matchKeyword =
-        !this.keyword ||
-        (c.name && c.name.toLowerCase().includes(this.keyword.toLowerCase())) ||
-        (c.customerNo && c.customerNo.toString().toLowerCase().includes(this.keyword.toLowerCase()));
-
-      return matchEmail && matchKeyword;
+      if (custNo && !(c.customerNo && c.customerNo.toString().toLowerCase().includes(custNo))) return false;
+      if (email && !(c.email && c.email.toLowerCase().includes(email))) return false;
+      if (name && !(c.name && c.name.toLowerCase().includes(name))) return false;
+      return true;
     });
+  }
+
+  clearFilters(): void {
+    this.filterCustNo = '';
+    this.filterEmail = '';
+    this.filterName = '';
+    this.applyFilters();
   }
 
   // ================= CREATE / UPDATE =================
@@ -323,8 +326,14 @@ export class CustomersComponent implements OnInit {
   }
 
   viewRequest(request: any): void {
-    this.selectedRequest = request;
-    this.showRequestModal = true;
+    const id = request.entityId || request.pendingRequestId || request.id;
+    this.router.navigate(['/customers/view', id], {
+      state: {
+        customer: request,
+        requestStatus: request.status,
+        rejectionReason: request.reason || request.rejectionReason || 'No reason provided'
+      }
+    });
   }
 
   closeRequestModal(): void {

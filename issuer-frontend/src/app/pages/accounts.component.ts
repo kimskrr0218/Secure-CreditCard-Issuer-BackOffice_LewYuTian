@@ -32,9 +32,9 @@ export class AccountsComponent implements OnInit {
   activeTab: string = 'live';
 
   // Filters state
-  filterCustomer: string = '';
-  filterType: string = '';
-  keyword: string = '';
+  filterAccountNo: string = '';
+  filterEmail: string = '';
+  filterName: string = '';
 
   accountForm!: FormGroup;
 
@@ -131,25 +131,22 @@ export class AccountsComponent implements OnInit {
 
   applyFilters(): void {
     this.filteredAccounts = this.accounts.filter(a => {
-      // Customer NO or Name check
-      const matchCustomer =
-        !this.filterCustomer ||
-        (a.customer?.customerNo && a.customer.customerNo.toLowerCase().includes(this.filterCustomer.toLowerCase())) ||
-        (a.customer?.name && a.customer.name.toLowerCase().includes(this.filterCustomer.toLowerCase()));
+      const accNo = this.filterAccountNo.trim().toLowerCase();
+      const email = this.filterEmail.trim().toLowerCase();
+      const name = this.filterName.trim().toLowerCase();
 
-      // Type check
-      const matchType =
-        !this.filterType ||
-        this.filterType === '' ||
-        a.accountType === this.filterType;
-
-      // Keyword check
-      const matchKeyword =
-        !this.keyword ||
-        (a.accountNumber && a.accountNumber.toLowerCase().includes(this.keyword.toLowerCase()));
-
-      return matchCustomer && matchType && matchKeyword;
+      if (accNo && !(a.accountNumber && a.accountNumber.toLowerCase().includes(accNo))) return false;
+      if (email && !(a.customer?.email && a.customer.email.toLowerCase().includes(email))) return false;
+      if (name && !(a.customer?.name && a.customer.name.toLowerCase().includes(name))) return false;
+      return true;
     });
+  }
+
+  clearFilters(): void {
+    this.filterAccountNo = '';
+    this.filterEmail = '';
+    this.filterName = '';
+    this.applyFilters();
   }
 
   // ================= CREATE / UPDATE =================

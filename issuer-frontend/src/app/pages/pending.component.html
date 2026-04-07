@@ -7,13 +7,42 @@
     <h2>Pending Requests</h2>
   </div>
 
-  <!-- ================= FILTER TOOLBAR ================= -->
-  <div class="filter-toolbar">
-    <button class="filter-btn" [class.active]="currentFilter === 'ALL'" (click)="setFilter('ALL')">All</button>
-    <button class="filter-btn" [class.active]="currentFilter === 'PENDING'" (click)="setFilter('PENDING')">Pending</button>
-    <button class="filter-btn" [class.active]="currentFilter === 'APPROVED'" (click)="setFilter('APPROVED')">Approved</button>
-    <button class="filter-btn" [class.active]="currentFilter === 'REJECTED'" (click)="setFilter('REJECTED')">Rejected</button>
-  </div>
+  <div class="content-layout">
+
+    <!-- ================= FILTER PANEL ================= -->
+    <div class="filter-panel card-panel">
+      <h3>Filters</h3>
+
+      <div class="filter-group">
+        <label>Customer No</label>
+        <input type="text" [(ngModel)]="filterCustomerNo" placeholder="CUST-1001" />
+      </div>
+
+      <div class="filter-group">
+        <label>Account No</label>
+        <input type="text" [(ngModel)]="filterAccountNo" placeholder="ACC-2001" />
+      </div>
+
+      <div class="filter-group">
+        <label>Cardholder Name</label>
+        <input type="text" [(ngModel)]="filterCardholderName" placeholder="John Doe" />
+      </div>
+
+      <button class="search-btn" (click)="clearFilters()">
+        <span>CLEAR</span>
+      </button>
+    </div>
+
+    <!-- ================= MAIN SECTION ================= -->
+    <div class="main-section">
+
+      <!-- ================= STATUS FILTER TOOLBAR ================= -->
+      <div class="filter-toolbar">
+        <button class="filter-btn" [class.active]="currentFilter === 'ALL'" (click)="setFilter('ALL')">All</button>
+        <button class="filter-btn" [class.active]="currentFilter === 'PENDING'" (click)="setFilter('PENDING')">Pending</button>
+        <button class="filter-btn" [class.active]="currentFilter === 'APPROVED'" (click)="setFilter('APPROVED')">Approved</button>
+        <button class="filter-btn" [class.active]="currentFilter === 'REJECTED'" (click)="setFilter('REJECTED')">Rejected</button>
+      </div>
 
 <!-- ================= REQUEST TABLE ================= -->
 
@@ -193,6 +222,9 @@
     </div>
   </ng-template>
 </div>
+
+    </div> <!-- end main-section -->
+  </div> <!-- end content-layout -->
 
 </div>
 

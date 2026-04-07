@@ -116,7 +116,7 @@
 
 .search-btn {
   margin-top: 10px;
-  background: #2563eb;
+  background: #ef4444;
   color: white;
   border: none;
   padding: 12px;
@@ -134,9 +134,9 @@
 }
 
 .search-btn:hover {
-  background: #1d4ed8;
+  background: #dc2626;
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
 }
 
 .search-btn:active {

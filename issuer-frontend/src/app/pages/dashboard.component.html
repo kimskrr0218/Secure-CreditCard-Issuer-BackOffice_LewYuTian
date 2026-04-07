@@ -1,13 +1,7 @@
 <!-- dashboard.component.html -->
+<app-top-navbar></app-top-navbar>
+
 <div class="dashboard-container">
-  <header class="topbar">
-    <h2>Issuer Back-Office</h2>
-    <div class="user-info">
-      <span class="welcome-text">Welcome, {{ username }}</span>
-      <button class="profile-btn" (click)="navigateTo('/profile')">⚙️ Profile</button>
-      <button (click)="logout()">Logout</button>
-    </div>
-  </header>
 
   <main class="content">
 
@@ -56,8 +50,8 @@
       </div>
     </section>
 
-    <!-- ================= STAFF ================= -->
-    <div class="cards-container" *ngIf="role === 'STAFF'">
+    <!-- ================= STAFF / MANAGER / ADMIN ================= -->
+    <div class="cards-container" *ngIf="role === 'STAFF' || role === 'MANAGER' || role === 'ADMIN'">
       
       <div class="card" (click)="navigateTo('/customers')">
         <h3>Customer Management</h3>
@@ -80,14 +74,6 @@
         <p>Track request status and rejection reasons.</p>
       </div>
 
-    </div>
-
-    <!-- ================= MANAGER ================= -->
-    <div class="cards-container" *ngIf="role === 'MANAGER'">
-      <div class="card" (click)="navigateTo('/pending')">
-        <h3>Pending Requests</h3>
-        <p>Approve or reject customer, account, and card requests.</p>
-      </div>
     </div>
 
     <!-- ================= ADMIN ================= -->

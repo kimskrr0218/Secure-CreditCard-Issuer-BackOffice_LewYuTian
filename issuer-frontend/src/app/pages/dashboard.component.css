@@ -11,54 +11,6 @@ body {
   min-height: 100vh;
 }
 
-.topbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background-color: #1a2433;
-  color: white;
-  padding: 1rem 2rem;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
-
-.topbar h2 {
-  margin: 0;
-  font-weight: 600;
-}
-
-.user-info {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-}
-
-.welcome-text {
-  font-size: 0.92rem;
-  font-weight: 500;
-  color: #cbd5e1;
-}
-
-.user-info button {
-  border: none;
-  color: white;
-  padding: 5px 12px;
-  border-radius: 4px;
-  cursor: pointer;
-  background-color: #dc3545;
-}
-
-.user-info button:hover {
-  background-color: #b02a37;
-}
-
-.user-info .profile-btn {
-  background-color: #2563eb;
-}
-
-.user-info .profile-btn:hover {
-  background-color: #1d4ed8;
-}
-
 .content {
   text-align: center;
   margin-top: 24px;
@@ -147,6 +99,7 @@ body {
   justify-content: center;
   flex-wrap: wrap;
   gap: 25px;
+  margin-bottom: 25px;
 }
 
 .card {
