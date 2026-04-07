@@ -20,6 +20,9 @@ export class CardsComponent implements OnInit {
 
   loading = true;
 
+  // Tab state
+  activeTab: string = 'live';
+
   // Filters state
   filterCustomer: string = '';
   filterType: string = '';

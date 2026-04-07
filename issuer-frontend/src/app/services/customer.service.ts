@@ -21,9 +21,6 @@ export interface Customer {
   annualIncome?: number;
   employerName?: string;
   email: string;
-  organization?: string;
-  currency?: string;
-  type?: string;
   status?: string;
 }
 

@@ -1,7 +1,6 @@
 package com.example.backend.entity;
 
 import com.example.backend.enums.CustomerStatus;
-import com.example.backend.enums.CustomerType;
 import com.example.backend.util.SensitiveFieldConverter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -10,6 +9,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Entity
@@ -71,13 +71,25 @@ public class Customer {
 
     private String email;
 
-    private String organization;   // Retail Banking / Private Banking
-
-    private String currency;       // SGD, USD
-
-    @Enumerated(EnumType.STRING)
-    private CustomerType type;
-
     @Enumerated(EnumType.STRING)
     private CustomerStatus status;
+
+    // ── Audit Trail Fields ──
+    @Column(name = "created_by")
+    private String createdBy;
+
+    @Column(name = "updated_by")
+    private String updatedBy;
+
+    @Column(name = "approved_by")
+    private String approvedBy;
+
+    @Column(name = "rejected_by")
+    private String rejectedBy;
+
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
+
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
 }

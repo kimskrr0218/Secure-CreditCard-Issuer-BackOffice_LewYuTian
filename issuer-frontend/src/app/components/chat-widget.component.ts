@@ -354,7 +354,7 @@ If asked about something outside this system, you can still help but mention you
         content += '\nNo customers found.';
       } else {
         this.customers.forEach(c => {
-          content += `\n- ID: ${c.id}, CustomerNo: ${c.customerNo || 'N/A'}, Name: ${c.name || ((c.firstName || '') + ' ' + (c.lastName || '')).trim() || 'N/A'}, Email: ${c.email || 'N/A'}, Phone: ${c.maskedPhoneNumber || 'N/A'}, Nationality: ${c.nationality || 'N/A'}, Gender: ${c.gender || 'N/A'}, Type: ${c.type || 'N/A'}, Status: ${c.status || 'N/A'}, Address: ${c.homeAddress || 'N/A'}, DOB: ${c.dob || 'N/A'}, ID Number: ${c.maskedIdNumber || 'N/A'}, Employment: ${c.employmentStatus || 'N/A'}, Employer: ${c.employerName || 'N/A'}, Annual Income: ${c.annualIncome || 'N/A'}, Organization: ${c.organization || 'N/A'}, Currency: ${c.currency || 'N/A'}`;
+          content += `\n- ID: ${c.id}, CustomerNo: ${c.customerNo || 'N/A'}, Name: ${c.name || ((c.firstName || '') + ' ' + (c.lastName || '')).trim() || 'N/A'}, Email: ${c.email || 'N/A'}, Phone: ${c.maskedPhoneNumber || 'N/A'}, Nationality: ${c.nationality || 'N/A'}, Gender: ${c.gender || 'N/A'}, Status: ${c.status || 'N/A'}, Address: ${c.homeAddress || 'N/A'}, DOB: ${c.dob || 'N/A'}, ID Number: ${c.maskedIdNumber || 'N/A'}, Employment: ${c.employmentStatus || 'N/A'}, Employer: ${c.employerName || 'N/A'}, Annual Income: ${c.annualIncome || 'N/A'}`;
         });
       }
 

@@ -26,7 +26,6 @@
           <th>ID</th>
           <th>Customer No</th>
           <th>Name</th>
-          <th>Organization</th>
           <th>Status</th>
           <th>Action</th>
         </tr>
@@ -36,7 +35,6 @@
           <td>#{{ r.id }}</td>
           <td>{{ r.customerNo || r.parsedPayload?.customerNo || '-' }}</td>
           <td>{{ r.name || '-' }}</td>
-          <td>{{ r.organization || '-' }}</td>
           <!-- STATUS -->
           <td>
             <span

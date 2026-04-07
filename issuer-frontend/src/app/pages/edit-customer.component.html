@@ -61,8 +61,8 @@
             </div>
           </div>
           <div class="form-group">
-            <label>Identification Number *</label>
-            <input type="text" formControlName="idNumber" placeholder="ID Number">
+            <label>Identification Number</label>
+            <input type="text" formControlName="idNumber" placeholder="ID Number (masked for security)">
             <div class="error" *ngIf="customerForm.get('idNumber')?.touched && customerForm.get('idNumber')?.invalid">
               <small>ID Number is required</small>
             </div>
@@ -84,7 +84,7 @@
           </div>
           <div class="form-group">
             <label>Phone Number</label>
-            <input type="text" formControlName="phoneNumber" placeholder="Phone Number">
+            <input type="text" formControlName="phoneNumber" placeholder="Phone Number (masked for security)">
             <div class="error" *ngIf="customerForm.get('phoneNumber')?.touched && customerForm.get('phoneNumber')?.invalid">
               <small>Phone Number is required</small>
             </div>
@@ -135,48 +135,6 @@
             <input type="text" formControlName="employerName" placeholder="Employer Name">
             <div class="error" *ngIf="customerForm.get('employerName')?.touched && customerForm.get('employerName')?.invalid">
               <small>Employer Name is required</small>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- System Information -->
-      <div class="form-section">
-        <h3>System Information</h3>
-        <div class="form-grid">
-          <div class="form-group">
-            <label>Organization</label>
-            <select formControlName="organization">
-              <option value="" disabled>Select Organization</option>
-              <option value="Retail Banking">Retail Banking</option>
-              <option value="Private Banking">Private Banking</option>
-            </select>
-            <div class="error" *ngIf="customerForm.get('organization')?.touched && customerForm.get('organization')?.invalid">
-              <small>Organization is required</small>
-            </div>
-          </div>
-          <div class="form-group">
-            <label>Currency</label>
-            <select formControlName="currency">
-              <option value="" disabled>Select Currency</option>
-              <option value="USD">USD</option>
-              <option value="MYR">MYR</option>
-              <option value="EUR">EUR</option>
-              <option value="SGD">SGD</option>
-            </select>
-            <div class="error" *ngIf="customerForm.get('currency')?.touched && customerForm.get('currency')?.invalid">
-              <small>Currency is required</small>
-            </div>
-          </div>
-          <div class="form-group">
-            <label>Customer Type</label>
-            <select formControlName="type">
-              <option value="" disabled>Select Type</option>
-              <option value="INDIVIDUAL">Individual</option>
-              <option value="CORPORATE">Corporate</option>
-            </select>
-            <div class="error" *ngIf="customerForm.get('type')?.touched && customerForm.get('type')?.invalid">
-              <small>Customer Type is required</small>
             </div>
           </div>
         </div>

@@ -51,10 +51,7 @@ export class AddCustomerComponent implements OnInit {
       employerName: ['', Validators.required],
       employmentStatus: ['', Validators.required],
 
-      // System Information
-      organization: ['', Validators.required],
-      currency: ['', Validators.required],
-      type: ['', Validators.required]
+
     });
   }
 

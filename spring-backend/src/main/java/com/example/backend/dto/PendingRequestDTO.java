@@ -29,7 +29,6 @@ public class PendingRequestDTO {
     // Enriched fields for Customer
     private String customerNo;
     private String name;
-    private String organization;
 
     // Enriched fields for Account
     private String accountNumber;

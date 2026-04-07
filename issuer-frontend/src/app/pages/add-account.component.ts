@@ -45,18 +45,6 @@ export class AddAccountComponent implements OnInit {
     });
 
     this.loadCustomers();
-
-    // Auto-populate and disable currency based on selected customer
-    this.accountForm.get('customerId')?.valueChanges.subscribe(customerId => {
-      if (customerId) {
-        const selectedCustomer = this.customers.find(c => c.id === Number(customerId));
-        if (selectedCustomer && selectedCustomer.currency) {
-          const currencyControl = this.accountForm.get('currency');
-          currencyControl?.setValue(selectedCustomer.currency);
-          currencyControl?.disable();
-        }
-      }
-    });
   }
 
   loadCustomers(): void {

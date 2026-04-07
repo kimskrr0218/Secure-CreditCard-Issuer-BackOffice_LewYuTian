@@ -73,4 +73,20 @@ public class Card {
     @ManyToOne
     @JoinColumn(name = "account_id", nullable = false)
     private Account account;
+
+    // ── Audit Trail Fields ──
+    @Column(name = "created_by")
+    private String createdBy;
+
+    @Column(name = "updated_by")
+    private String updatedBy;
+
+    @Column(name = "approved_by")
+    private String approvedBy;
+
+    @Column(name = "rejected_by")
+    private String rejectedBy;
+
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
 }

@@ -40,9 +40,6 @@ export class EditRejectedComponent implements OnInit {
       homeAddress: ['', Validators.required],
       annualIncome: ['', Validators.required],
       employerName: ['', Validators.required],
-      organization: ['', Validators.required],
-      currency: ['', Validators.required],
-      type: ['', Validators.required]
     });
 
     this.pendingRequestId = this.route.snapshot.paramMap.get('id');

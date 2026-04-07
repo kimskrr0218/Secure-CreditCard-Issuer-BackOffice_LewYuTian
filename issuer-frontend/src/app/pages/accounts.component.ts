@@ -28,6 +28,9 @@ export class AccountsComponent implements OnInit {
   rejectedRequests: any[] = [];
   pendingRequests: any[] = [];
 
+  // Tab state
+  activeTab: string = 'live';
+
   // Filters state
   filterCustomer: string = '';
   filterType: string = '';

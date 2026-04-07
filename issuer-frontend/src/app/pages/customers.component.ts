@@ -27,10 +27,10 @@ export class CustomersComponent implements OnInit {
   rejectedCustomers: any[] = [];
   pendingRequests: any[] = [];
 
+  // Tab state
+  activeTab: string = 'live';
+
   // Filters state
-  selectedOrganization: string = '';
-  selectedType: string = '';
-  selectedCurrency: string = '';
   emailFilter: string = '';
   keyword: string = '';
 
@@ -68,10 +68,7 @@ export class CustomersComponent implements OnInit {
     this.customerForm = this.fb.group({
       customerNo: [''],
       name: ['', Validators.required],
-      email: ['', [Validators.required, Validators.email]],
-      organization: ['', Validators.required],
-      currency: ['', Validators.required],
-      type: ['', Validators.required]
+      email: ['', [Validators.required, Validators.email]]
     });
 
     this.loadCustomers();
@@ -111,13 +108,12 @@ export class CustomersComponent implements OnInit {
 
             return {
               ...req,
-              ...payloadObj, // Bring in all fields like email, organization, currency
+              ...payloadObj, // Bring in all fields like email, etc.
               pendingRequestId: req.id, // Protect the pending request ID in case payload overwrites it
               customerNo: payloadObj.customerNo || 'N/A',
               name: payloadObj.name || 'Unknown',
               maker: req.createdBy || 'STAFF', // fallback if backend doesn't have createdBy
               submittedDate: req.createdAt || new Date().toISOString().split('T')[0],
-              type: payloadObj.type || 'N/A',
               status: req.status || 'PENDING', // Ensures state reads 'PENDING' or 'REJECTED' instead of undefined
               reason: req.rejectionReason || req.reason || req.rejectReason || 'No reason provided'
             };
@@ -136,24 +132,6 @@ export class CustomersComponent implements OnInit {
   applyFilters(): void {
     this.filteredCustomers = this.customers.filter(c => {
 
-      // Organization check
-      const matchOrg =
-        !this.selectedOrganization ||
-        this.selectedOrganization === 'All' ||
-        c.organization === this.selectedOrganization;
-
-      // Type check
-      const matchType =
-        !this.selectedType ||
-        this.selectedType === 'All' ||
-        c.type === this.selectedType;
-
-      // Currency check
-      const matchCurrency =
-        !this.selectedCurrency ||
-        this.selectedCurrency === 'All' ||
-        c.currency === this.selectedCurrency;
-
       // Email check
       const matchEmail =
         !this.emailFilter ||
@@ -165,7 +143,7 @@ export class CustomersComponent implements OnInit {
         (c.name && c.name.toLowerCase().includes(this.keyword.toLowerCase())) ||
         (c.customerNo && c.customerNo.toString().toLowerCase().includes(this.keyword.toLowerCase()));
 
-      return matchOrg && matchType && matchCurrency && matchEmail && matchKeyword;
+      return matchEmail && matchKeyword;
     });
   }
 
@@ -181,10 +159,7 @@ export class CustomersComponent implements OnInit {
     const payload: any = {
       customerNo: formData.customerNo,
       name: formData.name,
-      email: formData.email,
-      organization: formData.organization,
-      currency: formData.currency,
-      type: formData.type
+      email: formData.email
     };
 
     if (this.isEditing && this.editId !== null) {
@@ -373,10 +348,7 @@ export class CustomersComponent implements OnInit {
           phoneNumber: request.phoneNumber,
           homeAddress: request.homeAddress,
           annualIncome: request.annualIncome,
-          employerName: request.employerName,
-          organization: request.organization,
-          currency: request.currency,
-          type: request.type
+          employerName: request.employerName
         }
       }
     });
@@ -389,11 +361,7 @@ export class CustomersComponent implements OnInit {
   closeModal(): void {
 
     this.showModal = false;
-    this.customerForm.reset({
-      organization: '',
-      currency: '',
-      type: ''
-    });
+    this.customerForm.reset();
     this.isEditing = false;
     this.editId = null;
 

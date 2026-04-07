@@ -165,22 +165,30 @@
 
 .tabs {
   display: flex;
-  gap: 10px;
+  gap: 8px;
 }
 
 .tab {
-  padding: 8px 14px;
+  padding: 8px 16px;
   border-radius: 20px;
-  border: 1px solid #cbd5f5;
+  border: 1px solid #cbd5e1;
   background: white;
   cursor: pointer;
   font-size: 13px;
+  font-weight: 500;
+  color: #64748b;
+  transition: all 0.2s ease;
+}
+
+.tab:hover {
+  background: #f1f5f9;
+  border-color: #94a3b8;
 }
 
 .tab.active {
   background: #2563eb;
   color: white;
-  border: none;
+  border-color: #2563eb;
 }
 
 /* ================= CREATE BUTTON ================= */

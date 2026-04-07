@@ -41,11 +41,11 @@ export class EditCustomerComponent implements OnInit {
       nationality: ['', Validators.required],
       companyName: [''],
       dob: ['', Validators.required],
-      idNumber: ['', Validators.required],
+      idNumber: [''],
       
       // Contact Info
       email: ['', [Validators.required, Validators.email]],
-      phoneNumber: ['', Validators.required],
+      phoneNumber: [''],
 
       // Address Info
       homeAddress: ['', Validators.required],
@@ -55,10 +55,6 @@ export class EditCustomerComponent implements OnInit {
       employerName: ['', Validators.required],
       employmentStatus: ['', Validators.required],
 
-      // System Info
-      organization: ['', Validators.required],
-      currency: ['', Validators.required],
-      type: ['', Validators.required]
     });
 
     this.customerId = this.route.snapshot.paramMap.get('id');
@@ -66,6 +62,13 @@ export class EditCustomerComponent implements OnInit {
       this.http.get(`${this.apiUrl}/${this.customerId}`, { withCredentials: true }).subscribe({
         next: (data: any) => {
           this.customerForm.patchValue(data);
+          // idNumber & phoneNumber are @JsonIgnore — use masked values for display
+          if (data.maskedIdNumber) {
+            this.customerForm.patchValue({ idNumber: data.maskedIdNumber });
+          }
+          if (data.maskedPhoneNumber) {
+            this.customerForm.patchValue({ phoneNumber: data.maskedPhoneNumber });
+          }
           this.loading = false;
         },
         error: (err) => {
@@ -84,10 +87,19 @@ export class EditCustomerComponent implements OnInit {
       return;
     }
 
-    const payload = this.customerForm.value;
+    const payload = { ...this.customerForm.value };
     payload.id = this.customerId;
     // Derive 'name' from firstName + lastName for backward compatibility
     payload.name = `${payload.firstName} ${payload.lastName}`.trim();
+
+    // Don't send masked values back — only send if user typed a real new value
+    if (payload.idNumber && payload.idNumber.includes('*')) {
+      delete payload.idNumber;
+    }
+    if (payload.phoneNumber && payload.phoneNumber.includes('*')) {
+      delete payload.phoneNumber;
+    }
+
     const role = localStorage.getItem('role');
 
     if (role === 'STAFF') {

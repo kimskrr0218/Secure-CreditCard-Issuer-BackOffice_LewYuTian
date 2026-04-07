@@ -87,21 +87,33 @@
         </div>
       </div>
 
-      <!-- System Information -->
-      <div class="form-section">
-        <h3>System Information</h3>
+      <!-- Audit Trail -->
+      <div class="form-section" *ngIf="customer?.createdBy || customer?.approvedBy || customer?.updatedBy">
+        <h3>Audit Trail</h3>
         <div class="form-grid">
-          <div class="form-group">
-            <label>Organization</label>
-            <input type="text" [value]="customer?.organization || '-'" readonly>
+          <div class="form-group" *ngIf="customer?.createdBy">
+            <label>Created By</label>
+            <input type="text" [value]="customer.createdBy" readonly>
           </div>
-          <div class="form-group">
-            <label>Currency</label>
-            <input type="text" [value]="customer?.currency || '-'" readonly>
+          <div class="form-group" *ngIf="customer?.createdAt">
+            <label>Created At</label>
+            <input type="text" [value]="customer.createdAt | date:'dd/MM/yyyy'" readonly>
           </div>
-          <div class="form-group">
-            <label>Customer Type</label>
-            <input type="text" [value]="customer?.type || '-'" readonly>
+          <div class="form-group" *ngIf="customer?.approvedBy">
+            <label>Approved By</label>
+            <input type="text" [value]="customer.approvedBy" readonly>
+          </div>
+          <div class="form-group" *ngIf="customer?.updatedBy">
+            <label>Last Updated By</label>
+            <input type="text" [value]="customer.updatedBy" readonly>
+          </div>
+          <div class="form-group" *ngIf="customer?.updatedAt">
+            <label>Last Updated At</label>
+            <input type="text" [value]="customer.updatedAt | date:'dd/MM/yyyy'" readonly>
+          </div>
+          <div class="form-group" *ngIf="customer?.rejectedBy">
+            <label>Rejected By</label>
+            <input type="text" [value]="customer.rejectedBy" readonly>
           </div>
         </div>
       </div>

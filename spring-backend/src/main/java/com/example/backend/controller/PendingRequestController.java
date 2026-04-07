@@ -10,7 +10,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import com.example.backend.enums.CustomerType;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -116,8 +116,6 @@ public class PendingRequestController {
                 // Step 1: Always pull values directly from payload first (works for all operations)
                 if (payloadNode.has("name") && !payloadNode.get("name").asText().isBlank())
                     dto.setName(payloadNode.get("name").asText());
-                if (payloadNode.has("organization") && !payloadNode.get("organization").asText().isBlank())
-                    dto.setOrganization(payloadNode.get("organization").asText());
                 if (payloadNode.has("email") && !payloadNode.get("email").asText().isBlank())
                     dto.setEmail(payloadNode.get("email").asText());
                 if (payloadNode.has("customerNo") && !payloadNode.get("customerNo").asText().isBlank())
@@ -135,7 +133,6 @@ public class PendingRequestController {
                         // Override with live DB values (more accurate than payload for UPDATE/DEACTIVATE/DELETE)
                         if (c.getCustomerNo() != null) dto.setCustomerNo(c.getCustomerNo());
                         if (c.getName() != null)       dto.setName(c.getName());
-                        if (c.getOrganization() != null) dto.setOrganization(c.getOrganization());
                         if (c.getEmail() != null && dto.getEmail() == null) dto.setEmail(c.getEmail());
 
                         // Also inject into the payload so the frontend parsedPayload mapping works too
@@ -143,7 +140,6 @@ public class PendingRequestController {
                             ObjectNode node = (ObjectNode) payloadNode;
                             node.put("customerNo", c.getCustomerNo());
                             node.put("name", c.getName());
-                            node.put("organization", c.getOrganization());
                             dto.setPayload(node.toString());
                         }
                     });
@@ -356,9 +352,9 @@ public class PendingRequestController {
 
             switch (req.getEntityType().toUpperCase()) {
                 case "USER" -> handleUser(req);
-                case "CUSTOMER" -> handleCustomer(req);
-                case "ACCOUNT" -> handleAccount(req);
-                case "CARD" -> handleCard(req);
+                case "CUSTOMER" -> handleCustomer(req, user.getUsername());
+                case "ACCOUNT" -> handleAccount(req, user.getUsername());
+                case "CARD" -> handleCard(req, user.getUsername());
                 default -> {
                     return ResponseEntity.badRequest()
                             .body(Map.of("error", "Unsupported entity type"));
@@ -570,7 +566,7 @@ public class PendingRequestController {
         return "CUST-" + (1000 + count);
     }
 
-    private void handleCustomer(PendingRequest req) throws Exception {
+    private void handleCustomer(PendingRequest req, String approverUsername) throws Exception {
 
         if ("CREATE".equalsIgnoreCase(req.getOperation())) {
 
@@ -578,6 +574,12 @@ public class PendingRequestController {
             c.setId(null); // Ensure a new record is created, not an update
             c.setCustomerNo(generateCustomerNo());
             c.setStatus(CustomerStatus.ACTIVE);
+
+            // Audit trail
+            c.setCreatedBy(req.getCreatedBy());
+            c.setCreatedAt(LocalDateTime.now());
+            c.setApprovedBy(approverUsername);
+
             customerRepository.save(c);
 
             // If this was a resubmission, ensure the old rejected request is marked as SUPERSEDED
@@ -628,18 +630,10 @@ public class PendingRequestController {
                 customer.setEmail(node.get("email").asText());
             }
 
-            // ✅ Add these fields
-            if (node.has("organization")) {
-                customer.setOrganization(node.get("organization").asText());
-            }
-
-            if (node.has("currency")) {
-                customer.setCurrency(node.get("currency").asText());
-            }
-
-            if (node.has("type")) {
-                customer.setType(CustomerType.valueOf(node.get("type").asText()));
-            }
+            // Audit trail
+            customer.setUpdatedBy(req.getCreatedBy());
+            customer.setUpdatedAt(LocalDateTime.now());
+            customer.setApprovedBy(approverUsername);
 
             customerRepository.save(customer);
 
@@ -665,6 +659,12 @@ public class PendingRequestController {
                     .orElseThrow(() -> new RuntimeException("Customer not found"));
 
             customer.setStatus(CustomerStatus.INACTIVE);
+
+            // Audit trail
+            customer.setUpdatedBy(req.getCreatedBy());
+            customer.setUpdatedAt(LocalDateTime.now());
+            customer.setApprovedBy(approverUsername);
+
             customerRepository.save(customer);
 
         } else if ("ACTIVATE".equalsIgnoreCase(req.getOperation())) {
@@ -679,11 +679,17 @@ public class PendingRequestController {
                     .orElseThrow(() -> new RuntimeException("Customer not found"));
 
             customer.setStatus(CustomerStatus.ACTIVE);
+
+            // Audit trail
+            customer.setUpdatedBy(req.getCreatedBy());
+            customer.setUpdatedAt(LocalDateTime.now());
+            customer.setApprovedBy(approverUsername);
+
             customerRepository.save(customer);
         }
     }
 
-    private void handleAccount(PendingRequest req) throws Exception {
+    private void handleAccount(PendingRequest req, String approverUsername) throws Exception {
 
         if ("CREATE".equalsIgnoreCase(req.getOperation())) {
 
@@ -727,6 +733,11 @@ public class PendingRequestController {
             
             // Accounts always start INACTIVE — must be approved/activated by manager
             acc.setStatus("INACTIVE");
+
+            // Audit trail
+            acc.setCreatedBy(req.getCreatedBy());
+            acc.setCreatedAt(LocalDateTime.now());
+            acc.setApprovedBy(approverUsername);
 
             accountRepository.save(acc);
 
@@ -779,6 +790,11 @@ public class PendingRequestController {
                 account.setInterestRate(node.get("interestRate").asDouble());
             }
 
+            // Audit trail
+            account.setUpdatedBy(req.getCreatedBy());
+            account.setUpdatedAt(LocalDateTime.now());
+            account.setApprovedBy(approverUsername);
+
             accountRepository.save(account);
 
             // If this was a resubmission, ensure the old rejected request is marked as SUPERSEDED
@@ -802,6 +818,12 @@ public class PendingRequestController {
             Account account = accountRepository.findById(accountId)
                     .orElseThrow(() -> new RuntimeException("Account not found"));
             account.setStatus("ACTIVE");
+
+            // Audit trail
+            account.setUpdatedBy(req.getCreatedBy());
+            account.setUpdatedAt(LocalDateTime.now());
+            account.setApprovedBy(approverUsername);
+
             accountRepository.save(account);
 
             // Send activation email to customer (async — won't block the response)
@@ -832,11 +854,17 @@ public class PendingRequestController {
             Account account = accountRepository.findById(accountId)
                     .orElseThrow(() -> new RuntimeException("Account not found"));
             account.setStatus("INACTIVE");
+
+            // Audit trail
+            account.setUpdatedBy(req.getCreatedBy());
+            account.setUpdatedAt(LocalDateTime.now());
+            account.setApprovedBy(approverUsername);
+
             accountRepository.save(account);
         }
     }
 
-    private void handleCard(PendingRequest req) throws Exception {
+    private void handleCard(PendingRequest req, String approverUsername) throws Exception {
 
         JsonNode node = objectMapper.readTree(req.getPayload());
 
@@ -888,6 +916,10 @@ public class PendingRequestController {
             // Cards always start INACTIVE — must be activated separately by manager
             card.setStatus("INACTIVE");
 
+            // Audit trail
+            card.setCreatedBy(req.getCreatedBy());
+            card.setApprovedBy(approverUsername);
+
             cardRepository.save(card);
             
             if (node.has("originalRequestId") && !node.get("originalRequestId").isNull()) {
@@ -909,6 +941,10 @@ public class PendingRequestController {
                 if (node.has("cardHolderName") && !node.get("cardHolderName").isNull()) {
                     c.setCardHolderName(node.get("cardHolderName").asText());
                 }
+                // Audit trail
+                c.setUpdatedBy(req.getCreatedBy());
+                c.setUpdatedAt(LocalDateTime.now());
+                c.setApprovedBy(approverUsername);
                 cardRepository.save(c);
             });
 
@@ -923,6 +959,10 @@ public class PendingRequestController {
                 throw new RuntimeException("Only ACTIVE cards can be blocked. Current status: " + card.getStatus());
             }
             card.setStatus("BLOCKED");
+            // Audit trail
+            card.setUpdatedBy(req.getCreatedBy());
+            card.setUpdatedAt(LocalDateTime.now());
+            card.setApprovedBy(approverUsername);
             cardRepository.save(card);
 
         } else if ("REPLACE".equalsIgnoreCase(req.getOperation())) {
@@ -958,6 +998,10 @@ public class PendingRequestController {
             newCard.setCreatedDate(LocalDateTime.now());
             newCard.setStatus("INACTIVE"); // Replacement card starts INACTIVE, must be activated separately
 
+            // Audit trail
+            newCard.setCreatedBy(req.getCreatedBy());
+            newCard.setApprovedBy(approverUsername);
+
             cardRepository.save(newCard);
 
             // Old card stays BLOCKED — do not change its status
@@ -977,6 +1021,10 @@ public class PendingRequestController {
             Card card = cardRepository.findById(node.get("id").asLong())
                     .orElseThrow(() -> new RuntimeException("Card not found"));
             card.setStatus("INACTIVE");
+            // Audit trail
+            card.setUpdatedBy(req.getCreatedBy());
+            card.setUpdatedAt(LocalDateTime.now());
+            card.setApprovedBy(approverUsername);
             cardRepository.save(card);
 
         } else if ("ACTIVATE".equalsIgnoreCase(req.getOperation())) {
@@ -988,6 +1036,10 @@ public class PendingRequestController {
                 throw new RuntimeException("Only INACTIVE cards can be activated. Current status: " + card.getStatus());
             }
             card.setStatus("ACTIVE");
+            // Audit trail
+            card.setUpdatedBy(req.getCreatedBy());
+            card.setUpdatedAt(LocalDateTime.now());
+            card.setApprovedBy(approverUsername);
             cardRepository.save(card);
 
         } else if ("ISSUE".equalsIgnoreCase(req.getOperation())) {
@@ -1002,6 +1054,10 @@ public class PendingRequestController {
                 throw new RuntimeException("Card has already been issued.");
             }
             card.setIssued(true);
+            // Audit trail
+            card.setUpdatedBy(req.getCreatedBy());
+            card.setUpdatedAt(LocalDateTime.now());
+            card.setApprovedBy(approverUsername);
             cardRepository.save(card);
 
             // Send card issued email to customer (async — won't block the response)
@@ -1022,6 +1078,10 @@ public class PendingRequestController {
             Card card = cardRepository.findById(node.get("id").asLong())
                     .orElseThrow(() -> new RuntimeException("Card not found"));
             card.setStatus("DEACTIVATED");
+            // Audit trail
+            card.setUpdatedBy(req.getCreatedBy());
+            card.setUpdatedAt(LocalDateTime.now());
+            card.setApprovedBy(approverUsername);
             cardRepository.save(card);
 
         } else if ("DELETE".equalsIgnoreCase(req.getOperation())) {

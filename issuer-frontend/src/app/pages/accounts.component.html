@@ -43,7 +43,15 @@
       <!-- ACTION BAR -->
       <div class="top-bar">
         <div class="tabs">
-          <button class="tab active">Live</button>
+          <button class="tab" [class.active]="activeTab === 'live'" (click)="activeTab = 'live'">
+            Live ({{ filteredAccounts.length }})
+          </button>
+          <button class="tab" [class.active]="activeTab === 'rejected'" (click)="activeTab = 'rejected'">
+            Rejected ({{ rejectedRequests.length }})
+          </button>
+          <button class="tab" [class.active]="activeTab === 'pending'" (click)="activeTab = 'pending'">
+            Pending ({{ pendingRequests.length }})
+          </button>
         </div>
 
         <button class="create-btn" (click)="openCreateAccount()">
@@ -52,7 +60,7 @@
       </div>
 
       <!-- ================= LIVE ACCOUNTS ================= -->
-      <div class="card">
+      <div class="card" *ngIf="activeTab === 'live'">
         <h3>Live Accounts</h3>
 
         <table class="data-table">
@@ -100,7 +108,7 @@
       </div>
 
       <!-- ================= REJECTED REQUESTS ================= -->
-      <div class="card">
+      <div class="card" *ngIf="activeTab === 'rejected'">
         <h3>Rejected Account Requests</h3>
 
         <table class="data-table">
@@ -136,7 +144,7 @@
       </div>
 
       <!-- ================= PENDING REQUESTS ================= -->
-      <div class="card">
+      <div class="card" *ngIf="activeTab === 'pending'">
         <h3>Pending Approval Requests</h3>
 
         <table class="data-table">

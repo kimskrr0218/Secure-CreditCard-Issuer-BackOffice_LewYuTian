@@ -43,7 +43,15 @@
       <!-- ACTION BAR -->
       <div class="top-bar">
         <div class="tabs">
-          <button class="tab active">Live</button>
+          <button class="tab" [class.active]="activeTab === 'live'" (click)="activeTab = 'live'">
+            Live ({{ filteredCards.length }})
+          </button>
+          <button class="tab" [class.active]="activeTab === 'rejected'" (click)="activeTab = 'rejected'">
+            Rejected ({{ rejectedRequests.length }})
+          </button>
+          <button class="tab" [class.active]="activeTab === 'pending'" (click)="activeTab = 'pending'">
+            Pending ({{ pendingRequests.length }})
+          </button>
         </div>
 
         <button class="create-btn" *ngIf="isStaff" (click)="navigateToAdd()">
@@ -52,7 +60,7 @@
       </div>
 
       <!-- ================= LIVE CARDS ================= -->
-      <div class="card">
+      <div class="card" *ngIf="activeTab === 'live'">
         <h3>Live Cards</h3>
 
         <table class="data-table">
@@ -118,7 +126,7 @@
       </div>
 
       <!-- ================= REJECTED REQUESTS ================= -->
-      <div class="card">
+      <div class="card" *ngIf="activeTab === 'rejected'">
         <h3>Rejected Card Requests</h3>
 
         <table class="data-table">
@@ -127,14 +135,13 @@
               <th>No.</th>
               <th>Card Number</th>
               <th>Cardholder Name</th>
-              <th>Operation</th>
               <th>Status</th>
               <th>Action</th>
             </tr>
           </thead>
           <tbody>
             <tr *ngIf="!loading && rejectedRequests.length === 0">
-              <td colspan="6" class="empty">
+              <td colspan="5" class="empty">
                 No Rejected / Draft Requests
               </td>
             </tr>
@@ -142,17 +149,6 @@
               <td>{{ i + 1 }}</td>
               <td>{{ req.parsedPayload?.cardNumber ? maskCardNumber(req.parsedPayload.cardNumber) : 'N/A' }}</td>
               <td>{{ req.parsedPayload?.cardHolderName || req.customerNo || 'N/A' }}</td>
-              <td>
-                <span class="badge" [ngClass]="{
-                  'blocked': req.operation === 'BLOCK',
-                  'active': req.operation === 'CREATE' || req.operation === 'ACTIVATE',
-                  'inactive': req.operation === 'DEACTIVATE',
-                  'issued': req.operation === 'ISSUE',
-                  'pending': req.operation === 'REPLACE' || req.operation === 'UPDATE'
-                }">
-                  {{ req.operation }}
-                </span>
-              </td>
               <td>
                 <span class="badge rejected">{{ req.status }}</span>
               </td>
@@ -167,7 +163,7 @@
       </div>
 
       <!-- ================= PENDING REQUESTS ================= -->
-      <div class="card">
+      <div class="card" *ngIf="activeTab === 'pending'">
         <h3>Pending Approval Requests</h3>
 
         <table class="data-table">
@@ -176,30 +172,18 @@
               <th>No.</th>
               <th>Card Number</th>
               <th>Cardholder Name</th>
-              <th>Operation</th>
               <th>Status</th>
               <th>Action</th>
             </tr>
           </thead>
           <tbody>
             <tr *ngIf="!loading && pendingRequests.length === 0">
-              <td colspan="6" class="empty">Nothing Pending</td>
+              <td colspan="5" class="empty">Nothing Pending</td>
             </tr>
             <tr *ngFor="let req of pendingRequests; let i = index">
               <td>{{ i + 1 }}</td>
               <td>{{ req.parsedPayload?.cardNumber ? maskCardNumber(req.parsedPayload.cardNumber) : 'N/A' }}</td>
               <td>{{ req.parsedPayload?.cardHolderName || req.customerNo || 'N/A' }}</td>
-              <td>
-                <span class="badge" [ngClass]="{
-                  'blocked': req.operation === 'BLOCK',
-                  'active': req.operation === 'CREATE' || req.operation === 'ACTIVATE',
-                  'inactive': req.operation === 'DEACTIVATE',
-                  'issued': req.operation === 'ISSUE',
-                  'pending': req.operation === 'REPLACE' || req.operation === 'UPDATE'
-                }">
-                  {{ req.operation }}
-                </span>
-              </td>
               <td>
                 <span class="badge pending">{{ req.status }}</span>
               </td>
