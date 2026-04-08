@@ -69,9 +69,13 @@ export class PendingComponent implements OnInit {
   currentFilter: string = 'ALL';       // Status filter: ALL / PENDING / APPROVED / REJECTED
   entityFilter: string = 'ALL';         // Entity type filter: ALL / CUSTOMER / ACCOUNT / CARD
 
-  // SEARCH FILTER STATE
+  // SEARCH FILTER STATE (bound to inputs)
   filterTaskId: string = '';
   filterKeyword: string = '';
+
+  // APPLIED SEARCH FILTERS (only update on Search click)
+  appliedTaskId: string = '';
+  appliedKeyword: string = '';
 
   // 🔥 ROLE CONTROL
   isManager: boolean = false;
@@ -119,9 +123,9 @@ export class PendingComponent implements OnInit {
       tasks = tasks.filter(r => r.status === this.currentFilter);
     }
 
-    // Search filters
-    const taskId = this.filterTaskId.trim();
-    const keyword = this.filterKeyword.trim().toLowerCase();
+    // Search filters (only applied values)
+    const taskId = this.appliedTaskId.trim();
+    const keyword = this.appliedKeyword.trim().toLowerCase();
 
     if (taskId) {
       tasks = tasks.filter(r => String(r.id).includes(taskId));
@@ -153,10 +157,13 @@ export class PendingComponent implements OnInit {
   clearFilters(): void {
     this.filterTaskId = '';
     this.filterKeyword = '';
+    this.appliedTaskId = '';
+    this.appliedKeyword = '';
   }
 
   triggerSearch(): void {
-    // filteredTasks getter re-evaluates on every change detection cycle
+    this.appliedTaskId = this.filterTaskId;
+    this.appliedKeyword = this.filterKeyword;
   }
 
   setFilter(status: string): void {

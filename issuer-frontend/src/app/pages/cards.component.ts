@@ -160,7 +160,7 @@ export class CardsComponent implements OnInit {
       if (holderName && !(c.cardHolderName && c.cardHolderName.toLowerCase().includes(holderName))) return false;
       if (this.filterStatus && c.status !== this.filterStatus) return false;
       if (this.filterPendingStatus) {
-        if (this.filterPendingStatus === 'NONE' && c.pendingStatus !== null) return false;
+        if (this.filterPendingStatus === 'NONE' && c.pendingStatus != null) return false;
         if (this.filterPendingStatus !== 'NONE' && c.pendingStatus !== this.filterPendingStatus) return false;
       }
       return true;

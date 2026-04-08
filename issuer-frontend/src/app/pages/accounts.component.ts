@@ -185,7 +185,7 @@ export class AccountsComponent implements OnInit {
       if (name && !(a.customer?.name && a.customer.name.toLowerCase().includes(name))) return false;
       if (this.filterStatus && a.status !== this.filterStatus) return false;
       if (this.filterPendingStatus) {
-        if (this.filterPendingStatus === 'NONE' && a.pendingStatus !== null) return false;
+        if (this.filterPendingStatus === 'NONE' && a.pendingStatus != null) return false;
         if (this.filterPendingStatus !== 'NONE' && a.pendingStatus !== this.filterPendingStatus) return false;
       }
       return true;
