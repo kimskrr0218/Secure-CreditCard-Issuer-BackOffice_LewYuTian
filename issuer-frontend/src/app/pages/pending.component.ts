@@ -65,14 +65,13 @@ export class PendingComponent implements OnInit {
 
   requests: any[] = [];
 
-  // 🔥 FILTER STATE
-  currentFilter: string = 'ALL';
-  selectedStatus: string = 'ALL';
+  // FILTER STATE
+  currentFilter: string = 'ALL';       // Status filter: ALL / PENDING / APPROVED / REJECTED
+  entityFilter: string = 'ALL';         // Entity type filter: ALL / CUSTOMER / ACCOUNT / CARD
 
-  // 🔥 SEARCH FILTER STATE
-  filterCustomerNo: string = '';
-  filterAccountNo: string = '';
-  filterCardholderName: string = '';
+  // SEARCH FILTER STATE
+  filterTaskId: string = '';
+  filterKeyword: string = '';
 
   // 🔥 ROLE CONTROL
   isManager: boolean = false;
@@ -106,64 +105,66 @@ export class PendingComponent implements OnInit {
     });
   }
 
-  // 🔥 FILTER LOGIC
-  get customerRequests(): any[] {
-    let custReqs = this.requests.filter(r => r.entityType === 'CUSTOMER');
-    if (this.currentFilter !== 'ALL') {
-      custReqs = custReqs.filter(r => r.status === this.currentFilter);
+  // UNIFIED FILTER LOGIC
+  get filteredTasks(): any[] {
+    let tasks = [...this.requests];
+
+    // Entity type filter
+    if (this.entityFilter !== 'ALL') {
+      tasks = tasks.filter(r => r.entityType === this.entityFilter);
     }
-    return this.applySearchFilters(custReqs);
-  }
 
-  get accountRequests(): any[] {
-    let accReqs = this.requests.filter(r => r.entityType === 'ACCOUNT');
+    // Status filter
     if (this.currentFilter !== 'ALL') {
-      accReqs = accReqs.filter(r => r.status === this.currentFilter);
+      tasks = tasks.filter(r => r.status === this.currentFilter);
     }
-    return this.applySearchFilters(accReqs);
-  }
 
-  get cardRequests(): any[] {
-    let cardReqs = this.requests.filter(r => r.entityType === 'CARD');
-    if (this.currentFilter !== 'ALL') {
-      cardReqs = cardReqs.filter(r => r.status === this.currentFilter);
+    // Search filters
+    const taskId = this.filterTaskId.trim();
+    const keyword = this.filterKeyword.trim().toLowerCase();
+
+    if (taskId) {
+      tasks = tasks.filter(r => String(r.id).includes(taskId));
     }
-    return this.applySearchFilters(cardReqs);
-  }
 
-  applySearchFilters(reqs: any[]): any[] {
-    const custNo = this.filterCustomerNo.trim().toLowerCase();
-    const accNo = this.filterAccountNo.trim().toLowerCase();
-    const name = this.filterCardholderName.trim().toLowerCase();
+    if (keyword) {
+      tasks = tasks.filter(r => {
+        const searchable = [
+          r.entityType,
+          r.operation,
+          r.status,
+          r.customerNo,
+          r.name,
+          r.accountNumber,
+          r.createdBy,
+          r.parsedPayload?.customerNo,
+          r.parsedPayload?.name,
+          r.parsedPayload?.accountNumber,
+          r.parsedPayload?.cardHolderName,
+          r.parsedPayload?.cardNumber
+        ].filter(Boolean).join(' ').toLowerCase();
+        return searchable.includes(keyword);
+      });
+    }
 
-    return reqs.filter(r => {
-      const rCustNo = (r.customerNo || r.parsedPayload?.customerNo || '').toLowerCase();
-      const rAccNo = (r.accountNumber || r.parsedPayload?.accountNumber || '').toLowerCase();
-      const rName = (r.name || r.parsedPayload?.cardHolderName || r.parsedPayload?.name || '').toLowerCase();
-
-      if (custNo && !rCustNo.includes(custNo)) return false;
-      if (accNo && !rAccNo.includes(accNo)) return false;
-      if (name && !rName.includes(name)) return false;
-      return true;
-    });
+    return tasks;
   }
 
   clearFilters(): void {
-    this.filterCustomerNo = '';
-    this.filterAccountNo = '';
-    this.filterCardholderName = '';
+    this.filterTaskId = '';
+    this.filterKeyword = '';
   }
 
   triggerSearch(): void {
-    // Getters (customerRequests, accountRequests, cardRequests) already
-    // read the filter values on every change-detection cycle.
-    // Clicking the button triggers change detection, so the tables
-    // re-render with the current filter values automatically.
+    // filteredTasks getter re-evaluates on every change detection cycle
   }
 
   setFilter(status: string): void {
     this.currentFilter = status;
-    this.selectedStatus = status;
+  }
+
+  setEntityFilter(type: string): void {
+    this.entityFilter = type;
   }
 
   approve(id: number): void {
@@ -193,55 +194,33 @@ export class PendingComponent implements OnInit {
     this.openRejectModal(id);
   }
 
-  viewCustomer(req: any): void {
+  // Unified view handler — routes based on entity type
+  viewTask(req: any): void {
+    const pendingRequest = {
+      id: req.id,
+      status: req.status,
+      operation: req.operation,
+      createdBy: req.createdBy,
+      rejectionReason: req.rejectionReason || req.reason
+    };
+
     if (req.entityType === 'CUSTOMER') {
       const id = req.entityId || req.id;
       this.router.navigate(['/customers/view', id], {
-        state: {
-          customer: req.parsedPayload,
-          pendingRequest: {
-            id: req.id,
-            status: req.status,
-            operation: req.operation,
-            createdBy: req.createdBy,
-            rejectionReason: req.rejectionReason || req.reason
-          }
-        },
+        state: { customer: req.parsedPayload, pendingRequest },
+        queryParams: { from: 'pending' }
+      });
+    } else if (req.entityType === 'ACCOUNT') {
+      this.router.navigate(['/accounts/view', req.id], {
+        state: { request: req, pendingRequest },
+        queryParams: { from: 'pending' }
+      });
+    } else if (req.entityType === 'CARD') {
+      this.router.navigate(['/cards/view', req.id], {
+        state: { request: req, pendingRequest },
         queryParams: { from: 'pending' }
       });
     }
-  }
-
-  viewAccount(req: any): void {
-    this.router.navigate(['/accounts/view', req.id], {
-      state: {
-        request: req,
-        pendingRequest: {
-          id: req.id,
-          status: req.status,
-          operation: req.operation,
-          createdBy: req.createdBy,
-          rejectionReason: req.rejectionReason || req.reason
-        }
-      },
-      queryParams: { from: 'pending' }
-    });
-  }
-
-  viewCard(req: any): void {
-    this.router.navigate(['/cards/view', req.id], {
-      state: {
-        request: req,
-        pendingRequest: {
-          id: req.id,
-          status: req.status,
-          operation: req.operation,
-          createdBy: req.createdBy,
-          rejectionReason: req.rejectionReason || req.reason
-        }
-      },
-      queryParams: { from: 'pending' }
-    });
   }
 
   maskCardNumber(number: string): string {

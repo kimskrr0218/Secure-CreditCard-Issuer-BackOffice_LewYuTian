@@ -129,6 +129,7 @@ public class PendingRequestController {
                 }
 
                 if (customerId != null) {
+                    dto.setEntityId(customerId);
                     customerRepository.findById(customerId).ifPresent(c -> {
                         // Override with live DB values (more accurate than payload for UPDATE/DEACTIVATE/DELETE)
                         if (c.getCustomerNo() != null) dto.setCustomerNo(c.getCustomerNo());
@@ -235,6 +236,7 @@ public class PendingRequestController {
                 }
 
                 if (cardId != null) {
+                    dto.setEntityId(cardId);
                     final Long finalCardId = cardId;
                     cardRepository.findById(cardId).ifPresent(card -> {
                         // Inject card info into payload for frontend display

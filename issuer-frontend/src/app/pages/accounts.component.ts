@@ -139,10 +139,10 @@ export class AccountsComponent implements OnInit {
     for (const account of this.accounts) {
       const relatedRequests = this.allPendingData
         .filter(req => {
-          if (req.entityId === account.id) return true;
+          if (req.entityId != null && req.entityId == account.id) return true;
           try {
-            const payload = JSON.parse(req.payload);
-            if (payload.id === account.id || payload.accountId === account.id) return true;
+            const payload = typeof req.payload === 'string' ? JSON.parse(req.payload) : req.payload;
+            if ((payload.id != null && payload.id == account.id) || (payload.accountId != null && payload.accountId == account.id)) return true;
           } catch (e) {}
           return false;
         })
@@ -153,7 +153,12 @@ export class AccountsComponent implements OnInit {
         });
 
       if (relatedRequests.length > 0) {
-        account.pendingStatus = relatedRequests[0].status; // PENDING, APPROVED, REJECTED
+        const pendingReq = relatedRequests.find(r => r.status === 'PENDING');
+        if (pendingReq) {
+          account.pendingStatus = 'PENDING';
+        } else {
+          account.pendingStatus = relatedRequests[0].status;
+        }
       } else {
         account.pendingStatus = null;
       }

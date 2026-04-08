@@ -6,6 +6,8 @@ import com.example.backend.repository.CustomerRepository;
 import com.example.backend.repository.PendingRequestRepository;
 import com.example.backend.enums.RequestStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.LinkedHashMap;
@@ -34,14 +36,25 @@ public class DashboardController {
 
     @GetMapping("/summary")
     @PreAuthorize("hasAnyRole('STAFF','MANAGER','ADMIN')")
-    public Map<String, Object> getSummary() {
+    public Map<String, Object> getSummary(@AuthenticationPrincipal UserDetails user) {
         Map<String, Object> summary = new LinkedHashMap<>();
+
+        boolean isAdmin = user.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+        boolean isManager = user.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_MANAGER"));
 
         // Primary stats
         summary.put("totalCustomers", customerRepository.count());
         summary.put("activeAccounts", accountRepository.countByStatus("ACTIVE"));
         summary.put("activeCards", cardRepository.countByStatus("ACTIVE"));
-        summary.put("pendingRequests", pendingRequestRepository.countByStatus(RequestStatus.PENDING));
+
+        // Pending count: STAFF sees only their own, MANAGER/ADMIN sees all
+        if (isAdmin || isManager) {
+            summary.put("pendingRequests", pendingRequestRepository.countByStatus(RequestStatus.PENDING));
+        } else {
+            summary.put("pendingRequests", pendingRequestRepository.countByStatusAndCreatedBy(RequestStatus.PENDING, user.getUsername()));
+        }
 
         // Bonus stats
         summary.put("blockedCards", cardRepository.countByStatus("BLOCKED"));

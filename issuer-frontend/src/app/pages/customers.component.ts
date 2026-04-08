@@ -148,11 +148,12 @@ export class CustomersComponent implements OnInit {
       // Find pending requests that reference this customer's ID
       const relatedRequests = this.allPendingData
         .filter(req => {
-          if (req.entityId === customer.id) return true;
+          // Use loose equality (==) to handle number vs string mismatches
+          if (req.entityId != null && req.entityId == customer.id) return true;
           // Also check inside payload
           try {
-            const payload = JSON.parse(req.payload);
-            if (payload.id === customer.id) return true;
+            const payload = typeof req.payload === 'string' ? JSON.parse(req.payload) : req.payload;
+            if (payload.id != null && payload.id == customer.id) return true;
           } catch (e) {}
           return false;
         })
@@ -164,7 +165,13 @@ export class CustomersComponent implements OnInit {
         });
 
       if (relatedRequests.length > 0) {
-        customer.pendingStatus = relatedRequests[0].status; // PENDING, APPROVED, REJECTED
+        // Show PENDING status if there's any active pending request
+        const pendingReq = relatedRequests.find(r => r.status === 'PENDING');
+        if (pendingReq) {
+          customer.pendingStatus = 'PENDING';
+        } else {
+          customer.pendingStatus = relatedRequests[0].status; // APPROVED, REJECTED, etc.
+        }
       } else {
         customer.pendingStatus = null; // No pending request
       }

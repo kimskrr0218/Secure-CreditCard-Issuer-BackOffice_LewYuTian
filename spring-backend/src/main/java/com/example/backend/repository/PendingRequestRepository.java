@@ -12,4 +12,6 @@ public interface PendingRequestRepository extends JpaRepository<PendingRequest, 
     List<PendingRequest> findByEntityTypeAndStatus(String entityType, RequestStatus status);
 
     long countByStatus(RequestStatus status);
+
+    long countByStatusAndCreatedBy(RequestStatus status, String createdBy);
 }

@@ -123,10 +123,10 @@ export class CardsComponent implements OnInit {
     for (const card of this.cards) {
       const relatedRequests = this.allPendingData
         .filter(req => {
-          if (req.entityId === card.id) return true;
+          if (req.entityId != null && req.entityId == card.id) return true;
           try {
-            const payload = JSON.parse(req.payload);
-            if (payload.id === card.id || payload.oldCardId === card.id) return true;
+            const payload = typeof req.payload === 'string' ? JSON.parse(req.payload) : req.payload;
+            if ((payload.id != null && payload.id == card.id) || (payload.oldCardId != null && payload.oldCardId == card.id)) return true;
           } catch (e) {}
           return false;
         })
@@ -137,7 +137,12 @@ export class CardsComponent implements OnInit {
         });
 
       if (relatedRequests.length > 0) {
-        card.pendingStatus = relatedRequests[0].status; // PENDING, APPROVED, REJECTED
+        const pendingReq = relatedRequests.find(r => r.status === 'PENDING');
+        if (pendingReq) {
+          card.pendingStatus = 'PENDING';
+        } else {
+          card.pendingStatus = relatedRequests[0].status;
+        }
       } else {
         card.pendingStatus = null;
       }

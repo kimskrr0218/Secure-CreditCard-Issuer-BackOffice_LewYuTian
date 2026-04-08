@@ -17,7 +17,7 @@ import { HttpClient } from '@angular/common/http';
         <a class="nav-link" routerLink="/customers" routerLinkActive="active">Customers</a>
         <a class="nav-link" routerLink="/accounts" routerLinkActive="active">Accounts</a>
         <a class="nav-link" routerLink="/cards" routerLinkActive="active">Cards</a>
-        <a class="nav-link" routerLink="/pending" routerLinkActive="active">Pending</a>
+        <a class="nav-link" routerLink="/pending" routerLinkActive="active">Tasks</a>
       </div>
       <div class="nav-right">
         <a class="nav-link profile-link" routerLink="/profile" routerLinkActive="active">Profile</a>

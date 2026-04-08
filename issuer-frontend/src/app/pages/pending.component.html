@@ -4,28 +4,23 @@
 
   <!-- ================= HEADER ================= -->
   <div class="page-header">
-    <h2>Pending Requests</h2>
+    <h2>Tasks</h2>
   </div>
 
   <div class="content-layout">
 
     <!-- ================= FILTER PANEL ================= -->
     <div class="filter-panel card-panel">
-      <h3>Filters</h3>
+      <h3>Search</h3>
 
       <div class="filter-group">
-        <label>Customer No</label>
-        <input type="text" [(ngModel)]="filterCustomerNo" placeholder="CUST-1001" />
+        <label>Task ID</label>
+        <input type="text" [(ngModel)]="filterTaskId" placeholder="e.g. 12" />
       </div>
 
       <div class="filter-group">
-        <label>Account No</label>
-        <input type="text" [(ngModel)]="filterAccountNo" placeholder="ACC-2001" />
-      </div>
-
-      <div class="filter-group">
-        <label>Cardholder Name</label>
-        <input type="text" [(ngModel)]="filterCardholderName" placeholder="John Doe" />
+        <label>Keyword</label>
+        <input type="text" [(ngModel)]="filterKeyword" placeholder="Name, No, Operation..." />
       </div>
 
       <div class="filter-actions">
@@ -41,195 +36,96 @@
     <!-- ================= MAIN SECTION ================= -->
     <div class="main-section">
 
-      <!-- ================= STATUS FILTER TOOLBAR ================= -->
+      <!-- ================= ENTITY TYPE FILTER ================= -->
       <div class="filter-toolbar">
+        <span class="filter-label">Type:</span>
+        <button class="filter-btn" [class.active]="entityFilter === 'ALL'" (click)="setEntityFilter('ALL')">All</button>
+        <button class="filter-btn" [class.active]="entityFilter === 'CUSTOMER'" (click)="setEntityFilter('CUSTOMER')">Customer</button>
+        <button class="filter-btn" [class.active]="entityFilter === 'ACCOUNT'" (click)="setEntityFilter('ACCOUNT')">Account</button>
+        <button class="filter-btn" [class.active]="entityFilter === 'CARD'" (click)="setEntityFilter('CARD')">Card</button>
+
+        <span class="filter-separator"></span>
+
+        <span class="filter-label">Status:</span>
         <button class="filter-btn" [class.active]="currentFilter === 'ALL'" (click)="setFilter('ALL')">All</button>
         <button class="filter-btn" [class.active]="currentFilter === 'PENDING'" (click)="setFilter('PENDING')">Pending</button>
         <button class="filter-btn" [class.active]="currentFilter === 'APPROVED'" (click)="setFilter('APPROVED')">Approved</button>
         <button class="filter-btn" [class.active]="currentFilter === 'REJECTED'" (click)="setFilter('REJECTED')">Rejected</button>
       </div>
 
-<!-- ================= REQUEST TABLE ================= -->
+      <!-- ================= UNIFIED TASKS TABLE ================= -->
+      <div class="requests-container">
+        <div *ngIf="filteredTasks.length > 0; else noTasks">
+          <table class="request-table">
+            <thead>
+              <tr>
+                <th>No.</th>
+                <th>Task ID</th>
+                <th>Type</th>
+                <th>Operation</th>
+                <th>Approval Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let r of filteredTasks; let i = index">
+                <td>{{ i + 1 }}</td>
+                <td>{{ r.id }}</td>
 
-<div class="requests-container">
-  <h3>Customer Requests</h3>
-  <div *ngIf="customerRequests.length > 0; else noCustomerRequests">
-    <table class="request-table">
-      <thead>
-        <tr>
-          <th>No.</th>
-          <th>Customer No.</th>
-          <th>Name</th>
-          <th>Operation</th>
-          <th>Approval Status</th>
-          <th>Action</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let r of customerRequests; let i = index">
-          <td>{{ i + 1 }}</td>
-          <td>{{ r.customerNo || r.parsedPayload?.customerNo || '-' }}</td>
-          <td>{{ r.name || r.parsedPayload?.name || '-' }}</td>
-          <!-- OPERATION -->
-          <td>
-            <span class="badge" [ngClass]="{
-              'active': r.operation === 'CREATE' || r.operation === 'ACTIVATE',
-              'inactive': r.operation === 'DEACTIVATE' || r.operation === 'DELETE',
-              'pending': r.operation === 'UPDATE'
-            }">
-              {{ r.operation }}
-            </span>
-          </td>
-          <!-- APPROVAL STATUS -->
-          <td>
-            <span
-              class="badge"
-              [ngClass]="{
-                'pending': r.status === 'PENDING',
-                'approved': r.status === 'APPROVED',
-                'rejected': r.status === 'REJECTED'
-              }"
-            >
-              {{ r.status }}
-            </span>
-          </td>
-          <!-- ACTION BUTTONS -->
-          <td>
-            <button class="view-btn" (click)="viewCustomer(r)">View</button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-  <ng-template #noCustomerRequests>
-    <div class="empty-state">
-      <p>No customer requests found for selected filter.</p>
-    </div>
-  </ng-template>
-</div>
+                <!-- ENTITY TYPE -->
+                <td>
+                  <span class="badge entity-badge" [ngClass]="{
+                    'entity-customer': r.entityType === 'CUSTOMER',
+                    'entity-account': r.entityType === 'ACCOUNT',
+                    'entity-card': r.entityType === 'CARD'
+                  }">
+                    {{ r.entityType }}
+                  </span>
+                </td>
 
-<div class="requests-container" style="margin-top: 2rem;">
-  <h3>Account Requests</h3>
-  <div *ngIf="accountRequests.length > 0; else noAccountRequests">
-    <table class="request-table">
-      <thead>
-        <tr>
-          <th>No.</th>
-          <th>Account No.</th>
-          <th>Customer No.</th>
-          <th>Operation</th>
-          <th>Approval Status</th>
-          <th>Action</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let r of accountRequests; let i = index">
-          <td>{{ i + 1 }}</td>
-          <td>{{ r.accountNumber || r.parsedPayload?.accountNumber || '-' }}</td>
-          <td>{{ r.customerNo || r.parsedPayload?.customerNo || '-' }}</td>
-          <!-- OPERATION -->
-          <td>
-            <span class="badge" [ngClass]="{
-              'active': r.operation === 'CREATE' || r.operation === 'ACTIVATE',
-              'inactive': r.operation === 'DEACTIVATE',
-              'pending': r.operation === 'UPDATE'
-            }">
-              {{ r.operation }}
-            </span>
-          </td>
-          <!-- APPROVAL STATUS -->
-          <td>
-            <span
-              class="badge"
-              [ngClass]="{
-                'pending': r.status === 'PENDING',
-                'approved': r.status === 'APPROVED',
-                'rejected': r.status === 'REJECTED'
-              }"
-            >
-              {{ r.status }}
-            </span>
-          </td>
-          <!-- ACTION BUTTONS -->
-          <td>
-            <button class="view-btn" (click)="viewAccount(r)">View</button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-  <ng-template #noAccountRequests>
-    <div class="empty-state">
-      <p>No account requests found for selected filter.</p>
-    </div>
-  </ng-template>
-</div>
+                <!-- OPERATION -->
+                <td>
+                  <span class="badge" [ngClass]="{
+                    'active': r.operation === 'CREATE' || r.operation === 'ACTIVATE',
+                    'inactive': r.operation === 'DEACTIVATE' || r.operation === 'DELETE',
+                    'blocked': r.operation === 'BLOCK',
+                    'issued': r.operation === 'ISSUE',
+                    'pending': r.operation === 'UPDATE' || r.operation === 'REPLACE' || r.operation === 'UNBLOCK'
+                  }">
+                    {{ r.operation }}
+                  </span>
+                </td>
 
-<div class="requests-container" style="margin-top: 2rem;">
-  <h3>Card Requests</h3>
-  <div *ngIf="cardRequests.length > 0; else noCardRequests">
-    <table class="request-table">
-      <thead>
-        <tr>
-          <th>No.</th>
-          <th>Card Number</th>
-          <th>Cardholder Name</th>
-          <th>Operation</th>
-          <th>Approval Status</th>
-          <th>Action</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let r of cardRequests; let i = index">
-          <td>{{ i + 1 }}</td>
-          <td>{{ r.parsedPayload?.cardNumber ? maskCardNumber(r.parsedPayload.cardNumber) : '-' }}</td>
-          <td>{{ r.parsedPayload?.cardHolderName || r.customerNo || '-' }}</td>
-          <!-- OPERATION -->
-          <td>
-            <span class="badge" [ngClass]="{
-              'blocked': r.operation === 'BLOCK',
-              'active': r.operation === 'CREATE' || r.operation === 'ACTIVATE',
-              'inactive': r.operation === 'DEACTIVATE' || r.operation === 'DELETE',
-              'issued': r.operation === 'ISSUE',
-              'pending': r.operation === 'REPLACE' || r.operation === 'UPDATE' || r.operation === 'UNBLOCK'
-            }">
-              {{ r.operation }}
-            </span>
-          </td>
-          <!-- APPROVAL STATUS -->
-          <td>
-            <span
-              class="badge"
-              [ngClass]="{
-                'pending': r.status === 'PENDING',
-                'approved': r.status === 'APPROVED',
-                'rejected': r.status === 'REJECTED'
-              }"
-            >
-              {{ r.status }}
-            </span>
-          </td>
-          <!-- ACTION BUTTONS -->
-          <td>
-            <button class="view-btn" (click)="viewCard(r)">View</button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-  <ng-template #noCardRequests>
-    <div class="empty-state">
-      <p>No card requests found for selected filter.</p>
-    </div>
-  </ng-template>
-</div>
+                <!-- APPROVAL STATUS -->
+                <td>
+                  <span class="badge" [ngClass]="{
+                    'pending': r.status === 'PENDING',
+                    'approved': r.status === 'APPROVED',
+                    'rejected': r.status === 'REJECTED'
+                  }">
+                    {{ r.status }}
+                  </span>
+                </td>
+
+                <!-- ACTION -->
+                <td>
+                  <button class="view-btn" (click)="viewTask(r)">View</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <ng-template #noTasks>
+          <div class="empty-state">
+            <p>No tasks found for the selected filters.</p>
+          </div>
+        </ng-template>
+      </div>
 
     </div> <!-- end main-section -->
   </div> <!-- end content-layout -->
 
 </div>
-
-<!-- ================= MESSAGE MODAL ================= -->
 
 <!-- ================= REJECT MODAL ================= -->
 <div *ngIf="showRejectModal" class="modal-overlay">
@@ -262,6 +158,8 @@
     </div>
   </div>
 </div>
+
+<!-- ================= MESSAGE MODAL ================= -->
 <div *ngIf="showMessageModal" class="modal-overlay">
   <div class="modal-content">
     <div class="modal-header">
