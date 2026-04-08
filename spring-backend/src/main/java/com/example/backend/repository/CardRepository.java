@@ -5,4 +5,7 @@ import com.example.backend.entity.Card;
 
 public interface CardRepository extends JpaRepository<Card, Long> {
     long countByStatus(String status);
+    long countByCardType(String cardType);
+    long countByCardBrand(String cardBrand);
+    long countByCardMode(String cardMode);
 }

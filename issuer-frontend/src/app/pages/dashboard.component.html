@@ -1,88 +1,266 @@
 <!-- dashboard.component.html -->
-<app-top-navbar></app-top-navbar>
 
 <div class="dashboard-container">
 
   <main class="content">
 
-    <!-- ================= SYSTEM OVERVIEW ================= -->
-    <section class="overview-section">
-
-      <div class="summary-grid" *ngIf="!summaryLoading">
-
-        <!-- Primary Stats -->
-        <div class="summary-card customers">
-          <div class="summary-icon">👥</div>
-          <div class="summary-info">
-            <span class="summary-number">{{ totalCustomers }}</span>
-            <span class="summary-label">Total Customers</span>
-          </div>
-        </div>
-
-        <div class="summary-card accounts">
-          <div class="summary-icon">🏦</div>
-          <div class="summary-info">
-            <span class="summary-number">{{ activeAccounts }}</span>
-            <span class="summary-label">Active Accounts</span>
-          </div>
-        </div>
-
-        <div class="summary-card cards-stat">
-          <div class="summary-icon">💳</div>
-          <div class="summary-info">
-            <span class="summary-number">{{ activeCards }}</span>
-            <span class="summary-label">Active Cards</span>
-          </div>
-        </div>
-
-        <div class="summary-card pending">
-          <div class="summary-icon">⏳</div>
-          <div class="summary-info">
-            <span class="summary-number">{{ pendingRequests }}</span>
-            <span class="summary-label">Pending Requests</span>
-          </div>
-        </div>
-
+    <!-- ================= WELCOME BANNER ================= -->
+    <section class="welcome-banner">
+      <div class="welcome-text">
+        <h1>{{ getGreeting() }}, {{ username }}</h1>
+        <p>Welcome to the Issuer Back-Office Dashboard. Here's your system overview.</p>
       </div>
-
-      <div class="summary-loading" *ngIf="summaryLoading">
-        <p>Loading statistics...</p>
+      <div class="welcome-actions">
+        <span class="role-badge">{{ role }}</span>
+        <button class="banner-btn profile-btn" (click)="navigateTo('/profile')">Profile</button>
+        <button class="banner-btn logout-btn" (click)="logout()">Logout</button>
       </div>
     </section>
 
-    <!-- ================= STAFF / MANAGER / ADMIN ================= -->
-    <div class="cards-container" *ngIf="role === 'STAFF' || role === 'MANAGER' || role === 'ADMIN'">
-      
-      <div class="card" (click)="navigateTo('/customers')">
-        <h3>Customer Management</h3>
-        <p>Manage and view all registered customers.</p>
-      </div>
-
-      <div class="card" (click)="navigateTo('/accounts')">
-        <h3>Account Management</h3>
-        <p>Manage customer accounts efficiently.</p>
-      </div>
-
-      <div class="card" (click)="navigateTo('/cards')">
-        <h3>Card Management</h3>
-        <p>Issue, activate, or block cards.</p>
-      </div>
-
-      <!-- ✅ NEW: Tasks for Staff -->
-      <div class="card" (click)="navigateTo('/pending')">
-        <h3>Tasks</h3>
-        <p>Track all request status and manage approvals.</p>
-      </div>
-
+    <!-- ================= LOADING ================= -->
+    <div class="summary-loading" *ngIf="summaryLoading">
+      <div class="loading-spinner"></div>
+      <p>Loading dashboard...</p>
     </div>
 
-    <!-- ================= ADMIN ================= -->
-    <div class="cards-container" *ngIf="role === 'ADMIN'">
-      <div class="card" (click)="navigateTo('/roles')">
-        <h3>Role Management</h3>
-        <p>Create users and assign roles within the back-office system.</p>
-      </div>
-    </div>
+    <div *ngIf="!summaryLoading">
 
+      <!-- ================= QUICK ACTIONS ================= -->
+      <section class="quick-actions-section">
+        <h3 class="section-title">Quick Actions</h3>
+        <div class="cards-container">
+          <div class="action-card" (click)="navigateTo('/customers')">
+            <div class="action-icon">👥</div>
+            <h4>Customer Management</h4>
+            <p>Manage and view all registered customers.</p>
+          </div>
+
+          <div class="action-card" (click)="navigateTo('/accounts')">
+            <div class="action-icon">🏦</div>
+            <h4>Account Management</h4>
+            <p>Manage customer accounts efficiently.</p>
+          </div>
+
+          <div class="action-card" (click)="navigateTo('/cards')">
+            <div class="action-icon">💳</div>
+            <h4>Card Management</h4>
+            <p>Issue, activate, or block cards.</p>
+          </div>
+
+          <div class="action-card" (click)="navigateTo('/pending')">
+            <div class="action-icon">📋</div>
+            <h4>Tasks</h4>
+            <p>Track all request status and manage approvals.</p>
+          </div>
+
+          <div class="action-card" *ngIf="role === 'ADMIN'" (click)="navigateTo('/roles')">
+            <div class="action-icon">🔐</div>
+            <h4>Role Management</h4>
+            <p>Create users and assign roles.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= SYSTEM OVERVIEW ================= -->
+      <section class="charts-section">
+        <div class="chart-card full-width">
+          <h3>System Overview</h3>
+          <div class="summary-grid">
+            <div class="summary-card customers" (click)="navigateTo('/customers')">
+              <div class="summary-icon">👥</div>
+              <div class="summary-info">
+                <span class="summary-number">{{ totalCustomers }}</span>
+                <span class="summary-label">Total Customers</span>
+              </div>
+            </div>
+
+            <div class="summary-card accounts" (click)="navigateTo('/accounts')">
+              <div class="summary-icon">🏦</div>
+              <div class="summary-info">
+                <span class="summary-number">{{ activeAccounts }}</span>
+                <span class="summary-label">Active Accounts</span>
+              </div>
+            </div>
+
+            <div class="summary-card cards-stat" (click)="navigateTo('/cards')">
+              <div class="summary-icon">💳</div>
+              <div class="summary-info">
+                <span class="summary-number">{{ activeCards }}</span>
+                <span class="summary-label">Active Cards</span>
+              </div>
+            </div>
+
+            <div class="summary-card pending" (click)="navigateTo('/pending')">
+              <div class="summary-icon">⏳</div>
+              <div class="summary-info">
+                <span class="summary-number">{{ pendingRequests }}</span>
+                <span class="summary-label">Pending Tasks</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= CHARTS ROW ================= -->
+      <section class="charts-section">
+
+        <!-- Card Status Breakdown -->
+        <div class="chart-card">
+          <h3>Card Status</h3>
+          <div class="bar-chart">
+            <div class="bar-row" *ngFor="let key of ['ACTIVE','ISSUED','INACTIVE','BLOCKED','DEACTIVATED']">
+              <span class="bar-label">{{ key }}</span>
+              <div class="bar-track">
+                <div class="bar-fill" [ngClass]="'bar-' + key.toLowerCase()"
+                     [style.width.%]="getBarWidth(cardStatusBreakdown[key] || 0, cardStatusBreakdown)">
+                </div>
+              </div>
+              <span class="bar-value">{{ cardStatusBreakdown[key] || 0 }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card Brand Breakdown -->
+        <div class="chart-card">
+          <h3>Card Brands</h3>
+          <div class="donut-chart-area">
+            <div class="donut-legend">
+              <div class="legend-item" *ngFor="let key of ['VISA','MASTERCARD','AMEX']">
+                <span class="legend-dot" [ngClass]="'dot-' + key.toLowerCase()"></span>
+                <span class="legend-text">{{ key }}</span>
+                <span class="legend-value">{{ cardBrandBreakdown[key] || 0 }}</span>
+              </div>
+            </div>
+            <div class="stacked-bar">
+              <div *ngFor="let key of ['VISA','MASTERCARD','AMEX']"
+                   class="stacked-segment"
+                   [ngClass]="'seg-' + key.toLowerCase()"
+                   [style.flex]="(cardBrandBreakdown[key] || 0)">
+              </div>
+            </div>
+          </div>
+          <div class="chart-total">Total: {{ getTotal(cardBrandBreakdown) }}</div>
+        </div>
+
+        <!-- Card Type Breakdown -->
+        <div class="chart-card">
+          <h3>Card Types</h3>
+          <div class="donut-chart-area">
+            <div class="donut-legend">
+              <div class="legend-item" *ngFor="let key of ['Classic','Gold','Platinum']">
+                <span class="legend-dot" [ngClass]="'dot-' + key.toLowerCase()"></span>
+                <span class="legend-text">{{ key }}</span>
+                <span class="legend-value">{{ cardTypeBreakdown[key] || 0 }}</span>
+              </div>
+            </div>
+            <div class="stacked-bar">
+              <div *ngFor="let key of ['Classic','Gold','Platinum']"
+                   class="stacked-segment"
+                   [ngClass]="'seg-' + key.toLowerCase()"
+                   [style.flex]="(cardTypeBreakdown[key] || 0)">
+              </div>
+            </div>
+          </div>
+          <div class="chart-total">Total: {{ getTotal(cardTypeBreakdown) }}</div>
+        </div>
+      </section>
+
+      <!-- ================= TASKS OVERVIEW ROW ================= -->
+      <section class="charts-section">
+
+        <!-- Tasks by Entity Type -->
+        <div class="chart-card">
+          <h3>Tasks by Type</h3>
+          <div class="bar-chart">
+            <div class="bar-row" *ngFor="let key of ['CUSTOMER','ACCOUNT','CARD']">
+              <span class="bar-label">{{ key }}</span>
+              <div class="bar-track">
+                <div class="bar-fill" [ngClass]="'bar-entity-' + key.toLowerCase()"
+                     [style.width.%]="getBarWidth(tasksByEntity[key] || 0, tasksByEntity)">
+                </div>
+              </div>
+              <span class="bar-value">{{ tasksByEntity[key] || 0 }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Task Status Breakdown -->
+        <div class="chart-card">
+          <h3>Task Status</h3>
+          <div class="status-ring-container">
+            <div class="status-stat" *ngFor="let key of ['PENDING','APPROVED','REJECTED']">
+              <span class="status-count" [ngClass]="'count-' + key.toLowerCase()">{{ taskStatusBreakdown[key] || 0 }}</span>
+              <span class="status-label">{{ key }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Customer & Account Summary -->
+        <div class="chart-card">
+          <h3>Customers & Accounts</h3>
+          <div class="mini-summary">
+            <div class="mini-row">
+              <span class="mini-label">Active Customers</span>
+              <span class="mini-value good">{{ customerStatusBreakdown['ACTIVE'] || 0 }}</span>
+            </div>
+            <div class="mini-row">
+              <span class="mini-label">Inactive Customers</span>
+              <span class="mini-value neutral">{{ customerStatusBreakdown['INACTIVE'] || 0 }}</span>
+            </div>
+            <div class="mini-divider"></div>
+            <div class="mini-row">
+              <span class="mini-label">Active Accounts</span>
+              <span class="mini-value good">{{ accountStatusBreakdown['ACTIVE'] || 0 }}</span>
+            </div>
+            <div class="mini-row">
+              <span class="mini-label">Inactive Accounts</span>
+              <span class="mini-value neutral">{{ accountStatusBreakdown['INACTIVE'] || 0 }}</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= RECENT ACTIVITY ================= -->
+      <section class="recent-section" *ngIf="recentActivity.length > 0">
+        <div class="chart-card full-width">
+          <h3>Recent Activity</h3>
+          <table class="activity-table">
+            <thead>
+              <tr>
+                <th>Task ID</th>
+                <th>Type</th>
+                <th>Operation</th>
+                <th>Status</th>
+                <th>Created By</th>
+                <th>Time</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let a of recentActivity" class="activity-row" (click)="navigateTo('/pending')">
+                <td>{{ a.id }}</td>
+                <td>
+                  <span class="badge-sm" [ngClass]="{
+                    'entity-customer': a.entityType === 'CUSTOMER',
+                    'entity-account': a.entityType === 'ACCOUNT',
+                    'entity-card': a.entityType === 'CARD'
+                  }">{{ a.entityType }}</span>
+                </td>
+                <td>{{ a.operation }}</td>
+                <td>
+                  <span class="badge-sm" [ngClass]="{
+                    'status-pending': a.status === 'PENDING',
+                    'status-approved': a.status === 'APPROVED',
+                    'status-rejected': a.status === 'REJECTED'
+                  }">{{ a.status }}</span>
+                </td>
+                <td>{{ a.createdBy }}</td>
+                <td class="time-ago">{{ getTimeAgo(a.createdAt) }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+    </div> <!-- end !summaryLoading -->
   </main>
 </div>

@@ -9,48 +9,166 @@ body {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  background: #f1f5f9;
 }
 
 .content {
-  text-align: center;
-  margin-top: 24px;
   flex: 1;
-  padding: 0 2rem 2rem;
+  padding: 24px 32px 40px;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
 }
 
-/* ================= SYSTEM OVERVIEW ================= */
+/* ================= WELCOME BANNER ================= */
 
-.overview-section {
-  max-width: 1100px;
-  margin: 0 auto 30px auto;
-  text-align: left;
+.welcome-banner {
+  background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+  border-radius: 16px;
+  padding: 28px 32px;
+  margin-bottom: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 4px 20px rgba(30, 41, 59, 0.25);
+}
+
+.welcome-text h1 {
+  color: #ffffff;
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin: 0 0 6px 0;
+}
+
+.welcome-text p {
+  color: #94a3b8;
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+.role-badge {
+  background: rgba(255, 255, 255, 0.15);
+  color: #e2e8f0;
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.welcome-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.banner-btn {
+  padding: 7px 18px;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.profile-btn {
+  background: rgba(255, 255, 255, 0.12);
+  color: #e2e8f0;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.profile-btn:hover {
+  background: rgba(255, 255, 255, 0.22);
+}
+
+.logout-btn {
+  background: #ef4444;
+  color: white;
+}
+
+.logout-btn:hover {
+  background: #dc2626;
+}
+
+/* ================= LOADING ================= */
+
+.summary-loading {
+  text-align: center;
+  padding: 60px 20px;
+  color: #64748b;
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #e2e8f0;
+  border-top-color: #2563eb;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin: 0 auto 16px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ================= STAT CARDS ================= */
+
+.stats-section {
+  margin-bottom: 28px;
 }
 
 .summary-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 20px;
+  gap: 18px;
+  margin-bottom: 18px;
+}
+
+.chart-card .summary-grid {
+  margin-bottom: 0;
+}
+
+.secondary-grid {
+  margin-bottom: 0;
 }
 
 .summary-card {
   background: white;
   border-radius: 14px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  padding: 22px 20px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+  padding: 20px;
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 14px;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   border-left: 4px solid transparent;
+  cursor: pointer;
 }
 
 .summary-card:hover {
   transform: translateY(-3px);
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+}
+
+/* Stat cards inside a chart-card box */
+.chart-card .summary-card {
+  background: #f8fafc;
+  box-shadow: none;
+  border: 1px solid #e2e8f0;
+  border-left: 4px solid transparent;
+}
+
+.chart-card .summary-card:hover {
+  background: #f1f5f9;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
 }
 
 .summary-icon {
-  font-size: 2rem;
+  font-size: 1.8rem;
   line-height: 1;
   flex-shrink: 0;
 }
@@ -58,74 +176,386 @@ body {
 .summary-info {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 3px;
 }
 
 .summary-number {
-  font-size: 1.8rem;
+  font-size: 1.7rem;
   font-weight: 700;
   color: #1e293b;
   line-height: 1;
 }
 
 .summary-label {
-  font-size: 0.82rem;
-  font-weight: 500;
+  font-size: 0.78rem;
+  font-weight: 600;
   color: #64748b;
   text-transform: uppercase;
   letter-spacing: 0.03em;
 }
 
-/* Color accents per card type */
-.summary-card.customers { border-left-color: #2563eb; }
-.summary-card.accounts { border-left-color: #059669; }
+/* Color accents */
+.summary-card.customers  { border-left-color: #2563eb; }
+.summary-card.accounts   { border-left-color: #059669; }
 .summary-card.cards-stat { border-left-color: #0891b2; }
-.summary-card.pending { border-left-color: #f59e0b; }
-.summary-card.blocked { border-left-color: #ef4444; }
-.summary-card.rejected { border-left-color: #dc2626; }
-.summary-card.inactive { border-left-color: #94a3b8; }
+.summary-card.pending    { border-left-color: #f59e0b; }
+.summary-card.issued     { border-left-color: #6366f1; }
+.summary-card.blocked    { border-left-color: #ef4444; }
+.summary-card.inactive   { border-left-color: #94a3b8; }
+.summary-card.rejected   { border-left-color: #dc2626; }
 
-.summary-loading {
-  text-align: center;
-  padding: 30px;
-  color: #64748b;
-  font-size: 0.95rem;
+/* ================= CHART CARDS ================= */
+
+.charts-section {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  margin-bottom: 24px;
 }
 
-/* ================= NAVIGATION CARDS ================= */
+.chart-card {
+  background: white;
+  border-radius: 14px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+  padding: 22px 24px;
+}
+
+.chart-card h3 {
+  margin: 0 0 18px 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #1e293b;
+  border-bottom: 2px solid #f1f5f9;
+  padding-bottom: 10px;
+}
+
+.chart-card.full-width {
+  grid-column: 1 / -1;
+}
+
+.chart-total {
+  text-align: right;
+  font-size: 0.78rem;
+  color: #94a3b8;
+  margin-top: 12px;
+  font-weight: 600;
+}
+
+/* ================= BAR CHART ================= */
+
+.bar-chart {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.bar-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.bar-label {
+  width: 100px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #475569;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  flex-shrink: 0;
+}
+
+.bar-track {
+  flex: 1;
+  height: 22px;
+  background: #f1f5f9;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.bar-fill {
+  height: 100%;
+  border-radius: 6px;
+  transition: width 0.6s ease;
+  min-width: 2px;
+}
+
+.bar-value {
+  width: 30px;
+  text-align: right;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #1e293b;
+  flex-shrink: 0;
+}
+
+/* Card Status bar colors */
+.bar-active      { background: #10b981; }
+.bar-issued      { background: #6366f1; }
+.bar-inactive    { background: #94a3b8; }
+.bar-blocked     { background: #ef4444; }
+.bar-deactivated { background: #64748b; }
+
+/* Tasks by entity bar colors */
+.bar-entity-customer { background: #8b5cf6; }
+.bar-entity-account  { background: #3b82f6; }
+.bar-entity-card     { background: #f59e0b; }
+
+/* ================= STACKED BAR (Brand / Type) ================= */
+
+.donut-chart-area {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.donut-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.legend-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+.legend-text {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #475569;
+  flex: 1;
+}
+
+.legend-value {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+/* Brand dots & segments */
+.dot-visa       { background: #1a56db; }
+.dot-mastercard { background: #e53e3e; }
+.dot-amex       { background: #38b2ac; }
+
+.seg-visa       { background: #1a56db; }
+.seg-mastercard { background: #e53e3e; }
+.seg-amex       { background: #38b2ac; }
+
+/* Type dots & segments */
+.dot-classic    { background: #94a3b8; }
+.dot-gold       { background: #f59e0b; }
+.dot-platinum   { background: #6366f1; }
+
+.seg-classic    { background: #94a3b8; }
+.seg-gold       { background: #f59e0b; }
+.seg-platinum   { background: #6366f1; }
+
+.stacked-bar {
+  display: flex;
+  height: 28px;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #f1f5f9;
+}
+
+.stacked-segment {
+  transition: flex 0.6s ease;
+  min-width: 0;
+}
+
+/* ================= STATUS STATS ================= */
+
+.status-ring-container {
+  display: flex;
+  justify-content: space-around;
+  padding: 10px 0;
+}
+
+.status-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.status-count {
+  font-size: 2rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.count-pending  { color: #f59e0b; }
+.count-approved { color: #10b981; }
+.count-rejected { color: #ef4444; }
+
+.status-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* ================= MINI SUMMARY (Cust & Acct) ================= */
+
+.mini-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.mini-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.mini-label {
+  font-size: 0.85rem;
+  color: #475569;
+  font-weight: 500;
+}
+
+.mini-value {
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.mini-value.good    { color: #10b981; }
+.mini-value.neutral { color: #94a3b8; }
+
+.mini-divider {
+  height: 1px;
+  background: #f1f5f9;
+  margin: 4px 0;
+}
+
+/* ================= RECENT ACTIVITY TABLE ================= */
+
+.recent-section {
+  margin-bottom: 28px;
+}
+
+.activity-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.activity-table thead {
+  background: #f8fafc;
+}
+
+.activity-table th {
+  padding: 10px 14px;
+  text-align: left;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+.activity-table td {
+  padding: 12px 14px;
+  font-size: 0.85rem;
+  color: #334155;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.activity-row {
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.activity-row:hover {
+  background: #f8fafc;
+}
+
+.badge-sm {
+  padding: 3px 8px;
+  border-radius: 10px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  display: inline-block;
+}
+
+.entity-customer { background: #ede9fe; color: #5b21b6; }
+.entity-account  { background: #dbeafe; color: #1e40af; }
+.entity-card     { background: #fef3c7; color: #92400e; }
+
+.status-pending  { background: #fef3c7; color: #92400e; }
+.status-approved { background: #d1fae5; color: #065f46; }
+.status-rejected { background: #fee2e2; color: #991b1b; }
+
+.time-ago {
+  color: #94a3b8;
+  font-size: 0.8rem;
+}
+
+/* ================= QUICK ACTIONS ================= */
+
+.quick-actions-section {
+  margin-bottom: 20px;
+}
+
+.section-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0 0 16px 0;
+}
 
 .cards-container {
   display: flex;
-  justify-content: center;
   flex-wrap: wrap;
-  gap: 25px;
-  margin-bottom: 25px;
+  gap: 18px;
 }
 
-.card {
+.action-card {
   background: white;
-  width: 280px;
-  padding: 20px;
-  border-radius: 12px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  flex: 1;
+  min-width: 200px;
+  max-width: 250px;
+  padding: 22px;
+  border-radius: 14px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
   cursor: pointer;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
+  border-top: 3px solid #2563eb;
 }
 
-.card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+.action-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
 }
 
-.card h3 {
-  color: #1a2433;
-  font-size: 1.2rem;
-  margin-bottom: 8px;
+.action-icon {
+  font-size: 1.6rem;
+  margin-bottom: 10px;
 }
 
-.card p {
-  color: #555;
+.action-card h4 {
+  margin: 0 0 6px 0;
   font-size: 0.95rem;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.action-card p {
+  margin: 0;
+  font-size: 0.82rem;
+  color: #64748b;
+  line-height: 1.4;
 }
 
 /* ================= RESPONSIVE ================= */
@@ -134,14 +564,24 @@ body {
   .summary-grid {
     grid-template-columns: repeat(2, 1fr);
   }
+  .charts-section {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 600px) {
   .summary-grid {
     grid-template-columns: 1fr;
   }
-
   .content {
-    padding: 0 1rem 1rem;
+    padding: 16px;
+  }
+  .welcome-banner {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .welcome-text h1 {
+    font-size: 1.3rem;
   }
 }
