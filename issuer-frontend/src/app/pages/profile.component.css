@@ -353,6 +353,64 @@
   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
 }
 
+/* ─── OTP 6-digit boxes ─────────────────────────── */
+.otp-boxes {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 14px;
+}
+
+.otp-box {
+  width: 48px;
+  height: 56px;
+  text-align: center;
+  font-size: 24px;
+  font-weight: 700;
+  color: #1e293b;
+  border: 2px solid #cbd5e1;
+  border-radius: 10px;
+  outline: none;
+  background: #ffffff;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  caret-color: #2563eb;
+}
+
+.otp-box:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+.otp-box::placeholder {
+  color: #cbd5e1;
+}
+
+.otp-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin-top: 18px;
+}
+
+/* ─── Sub heading for password inside update profile ─── */
+.sub-heading {
+  font-size: 14px;
+  font-weight: 600;
+  color: #475569;
+  margin: 20px 0 12px 0;
+  padding-top: 16px;
+  border-top: 1px dashed #e2e8f0;
+}
+
+.full-width {
+  grid-column: 1 / -1;
+}
+
+.save-btn {
+  padding: 10px 32px;
+  font-size: 15px;
+}
+
 .disable-confirm-btn {
   background: #dc2626 !important;
 }

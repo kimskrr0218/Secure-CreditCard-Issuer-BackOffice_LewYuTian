@@ -48,6 +48,10 @@ export class ProfileComponent implements OnInit {
   tfaDisableMode = false;
   tfaDisableCode = '';
 
+  // OTP digit boxes
+  otpDigits: string[] = ['', '', '', '', '', ''];
+  disableOtpDigits: string[] = ['', '', '', '', '', ''];
+
   // Modal
   showModal = false;
   modalTitle = '';
@@ -72,6 +76,100 @@ export class ProfileComponent implements OnInit {
         this.loading = false;
       }
     });
+  }
+
+  // ─── SAVE PROFILE (Email + Password) ──────────────────────
+  saveProfile(): void {
+    this.emailMessage = '';
+    this.emailError = false;
+    this.passwordMessage = '';
+    this.passwordError = false;
+
+    const emailChanged = this.newEmail.trim() !== (this.profile.email || '').trim();
+    const passwordFilled = this.oldPassword || this.newPassword || this.confirmPassword;
+
+    if (!emailChanged && !passwordFilled) {
+      this.emailMessage = 'No changes to save';
+      this.emailError = true;
+      return;
+    }
+
+    // Validate password fields if any are filled
+    if (passwordFilled) {
+      if (!this.oldPassword) {
+        this.passwordMessage = 'Current password is required';
+        this.passwordError = true;
+        return;
+      }
+      if (!this.newPassword || this.newPassword.length < 6) {
+        this.passwordMessage = 'New password must be at least 6 characters';
+        this.passwordError = true;
+        return;
+      }
+      if (this.newPassword !== this.confirmPassword) {
+        this.passwordMessage = 'Passwords do not match';
+        this.passwordError = true;
+        return;
+      }
+    }
+
+    // Validate email
+    if (emailChanged && (!this.newEmail || !this.newEmail.trim())) {
+      this.emailMessage = 'Email cannot be empty';
+      this.emailError = true;
+      return;
+    }
+
+    let pending = 0;
+    let done = 0;
+    const results: string[] = [];
+
+    const checkDone = () => {
+      done++;
+      if (done === pending) {
+        if (!this.emailError && !this.passwordError) {
+          this.showModalMessage('Success', results.join('\n'));
+        }
+      }
+    };
+
+    if (emailChanged) pending++;
+    if (passwordFilled) pending++;
+
+    if (emailChanged) {
+      this.http.put(`${this.baseUrl}/email`, { email: this.newEmail.trim() }, { withCredentials: true }).subscribe({
+        next: (res: any) => {
+          this.profile.email = this.newEmail.trim();
+          results.push(res.message || 'Email updated successfully');
+          checkDone();
+        },
+        error: (err) => {
+          this.emailMessage = err.error?.message || 'Failed to update email';
+          this.emailError = true;
+          checkDone();
+        }
+      });
+    }
+
+    if (passwordFilled) {
+      this.http.put(`${this.baseUrl}/password`, {
+        oldPassword: this.oldPassword,
+        newPassword: this.newPassword
+      }, { withCredentials: true }).subscribe({
+        next: (res: any) => {
+          this.oldPassword = '';
+          this.newPassword = '';
+          this.confirmPassword = '';
+          results.push(res.message || 'Password changed successfully');
+          checkDone();
+        },
+        error: (err) => {
+          this.passwordMessage = err.error?.message || 'Failed to change password';
+          this.passwordError = true;
+          checkDone();
+        }
+      });
+    }
   }
 
   // ─── UPDATE EMAIL ─────────────────────────────────────────
@@ -152,6 +250,7 @@ export class ProfileComponent implements OnInit {
         this.tfaSecret = res.secret;
         this.tfaQrUrl = res.qrUrl;
         this.tfaVerifyCode = '';
+        this.otpDigits = ['', '', '', '', '', ''];
       },
       error: (err) => {
         this.tfaSetupLoading = false;
@@ -179,6 +278,7 @@ export class ProfileComponent implements OnInit {
         this.tfaSecret = '';
         this.tfaQrUrl = '';
         this.tfaVerifyCode = '';
+        this.otpDigits = ['', '', '', '', '', ''];
         this.tfaMessage = res.message || '2FA enabled successfully!';
         this.tfaError = false;
         this.showModalMessage('Success', this.tfaMessage);
@@ -195,6 +295,7 @@ export class ProfileComponent implements OnInit {
     this.tfaSecret = '';
     this.tfaQrUrl = '';
     this.tfaVerifyCode = '';
+    this.otpDigits = ['', '', '', '', '', ''];
     this.tfaMessage = '';
   }
 
@@ -221,6 +322,7 @@ export class ProfileComponent implements OnInit {
         this.twoFactorEnabled = false;
         this.tfaDisableMode = false;
         this.tfaDisableCode = '';
+        this.disableOtpDigits = ['', '', '', '', '', ''];
         this.tfaMessage = res.message || '2FA disabled';
         this.tfaError = false;
         this.showModalMessage('Success', this.tfaMessage);
@@ -235,7 +337,86 @@ export class ProfileComponent implements OnInit {
   cancelDisable2FA(): void {
     this.tfaDisableMode = false;
     this.tfaDisableCode = '';
+    this.disableOtpDigits = ['', '', '', '', '', ''];
     this.tfaMessage = '';
+  }
+
+  // ─── OTP DIGIT BOX HANDLERS ───────────────────────────────
+  onOtpInput(event: Event, index: number, mode: 'setup' | 'disable'): void {
+    const input = event.target as HTMLInputElement;
+    const value = input.value.replace(/[^0-9]/g, '');
+    input.value = value;
+
+    const digits = mode === 'setup' ? this.otpDigits : this.disableOtpDigits;
+    digits[index] = value;
+
+    if (mode === 'setup') {
+      this.tfaVerifyCode = digits.join('');
+    } else {
+      this.tfaDisableCode = digits.join('');
+    }
+
+    // Auto-advance to next box
+    if (value && index < 5) {
+      const nextInput = (input.parentElement as HTMLElement).querySelectorAll('.otp-box')[index + 1] as HTMLInputElement;
+      if (nextInput) nextInput.focus();
+    }
+
+    // Auto-submit when all 6 filled
+    const code = digits.join('');
+    if (code.length === 6) {
+      if (mode === 'setup') {
+        this.confirmSetup2FA();
+      } else {
+        this.confirmDisable2FA();
+      }
+    }
+  }
+
+  onOtpKeydown(event: KeyboardEvent, index: number, mode: 'setup' | 'disable'): void {
+    const input = event.target as HTMLInputElement;
+    const digits = mode === 'setup' ? this.otpDigits : this.disableOtpDigits;
+
+    if (event.key === 'Backspace' && !input.value && index > 0) {
+      const prevInput = (input.parentElement as HTMLElement).querySelectorAll('.otp-box')[index - 1] as HTMLInputElement;
+      if (prevInput) {
+        digits[index - 1] = '';
+        prevInput.value = '';
+        prevInput.focus();
+        if (mode === 'setup') {
+          this.tfaVerifyCode = digits.join('');
+        } else {
+          this.tfaDisableCode = digits.join('');
+        }
+      }
+    }
+  }
+
+  onOtpPaste(event: ClipboardEvent, mode: 'setup' | 'disable'): void {
+    event.preventDefault();
+    const paste = (event.clipboardData?.getData('text') || '').replace(/[^0-9]/g, '').slice(0, 6);
+    const digits = mode === 'setup' ? this.otpDigits : this.disableOtpDigits;
+    const boxes = ((event.target as HTMLInputElement).parentElement as HTMLElement).querySelectorAll('.otp-box');
+
+    for (let i = 0; i < 6; i++) {
+      digits[i] = paste[i] || '';
+      if (boxes[i]) (boxes[i] as HTMLInputElement).value = digits[i];
+    }
+
+    if (mode === 'setup') {
+      this.tfaVerifyCode = digits.join('');
+    } else {
+      this.tfaDisableCode = digits.join('');
+    }
+
+    // Focus last filled box
+    const focusIdx = Math.min(paste.length, 5);
+    if (boxes[focusIdx]) (boxes[focusIdx] as HTMLInputElement).focus();
+
+    if (paste.length === 6) {
+      if (mode === 'setup') this.confirmSetup2FA();
+      else this.confirmDisable2FA();
+    }
   }
 
   // ─── HELPER: get QR code image URL via public API ─────────

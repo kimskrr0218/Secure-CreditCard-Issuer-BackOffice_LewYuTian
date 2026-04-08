@@ -95,7 +95,12 @@
           </thead>
 
           <tbody>
-
+            <tr *ngIf="loading">
+              <td colspan="6" class="empty">Loading customers...</td>
+            </tr>
+            <tr *ngIf="!loading && filteredCustomers.length === 0">
+              <td colspan="6" class="empty">No Customers Available</td>
+            </tr>
             <tr *ngFor="let c of filteredCustomers; let i = index">
 
               <td>{{ i + 1 }}</td>
