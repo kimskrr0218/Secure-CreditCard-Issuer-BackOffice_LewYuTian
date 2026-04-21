@@ -37,16 +37,14 @@ public class DashboardController {
     }
 
     @GetMapping("/summary")
-    @PreAuthorize("hasAnyRole('STAFF','MANAGER','ADMIN')")
+    @PreAuthorize("hasAnyRole('STAFF','MANAGER')")
     public Map<String, Object> getSummary(@AuthenticationPrincipal UserDetails user) {
         Map<String, Object> summary = new LinkedHashMap<>();
         String username = user.getUsername();
 
-        boolean isAdmin = user.getAuthorities().stream()
-                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
         boolean isManager = user.getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equals("ROLE_MANAGER"));
-        boolean isPrivileged = isAdmin || isManager;
+        boolean isPrivileged = isManager;
 
         // ===== PRIMARY STATS =====
         summary.put("totalCustomers", customerRepository.count());

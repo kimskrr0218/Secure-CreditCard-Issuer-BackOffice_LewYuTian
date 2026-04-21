@@ -10,4 +10,4 @@ export const credentialsInterceptor: HttpInterceptorFn = (req, next) => {
     withCredentials: true
   });
   return next(clonedRequest);
-};
+}; 

@@ -59,25 +59,32 @@ public class SecurityConfig {
                         .requestMatchers("/api/roles/**")
                         .hasRole("ADMIN")
 
-                        // ✅ PENDING REQUESTS (FIXED)
+                        // PENDING REQUESTS — ADMIN manages users only, not operational data
+                        .requestMatchers("/api/pending/user")
+                        .hasRole("ADMIN")
+
                         .requestMatchers("/api/pending/**")
-                        .hasAnyRole("ADMIN", "MANAGER", "STAFF")
+                        .hasAnyRole("MANAGER", "STAFF")
 
                         // Accounts
                         .requestMatchers("/api/accounts/**")
-                        .hasAnyRole("ADMIN", "MANAGER", "STAFF")
+                        .hasAnyRole("MANAGER", "STAFF")
 
                         // Customers
                         .requestMatchers("/api/customers/**")
-                        .hasAnyRole("ADMIN", "MANAGER", "STAFF")
+                        .hasAnyRole("MANAGER", "STAFF")
+
+                        // Cards
+                        .requestMatchers("/api/cards/**")
+                        .hasAnyRole("MANAGER", "STAFF")
 
                         // Dashboard
                         .requestMatchers("/api/dashboard/**")
-                        .hasAnyRole("ADMIN", "MANAGER", "STAFF")
+                        .hasAnyRole("MANAGER", "STAFF")
 
                         // AI Chat
                         .requestMatchers("/api/chat/**")
-                        .hasAnyRole("ADMIN", "MANAGER", "STAFF")
+                        .hasAnyRole("MANAGER", "STAFF")
 
                         // User Profile (any authenticated user)
                         .requestMatchers("/api/profile/**")

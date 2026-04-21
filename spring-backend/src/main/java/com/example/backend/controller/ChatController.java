@@ -29,7 +29,7 @@ public class ChatController {
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @PostMapping
-    @PreAuthorize("hasAnyRole('STAFF','MANAGER','ADMIN')")
+    @PreAuthorize("hasAnyRole('STAFF','MANAGER')")
     public ResponseEntity<?> chat(@RequestBody ChatRequest request) {
         try {
             // Build the Cerebras API request body

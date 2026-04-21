@@ -31,18 +31,18 @@ public class CustomerController {
         return repository.findById(id).orElseThrow(() -> new RuntimeException("Customer not found"));
     }
 
-    // ✏️ Direct create — MANAGER/ADMIN only (STAFF must go through maker-checker)
+    // ✏️ Direct create — MANAGER only (STAFF must go through maker-checker)
     @PostMapping
-    @PreAuthorize("hasAnyRole('MANAGER','ADMIN')")
+    @PreAuthorize("hasRole('MANAGER')")
     public Customer createCustomer(@RequestBody Customer customer) {
         long count = repository.count() + 1;
         customer.setCustomerNo("CUST-" + (1000 + count));
         return repository.save(customer);
     }
 
-    // ✏️ Direct update — MANAGER/ADMIN only (STAFF must go through maker-checker)
+    // ✏️ Direct update — MANAGER only (STAFF must go through maker-checker)
     @PutMapping("/{id}")
-    @PreAuthorize("hasAnyRole('MANAGER','ADMIN')")
+    @PreAuthorize("hasRole('MANAGER')")
     public Customer updateCustomer(@PathVariable Long id, @RequestBody java.util.Map<String, Object> updates) {
         return repository.findById(id).map(c -> {
             if (updates.containsKey("firstName")) c.setFirstName((String) updates.get("firstName"));
@@ -78,9 +78,9 @@ public class CustomerController {
         }).orElseThrow(() -> new RuntimeException("Customer not found"));
     }
 
-    // ❌ Direct delete — MANAGER/ADMIN only (STAFF must go through maker-checker)
+    // ❌ Direct delete — MANAGER only (STAFF must go through maker-checker)
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAnyRole('MANAGER','ADMIN')")
+    @PreAuthorize("hasRole('MANAGER')")
     public void deleteCustomer(@PathVariable Long id) {
         repository.deleteById(id);
     }

@@ -67,15 +67,13 @@ public class PendingRequestController {
     // ================= GET REQUESTS =================
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('STAFF','MANAGER','ADMIN')")
+    @PreAuthorize("hasAnyRole('STAFF','MANAGER')")
     public ResponseEntity<java.util.List<PendingRequestDTO>> getAllRequests(@AuthenticationPrincipal UserDetails user) {
-        boolean isAdmin = user.getAuthorities().stream()
-                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
         boolean isManager = user.getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equals("ROLE_MANAGER"));
 
         java.util.List<PendingRequest> requests;
-        if (isAdmin || isManager) {
+        if (isManager) {
             requests = repository.findAll();
         } else {
             requests = repository.findByCreatedBy(user.getUsername());
@@ -331,7 +329,7 @@ public class PendingRequestController {
     // ================= APPROVE =================
 
     @PutMapping("/{id}/approve")
-    @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
+    @PreAuthorize("hasRole('MANAGER')")
     @Transactional
     public ResponseEntity<?> approve(
             @PathVariable Long id,
@@ -378,7 +376,7 @@ public class PendingRequestController {
     // ================= REJECT =================
 
     @PutMapping("/{id}/reject")
-    @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
+    @PreAuthorize("hasRole('MANAGER')")
     public ResponseEntity<?> reject(
             @PathVariable Long id,
             @AuthenticationPrincipal UserDetails user,
@@ -420,7 +418,7 @@ public class PendingRequestController {
     // ================= CREATE =================
 
     @PostMapping
-    @PreAuthorize("hasAnyRole('STAFF', 'ADMIN')")
+    @PreAuthorize("hasRole('STAFF')")
     public ResponseEntity<?> createRequest(
             @RequestBody PendingRequest request,
             @AuthenticationPrincipal UserDetails user
@@ -455,7 +453,7 @@ public class PendingRequestController {
     // ================= DELETE REJECTED REQUEST =================
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAnyRole('STAFF', 'ADMIN')")
+    @PreAuthorize("hasRole('STAFF')")
     public ResponseEntity<?> deleteRejectedRequest(
             @PathVariable Long id,
             @AuthenticationPrincipal UserDetails user
@@ -471,9 +469,7 @@ public class PendingRequestController {
         }
 
         // Staff can only delete their own requests
-        boolean isAdmin = user.getAuthorities().stream()
-                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
-        if (!isAdmin && !req.getCreatedBy().equals(user.getUsername())) {
+        if (!req.getCreatedBy().equals(user.getUsername())) {
             return ResponseEntity.status(403)
                     .body("You can only remove your own rejected requests.");
         }

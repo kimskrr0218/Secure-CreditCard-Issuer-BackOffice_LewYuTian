@@ -89,7 +89,7 @@ export class PendingComponent implements OnInit {
     // 🔥 Detect role from localStorage
     const role = localStorage.getItem('role');
 
-    this.isManager = role === 'MANAGER' || role === 'ADMIN';
+    this.isManager = role === 'MANAGER';
 
     this.loadRequests();
   }

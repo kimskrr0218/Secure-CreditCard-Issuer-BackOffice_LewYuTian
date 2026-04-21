@@ -27,11 +27,12 @@ export const routes: Routes = [
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
 
-  // Dashboard (all authenticated users)
+  // Dashboard (STAFF and MANAGER only — ADMIN manages users/roles only)
   { 
     path: 'dashboard', 
     component: DashboardComponent, 
-    canActivate: [authGuard] 
+    canActivate: [authGuard],
+    data: { roles: ['STAFF','MANAGER'] }
   },
 
   // STAFF
@@ -45,49 +46,49 @@ export const routes: Routes = [
     path: 'customers/edit-rejected/:id',
     component: EditRejectedComponent,
     canActivate: [authGuard],
-    data: { roles: ['STAFF','MANAGER','ADMIN'] }
+    data: { roles: ['STAFF','MANAGER'] }
   },
   {
     path: 'customers/view/:id',
     component: ViewCustomerComponent,
     canActivate: [authGuard],
-    data: { roles: ['STAFF','MANAGER','ADMIN'] }
+    data: { roles: ['STAFF','MANAGER'] }
   },
   {
     path: 'customers/add',
     component: AddCustomerComponent,
     canActivate: [authGuard],
-    data: { roles: ['STAFF','MANAGER','ADMIN'] }
+    data: { roles: ['STAFF','MANAGER'] }
   },
   { 
     path: 'customers', 
     component: CustomersComponent, 
     canActivate: [authGuard], 
-    data: { roles: ['STAFF','MANAGER','ADMIN'] } 
+    data: { roles: ['STAFF','MANAGER'] } 
   },
   { 
     path: 'accounts', 
     component: AccountsComponent, 
     canActivate: [authGuard], 
-    data: { roles: ['STAFF','MANAGER','ADMIN'] } 
+    data: { roles: ['STAFF','MANAGER'] } 
   },
   { 
     path: 'cards', 
     component: CardsComponent, 
     canActivate: [authGuard], 
-    data: { roles: ['STAFF','MANAGER','ADMIN'] } 
+    data: { roles: ['STAFF','MANAGER'] } 
   },
   {
     path: 'cards/edit/:id',
     component: EditCardComponent,
     canActivate: [authGuard],
-    data: { roles: ['STAFF','ADMIN'] }
+    data: { roles: ['STAFF','MANAGER'] }
   },
   {
     path: 'cards/edit-rejected/:id',
     component: EditRejectedCardComponent,
     canActivate: [authGuard],
-    data: { roles: ['STAFF','ADMIN'] }
+    data: { roles: ['STAFF','MANAGER'] }
   },
   {
     path: 'cards/add',
@@ -99,7 +100,7 @@ export const routes: Routes = [
     path: 'cards/view/:id',
     component: ViewCardComponent,
     canActivate: [authGuard],
-    data: { roles: ['STAFF','MANAGER','ADMIN'] }
+    data: { roles: ['STAFF','MANAGER'] }
   },
   {
     path: 'accounts/add',
@@ -111,20 +112,20 @@ export const routes: Routes = [
     path: 'accounts/:id/edit',
     component: EditAccountComponent,
     canActivate: [authGuard],
-    data: { roles: ['STAFF','MANAGER','ADMIN'] } // Or whatever role needed
+    data: { roles: ['STAFF','MANAGER'] }
   },
   {
     path: 'accounts/view/:id',
     component: ViewAccountComponent,
     canActivate: [authGuard],
-    data: { roles: ['STAFF','MANAGER','ADMIN'] }
+    data: { roles: ['STAFF','MANAGER'] }
   },
 
   {
     path: 'pending',
     component: PendingComponent,
     canActivate: [authGuard],
-    data: { roles: ['STAFF','MANAGER','ADMIN'] }
+    data: { roles: ['STAFF','MANAGER'] }
   },
 
   // ADMIN ONLY
