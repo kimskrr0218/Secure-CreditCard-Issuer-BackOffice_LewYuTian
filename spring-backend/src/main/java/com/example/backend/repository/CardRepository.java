@@ -8,4 +8,5 @@ public interface CardRepository extends JpaRepository<Card, Long> {
     long countByCardType(String cardType);
     long countByCardBrand(String cardBrand);
     long countByCardMode(String cardMode);
+    java.util.List<Card> findByAccountId(Long accountId);
 }

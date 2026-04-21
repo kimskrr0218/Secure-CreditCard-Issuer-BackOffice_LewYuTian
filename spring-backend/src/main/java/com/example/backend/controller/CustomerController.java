@@ -2,6 +2,8 @@ package com.example.backend.controller;
 
 import com.example.backend.entity.Customer;
 import com.example.backend.repository.CustomerRepository;
+import com.example.backend.repository.AccountRepository;
+import com.example.backend.repository.CardRepository;
 import com.example.backend.service.CustomerValidationService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -15,10 +17,15 @@ public class CustomerController {
 
     private final CustomerRepository repository;
     private final CustomerValidationService validationService;
+    private final AccountRepository accountRepository;
+    private final CardRepository cardRepository;
 
-    public CustomerController(CustomerRepository repository, CustomerValidationService validationService) {
+    public CustomerController(CustomerRepository repository, CustomerValidationService validationService,
+                              AccountRepository accountRepository, CardRepository cardRepository) {
         this.repository = repository;
         this.validationService = validationService;
+        this.accountRepository = accountRepository;
+        this.cardRepository = cardRepository;
     }
 
     // 🔍 MANAGER can view customers
@@ -132,7 +139,38 @@ public class CustomerController {
     // ❌ Direct delete — MANAGER only (STAFF must go through maker-checker)
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('MANAGER')")
-    public void deleteCustomer(@PathVariable Long id) {
-        repository.deleteById(id);
+    public ResponseEntity<?> deleteCustomer(@PathVariable Long id) {
+        String blockReason = checkCustomerDeletable(id);
+        if (blockReason != null) {
+            return ResponseEntity.badRequest().body(java.util.Map.of("error", blockReason));
+        }
+        cascadeDeleteCustomer(id);
+        return ResponseEntity.ok().build();
+    }
+
+    private String checkCustomerDeletable(Long customerId) {
+        java.util.List<com.example.backend.entity.Account> accounts = accountRepository.findByCustomerId(customerId);
+        for (com.example.backend.entity.Account acct : accounts) {
+            if ("ACTIVE".equalsIgnoreCase(acct.getStatus())) {
+                return "Cannot delete customer: account " + acct.getAccountNumber() + " is still ACTIVE. Please deactivate or close all accounts first.";
+            }
+            java.util.List<com.example.backend.entity.Card> cards = cardRepository.findByAccountId(acct.getId());
+            for (com.example.backend.entity.Card card : cards) {
+                if ("ACTIVE".equalsIgnoreCase(card.getStatus())) {
+                    return "Cannot delete customer: card ending " + card.getCardNumber().substring(card.getCardNumber().length() - 4) + " is still ACTIVE. Please block or close all cards first.";
+                }
+            }
+        }
+        return null;
+    }
+
+    private void cascadeDeleteCustomer(Long customerId) {
+        java.util.List<com.example.backend.entity.Account> accounts = accountRepository.findByCustomerId(customerId);
+        for (com.example.backend.entity.Account acct : accounts) {
+            java.util.List<com.example.backend.entity.Card> cards = cardRepository.findByAccountId(acct.getId());
+            cardRepository.deleteAll(cards);
+        }
+        accountRepository.deleteAll(accounts);
+        repository.deleteById(customerId);
     }
 }

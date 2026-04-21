@@ -643,7 +643,29 @@ public class PendingRequestController {
                 throw new RuntimeException("Customer ID missing in delete payload");
             }
 
-            customerRepository.deleteById(node.get("id").asLong());
+            Long customerId = node.get("id").asLong();
+
+            // Block if any accounts or cards are still ACTIVE
+            java.util.List<com.example.backend.entity.Account> accounts = accountRepository.findByCustomerId(customerId);
+            for (com.example.backend.entity.Account acct : accounts) {
+                if ("ACTIVE".equalsIgnoreCase(acct.getStatus())) {
+                    throw new RuntimeException("Cannot delete customer: account " + acct.getAccountNumber() + " is still ACTIVE. Please deactivate or close all accounts first.");
+                }
+                java.util.List<com.example.backend.entity.Card> cards = cardRepository.findByAccountId(acct.getId());
+                for (com.example.backend.entity.Card card : cards) {
+                    if ("ACTIVE".equalsIgnoreCase(card.getStatus())) {
+                        throw new RuntimeException("Cannot delete customer: card ending " + card.getCardNumber().substring(card.getCardNumber().length() - 4) + " is still ACTIVE. Please block or close all cards first.");
+                    }
+                }
+            }
+
+            // Cascade delete: cards → accounts → customer
+            for (com.example.backend.entity.Account acct : accounts) {
+                java.util.List<com.example.backend.entity.Card> cards = cardRepository.findByAccountId(acct.getId());
+                cardRepository.deleteAll(cards);
+            }
+            accountRepository.deleteAll(accounts);
+            customerRepository.deleteById(customerId);
 
         } else if ("DEACTIVATE".equalsIgnoreCase(req.getOperation())) {
 

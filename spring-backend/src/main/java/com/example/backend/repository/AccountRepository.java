@@ -5,4 +5,5 @@ import com.example.backend.entity.Account;
 
 public interface AccountRepository extends JpaRepository<Account, Long> {
     long countByStatus(String status);
+    java.util.List<Account> findByCustomerId(Long customerId);
 }

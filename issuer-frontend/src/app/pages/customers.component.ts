@@ -325,10 +325,14 @@ export class CustomersComponent implements OnInit {
     this.http.delete(`${this.apiUrl}/${id}`).subscribe({
       next: () => {
         this.modalMessage = '✅ Customer deleted successfully.';
-          this.showMessageModal = true;
+        this.showMessageModal = true;
         this.loadCustomers();
       },
-      error: (err) => console.error('Error deleting customer:', err)
+      error: (err) => {
+        const msg = err.error?.error || 'Failed to delete customer.';
+        this.modalMessage = '❌ ' + msg;
+        this.showMessageModal = true;
+      }
     });
   }
 
