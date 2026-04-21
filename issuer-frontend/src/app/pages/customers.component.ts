@@ -406,7 +406,11 @@ export class CustomersComponent implements OnInit {
       state: {
         requestData: {
           customerNo: request.customerNo,
+          firstName: request.firstName,
+          lastName: request.lastName,
           name: request.name,
+          gender: request.gender,
+          nationality: request.nationality,
           companyName: request.companyName,
           dob: request.dob,
           idNumber: request.idNumber,
@@ -414,7 +418,8 @@ export class CustomersComponent implements OnInit {
           phoneNumber: request.phoneNumber,
           homeAddress: request.homeAddress,
           annualIncome: request.annualIncome,
-          employerName: request.employerName
+          employerName: request.employerName,
+          employmentStatus: request.employmentStatus
         }
       }
     });

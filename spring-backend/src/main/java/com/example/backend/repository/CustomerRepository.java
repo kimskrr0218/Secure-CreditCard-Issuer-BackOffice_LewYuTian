@@ -6,4 +6,6 @@ import com.example.backend.enums.CustomerStatus;
 
 public interface CustomerRepository extends JpaRepository<Customer, Long> {
     long countByStatus(CustomerStatus status);
+    boolean existsByIdNumber(String idNumber);
+    boolean existsByIdNumberAndIdNot(String idNumber, Long id);
 }

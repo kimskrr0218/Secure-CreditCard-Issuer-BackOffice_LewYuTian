@@ -17,6 +17,7 @@ export class EditCardComponent implements OnInit {
   cardForm!: FormGroup;
   showMessageModal = false;
   modalMessage = '';
+  showConfirmModal = false;
   cardId: string | null = null;
   loading: boolean = true;
   card: any = null;
@@ -68,11 +69,15 @@ export class EditCardComponent implements OnInit {
       this.cardForm.markAllAsTouched();
       return;
     }
+    this.showConfirmModal = true;
+  }
+
+  confirmProceed(): void {
+    this.showConfirmModal = false;
 
     const payload = this.cardForm.value;
     payload.id = this.cardId;
 
-    // All edits go through Maker-Checker pending request
     const pendingRequest = {
       entityType: 'CARD',
       operation: 'UPDATE',
@@ -86,9 +91,14 @@ export class EditCardComponent implements OnInit {
       },
       error: (err) => {
         console.error('Error submitting update request:', err);
-        this.modalService.alert('Failed to submit update request.');
+        this.modalMessage = '❌ Failed to submit update request.';
+        this.showMessageModal = true;
       }
     });
+  }
+
+  cancelConfirm(): void {
+    this.showConfirmModal = false;
   }
 
   cancel(): void {

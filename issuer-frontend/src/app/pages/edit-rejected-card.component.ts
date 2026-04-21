@@ -16,6 +16,7 @@ export class EditRejectedCardComponent implements OnInit {
   cardForm!: FormGroup;
   showMessageModal = false;
   modalMessage = '';
+  showConfirmModal = false;
   pendingRequestId: string | null = null;
   loading = true;
 
@@ -154,10 +155,14 @@ export class EditRejectedCardComponent implements OnInit {
       this.cardForm.markAllAsTouched();
       return;
     }
+    this.showConfirmModal = true;
+  }
+
+  confirmProceed(): void {
+    this.showConfirmModal = false;
 
     const formValue = this.cardForm.value;
 
-    // Embed originalRequestId — backend marks the old request as SUPERSEDED on approval
     const payload = {
       accountId:         formValue.accountId,
       cardType:          formValue.cardType,
@@ -180,6 +185,10 @@ export class EditRejectedCardComponent implements OnInit {
       },
       error: (err) => console.error('Error resubmitting card request:', err)
     });
+  }
+
+  cancelConfirm(): void {
+    this.showConfirmModal = false;
   }
 
   maskCardNumber(number: string): string {

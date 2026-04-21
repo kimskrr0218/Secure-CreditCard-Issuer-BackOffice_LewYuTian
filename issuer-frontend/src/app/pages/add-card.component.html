@@ -98,3 +98,32 @@
     </form>
   </div>
 </div>
+
+<!-- ================= CONFIRMATION MODAL ================= -->
+<div *ngIf="showConfirmModal" class="modal-overlay">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Confirm Submission</h3>
+      <button class="close-btn" (click)="cancelConfirm()">&times;</button>
+    </div>
+    <p>Are you sure you want to submit this card request?</p>
+    <div class="modal-actions">
+      <button class="cancel-btn" (click)="cancelConfirm()">Cancel</button>
+      <button class="submit-btn" (click)="confirmProceed()">Proceed</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================= MESSAGE MODAL ================= -->
+<div *ngIf="showMessageModal" class="modal-overlay">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Message</h3>
+      <button class="close-btn" (click)="closeMessage()">&times;</button>
+    </div>
+    <p>{{ modalMessage }}</p>
+    <div class="modal-actions">
+      <button class="submit-btn" (click)="closeMessage()">OK</button>
+    </div>
+  </div>
+</div>

@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, AbstractControl, ValidationErrors } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
@@ -17,6 +17,7 @@ export class AddCustomerComponent implements OnInit {
   customerForm!: FormGroup;
   showMessageModal = false;
   modalMessage = '';
+  showConfirmModal = false;
   readonly nationalities = NATIONALITIES;
 
   private apiUrl = '/api/customers';
@@ -31,28 +32,47 @@ export class AddCustomerComponent implements OnInit {
   ngOnInit(): void {
     this.customerForm = this.fb.group({
       // Personal Information
-      firstName: ['', Validators.required],
-      lastName: ['', Validators.required],
+      firstName: ['', [Validators.required, Validators.minLength(2), Validators.pattern(/^[a-zA-Z]+$/)]],
+      lastName: ['', [Validators.required, Validators.minLength(2), Validators.pattern(/^[a-zA-Z]+$/)]],
       gender: ['', Validators.required],
       nationality: ['', Validators.required],
       companyName: [''],
-      dob: ['', Validators.required],
-      idNumber: ['', Validators.required],
-      
+      dob: ['', [Validators.required, this.ageValidator]],
+      idNumber: ['', [Validators.required, Validators.minLength(9)]],
+
       // Contact Information
       email: ['', [Validators.required, Validators.email]],
-      phoneNumber: ['', Validators.required],
+      phoneNumber: ['', [Validators.required, Validators.pattern(/^\d+$/), Validators.minLength(10), Validators.maxLength(12)]],
 
       // Address Information
-      homeAddress: ['', Validators.required],
+      homeAddress: ['', [Validators.required, Validators.minLength(10)]],
 
       // Financial Information
-      annualIncome: ['', Validators.required],
-      employerName: ['', Validators.required],
+      annualIncome: ['', [Validators.required, Validators.min(0.01)]],
+      employerName: [''],
       employmentStatus: ['', Validators.required],
-
-
     });
+
+    // Conditional validation: employerName required only when employed
+    this.customerForm.get('employmentStatus')?.valueChanges.subscribe(status => {
+      const employerCtrl = this.customerForm.get('employerName')!;
+      if (status && status !== 'Unemployed') {
+        employerCtrl.setValidators([Validators.required]);
+      } else {
+        employerCtrl.clearValidators();
+      }
+      employerCtrl.updateValueAndValidity();
+    });
+  }
+
+  ageValidator(control: AbstractControl): ValidationErrors | null {
+    if (!control.value) return null;
+    const dob = new Date(control.value);
+    const today = new Date();
+    let age = today.getFullYear() - dob.getFullYear();
+    const m = today.getMonth() - dob.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) age--;
+    return age < 18 ? { underage: true } : null;
   }
 
   onSubmit(): void {
@@ -60,6 +80,11 @@ export class AddCustomerComponent implements OnInit {
       this.customerForm.markAllAsTouched();
       return;
     }
+    this.showConfirmModal = true;
+  }
+
+  confirmProceed(): void {
+    this.showConfirmModal = false;
 
     const payload = this.customerForm.value;
     // Derive 'name' from firstName + lastName for backward compatibility
@@ -89,8 +114,19 @@ export class AddCustomerComponent implements OnInit {
         this.modalMessage = '✅ Customer created successfully.';
         this.showMessageModal = true;
       },
-        error: (err) => console.error('Error creating customer:', err)
+      error: (err) => {
+        if (err.error?.errors) {
+          this.modalMessage = '❌ Validation errors:\n' + err.error.errors.join('\n');
+          this.showMessageModal = true;
+        } else {
+          console.error('Error creating customer:', err);
+        }
+      }
     });
+  }
+
+  cancelConfirm(): void {
+    this.showConfirmModal = false;
   }
 
   cancel(): void {

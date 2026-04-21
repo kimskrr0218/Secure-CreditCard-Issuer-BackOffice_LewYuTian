@@ -21,6 +21,7 @@ export class EditAccountComponent implements OnInit {
 
   showMessageModal = false;
   modalMessage = '';
+  showConfirmModal = false;
 
   private pendingUrl = '/api/pending';
   private apiUrl = '/api/accounts';
@@ -118,6 +119,11 @@ export class EditAccountComponent implements OnInit {
       this.accountForm.markAllAsTouched();
       return;
     }
+    this.showConfirmModal = true;
+  }
+
+  confirmProceed(): void {
+    this.showConfirmModal = false;
 
     const formValue = this.accountForm.getRawValue();
 
@@ -153,6 +159,10 @@ export class EditAccountComponent implements OnInit {
       },
       error: (err) => console.error('Error submitting update request:', err)
     });
+  }
+
+  cancelConfirm(): void {
+    this.showConfirmModal = false;
   }
 
   closeMessage(): void {

@@ -18,6 +18,9 @@ export class AddCardComponent implements OnInit {
   accounts: any[] = [];
   isSubmitting = false;
   isLoadingAccounts = true;
+  showConfirmModal = false;
+  showMessageModal = false;
+  modalMessage = '';
 
   // Auto-derived readonly display
   customerDisplay = '';
@@ -76,7 +79,11 @@ export class AddCardComponent implements OnInit {
       });
       return;
     }
+    this.showConfirmModal = true;
+  }
 
+  confirmProceed(): void {
+    this.showConfirmModal = false;
     this.isSubmitting = true;
     const formValue = this.cardForm.value;
 
@@ -95,15 +102,25 @@ export class AddCardComponent implements OnInit {
     this.http.post('http://localhost:8080/api/pending', reqPayload, { withCredentials: true }).subscribe({
       next: () => {
         this.isSubmitting = false;
-        this.modalService.alert('Card Request Submitted for Approval.');
-        setTimeout(() => this.router.navigate(['/cards']), 1500);
+        this.modalMessage = '✅ Card request submitted for approval.';
+        this.showMessageModal = true;
       },
       error: (err) => {
         console.error(err);
         this.isSubmitting = false;
-        this.modalService.alert('Failed to submit request.');
+        this.modalMessage = '❌ Failed to submit request.';
+        this.showMessageModal = true;
       }
     });
+  }
+
+  cancelConfirm(): void {
+    this.showConfirmModal = false;
+  }
+
+  closeMessage(): void {
+    this.showMessageModal = false;
+    this.router.navigate(['/cards']);
   }
 
   cancel(): void {

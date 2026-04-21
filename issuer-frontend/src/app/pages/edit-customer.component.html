@@ -16,14 +16,18 @@
             <label>First Name *</label>
             <input type="text" formControlName="firstName" placeholder="Enter first name">
             <div class="error" *ngIf="customerForm.get('firstName')?.touched && customerForm.get('firstName')?.invalid">
-              <small>First Name is required</small>
+              <small *ngIf="customerForm.get('firstName')?.errors?.['required']">First Name is required</small>
+              <small *ngIf="customerForm.get('firstName')?.errors?.['minlength']">First Name must be at least 2 characters</small>
+              <small *ngIf="customerForm.get('firstName')?.errors?.['pattern']">First Name must contain letters only</small>
             </div>
           </div>
           <div class="form-group">
             <label>Last Name *</label>
             <input type="text" formControlName="lastName" placeholder="Enter last name">
             <div class="error" *ngIf="customerForm.get('lastName')?.touched && customerForm.get('lastName')?.invalid">
-              <small>Last Name is required</small>
+              <small *ngIf="customerForm.get('lastName')?.errors?.['required']">Last Name is required</small>
+              <small *ngIf="customerForm.get('lastName')?.errors?.['minlength']">Last Name must be at least 2 characters</small>
+              <small *ngIf="customerForm.get('lastName')?.errors?.['pattern']">Last Name must contain letters only</small>
             </div>
           </div>
           <div class="form-group">
@@ -57,7 +61,8 @@
             <label>Date of Birth *</label>
             <input type="date" formControlName="dob">
             <div class="error" *ngIf="customerForm.get('dob')?.touched && customerForm.get('dob')?.invalid">
-              <small>Date of Birth is required</small>
+              <small *ngIf="customerForm.get('dob')?.errors?.['required']">Date of Birth is required</small>
+              <small *ngIf="customerForm.get('dob')?.errors?.['underage']">Customer must be at least 18 years old</small>
             </div>
           </div>
           <div class="form-group">
@@ -100,7 +105,8 @@
             <label>Home Address</label>
             <input type="text" formControlName="homeAddress" placeholder="Enter residential address">
             <div class="error" *ngIf="customerForm.get('homeAddress')?.touched && customerForm.get('homeAddress')?.invalid">
-              <small>Home Address is required</small>
+              <small *ngIf="customerForm.get('homeAddress')?.errors?.['required']">Home Address is required</small>
+              <small *ngIf="customerForm.get('homeAddress')?.errors?.['minlength']">Home Address must be at least 10 characters</small>
             </div>
           </div>
         </div>
@@ -127,14 +133,15 @@
             <label>Gross Annual Income *</label>
             <input type="number" formControlName="annualIncome" placeholder="0.00">
             <div class="error" *ngIf="customerForm.get('annualIncome')?.touched && customerForm.get('annualIncome')?.invalid">
-              <small>Gross Annual Income is required</small>
+              <small *ngIf="customerForm.get('annualIncome')?.errors?.['required']">Gross Annual Income is required</small>
+              <small *ngIf="customerForm.get('annualIncome')?.errors?.['min']">Gross Annual Income must be greater than 0</small>
             </div>
           </div>
-          <div class="form-group">
+          <div class="form-group" *ngIf="customerForm.get('employmentStatus')?.value && customerForm.get('employmentStatus')?.value !== 'Unemployed'">
             <label>Employer Name *</label>
             <input type="text" formControlName="employerName" placeholder="Employer Name">
             <div class="error" *ngIf="customerForm.get('employerName')?.touched && customerForm.get('employerName')?.invalid">
-              <small>Employer Name is required</small>
+              <small>Employer Name is required when employed</small>
             </div>
           </div>
         </div>
@@ -146,6 +153,21 @@
       </div>
 
     </form>
+  </div>
+</div>
+
+<!-- ================= CONFIRMATION MODAL ================= -->
+<div *ngIf="showConfirmModal" class="modal-overlay">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Confirm Submission</h3>
+      <button class="close-btn" (click)="cancelConfirm()">&times;</button>
+    </div>
+    <p>Are you sure you want to submit this update?</p>
+    <div class="modal-actions">
+      <button class="cancel-btn" (click)="cancelConfirm()">Cancel</button>
+      <button class="submit-btn" (click)="confirmProceed()">Proceed</button>
+    </div>
   </div>
 </div>
 

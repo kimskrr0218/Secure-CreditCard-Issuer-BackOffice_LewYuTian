@@ -2,6 +2,8 @@ package com.example.backend.controller;
 
 import com.example.backend.entity.Customer;
 import com.example.backend.repository.CustomerRepository;
+import com.example.backend.service.CustomerValidationService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,9 +14,11 @@ import java.util.List;
 public class CustomerController {
 
     private final CustomerRepository repository;
+    private final CustomerValidationService validationService;
 
-    public CustomerController(CustomerRepository repository) {
+    public CustomerController(CustomerRepository repository, CustomerValidationService validationService) {
         this.repository = repository;
+        this.validationService = validationService;
     }
 
     // 🔍 MANAGER can view customers
@@ -34,17 +38,64 @@ public class CustomerController {
     // ✏️ Direct create — MANAGER only (STAFF must go through maker-checker)
     @PostMapping
     @PreAuthorize("hasRole('MANAGER')")
-    public Customer createCustomer(@RequestBody Customer customer) {
+    public ResponseEntity<?> createCustomer(@RequestBody Customer customer) {
+        // Build a field map for validation
+        java.util.Map<String, Object> fields = new java.util.HashMap<>();
+        fields.put("firstName", customer.getFirstName());
+        fields.put("lastName", customer.getLastName());
+        fields.put("gender", customer.getGender());
+        fields.put("nationality", customer.getNationality());
+        fields.put("dob", customer.getDob() != null ? customer.getDob().toString() : null);
+        fields.put("idNumber", customer.getIdNumber());
+        fields.put("email", customer.getEmail());
+        fields.put("phoneNumber", customer.getPhoneNumber());
+        fields.put("homeAddress", customer.getHomeAddress());
+        fields.put("employmentStatus", customer.getEmploymentStatus());
+        fields.put("annualIncome", customer.getAnnualIncome());
+        fields.put("employerName", customer.getEmployerName());
+
+        List<String> errors = validationService.validate(fields, true, null);
+        if (!errors.isEmpty()) {
+            return ResponseEntity.badRequest().body(java.util.Map.of("errors", errors));
+        }
+
         long count = repository.count() + 1;
         customer.setCustomerNo("CUST-" + (1000 + count));
-        return repository.save(customer);
+        return ResponseEntity.ok(repository.save(customer));
     }
 
     // ✏️ Direct update — MANAGER only (STAFF must go through maker-checker)
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('MANAGER')")
-    public Customer updateCustomer(@PathVariable Long id, @RequestBody java.util.Map<String, Object> updates) {
-        return repository.findById(id).map(c -> {
+    public ResponseEntity<?> updateCustomer(@PathVariable Long id, @RequestBody java.util.Map<String, Object> updates) {
+        Customer existing = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Customer not found"));
+
+        // Merge existing values with updates for validation
+        java.util.Map<String, Object> merged = new java.util.HashMap<>();
+        merged.put("firstName", updates.getOrDefault("firstName", existing.getFirstName()));
+        merged.put("lastName", updates.getOrDefault("lastName", existing.getLastName()));
+        merged.put("gender", updates.getOrDefault("gender", existing.getGender()));
+        merged.put("nationality", updates.getOrDefault("nationality", existing.getNationality()));
+        merged.put("dob", updates.containsKey("dob") ? updates.get("dob") : (existing.getDob() != null ? existing.getDob().toString() : null));
+        merged.put("idNumber", updates.getOrDefault("idNumber", existing.getIdNumber()));
+        merged.put("email", updates.getOrDefault("email", existing.getEmail()));
+        merged.put("phoneNumber", updates.getOrDefault("phoneNumber", existing.getPhoneNumber()));
+        merged.put("homeAddress", updates.getOrDefault("homeAddress", existing.getHomeAddress()));
+        merged.put("employmentStatus", updates.getOrDefault("employmentStatus", existing.getEmploymentStatus()));
+        merged.put("annualIncome", updates.getOrDefault("annualIncome", existing.getAnnualIncome()));
+        merged.put("employerName", updates.getOrDefault("employerName", existing.getEmployerName()));
+
+        List<String> errors = validationService.validate(merged, false, id);
+        if (!errors.isEmpty()) {
+            return ResponseEntity.badRequest().body(java.util.Map.of("errors", errors));
+        }
+
+        return ResponseEntity.ok(applyUpdatesAndSave(existing, updates));
+    }
+
+    private Customer applyUpdatesAndSave(Customer c, java.util.Map<String, Object> updates) {
+        {
             if (updates.containsKey("firstName")) c.setFirstName((String) updates.get("firstName"));
             if (updates.containsKey("lastName")) c.setLastName((String) updates.get("lastName"));
             if (updates.containsKey("name")) c.setName((String) updates.get("name"));
@@ -75,7 +126,7 @@ public class CustomerController {
                     .getContext().getAuthentication().getName());
             c.setUpdatedAt(java.time.LocalDateTime.now());
             return repository.save(c);
-        }).orElseThrow(() -> new RuntimeException("Customer not found"));
+        }
     }
 
     // ❌ Direct delete — MANAGER only (STAFF must go through maker-checker)

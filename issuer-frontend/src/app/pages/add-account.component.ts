@@ -16,6 +16,7 @@ export class AddAccountComponent implements OnInit {
   accountForm!: FormGroup;
   showMessageModal = false;
   modalMessage = '';
+  showConfirmModal = false;
   customers: any[] = [];
 
   private pendingUrl = '/api/pending';
@@ -59,8 +60,13 @@ export class AddAccountComponent implements OnInit {
       this.accountForm.markAllAsTouched();
       return;
     }
+    this.showConfirmModal = true;
+  }
 
-    const formValue = this.accountForm.getRawValue(); // gets disabled fields too
+  confirmProceed(): void {
+    this.showConfirmModal = false;
+
+    const formValue = this.accountForm.getRawValue();
     const payload = {
       customer: { id: formValue.customerId },
       accountNumber: formValue.accountNumber,
@@ -86,6 +92,10 @@ export class AddAccountComponent implements OnInit {
       },
       error: (err) => console.error('Error submitting request:', err)
     });
+  }
+
+  cancelConfirm(): void {
+    this.showConfirmModal = false;
   }
 
   closeMessage(): void {

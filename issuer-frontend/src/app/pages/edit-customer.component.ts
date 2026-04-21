@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, AbstractControl, ValidationErrors } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -17,6 +17,7 @@ export class EditCustomerComponent implements OnInit {
   customerForm!: FormGroup;
   showMessageModal = false;
   modalMessage = '';
+  showConfirmModal = false;
   customerId: string | null = null;
   loading: boolean = true;
   readonly nationalities = NATIONALITIES;
@@ -35,26 +36,36 @@ export class EditCustomerComponent implements OnInit {
     this.customerForm = this.fb.group({
       // Customer Info
       customerNo: [''],
-      firstName: ['', Validators.required],
-      lastName: ['', Validators.required],
+      firstName: ['', [Validators.required, Validators.minLength(2), Validators.pattern(/^[a-zA-Z]+$/)]],
+      lastName: ['', [Validators.required, Validators.minLength(2), Validators.pattern(/^[a-zA-Z]+$/)]],
       gender: ['', Validators.required],
       nationality: ['', Validators.required],
       companyName: [''],
-      dob: ['', Validators.required],
+      dob: ['', [Validators.required, this.ageValidator]],
       idNumber: [''],
-      
+
       // Contact Info
       email: ['', [Validators.required, Validators.email]],
       phoneNumber: [''],
 
       // Address Info
-      homeAddress: ['', Validators.required],
+      homeAddress: ['', [Validators.required, Validators.minLength(10)]],
 
       // Financial Info
-      annualIncome: ['', Validators.required],
-      employerName: ['', Validators.required],
+      annualIncome: ['', [Validators.required, Validators.min(0.01)]],
+      employerName: [''],
       employmentStatus: ['', Validators.required],
+    });
 
+    // Conditional validation: employerName required only when employed
+    this.customerForm.get('employmentStatus')?.valueChanges.subscribe(status => {
+      const employerCtrl = this.customerForm.get('employerName')!;
+      if (status && status !== 'Unemployed') {
+        employerCtrl.setValidators([Validators.required]);
+      } else {
+        employerCtrl.clearValidators();
+      }
+      employerCtrl.updateValueAndValidity();
     });
 
     this.customerId = this.route.snapshot.paramMap.get('id');
@@ -81,18 +92,31 @@ export class EditCustomerComponent implements OnInit {
     }
   }
 
+  ageValidator(control: AbstractControl): ValidationErrors | null {
+    if (!control.value) return null;
+    const dob = new Date(control.value);
+    const today = new Date();
+    let age = today.getFullYear() - dob.getFullYear();
+    const m = today.getMonth() - dob.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) age--;
+    return age < 18 ? { underage: true } : null;
+  }
+
   onSubmit(): void {
     if (this.customerForm.invalid || !this.customerId) {
       this.customerForm.markAllAsTouched();
       return;
     }
+    this.showConfirmModal = true;
+  }
+
+  confirmProceed(): void {
+    this.showConfirmModal = false;
 
     const payload = { ...this.customerForm.value };
     payload.id = this.customerId;
-    // Derive 'name' from firstName + lastName for backward compatibility
     payload.name = `${payload.firstName} ${payload.lastName}`.trim();
 
-    // Don't send masked values back — only send if user typed a real new value
     if (payload.idNumber && payload.idNumber.includes('*')) {
       delete payload.idNumber;
     }
@@ -119,14 +143,24 @@ export class EditCustomerComponent implements OnInit {
       return;
     }
 
-    // Direct CRUD for Manager/Admin
     this.http.put(`${this.apiUrl}/${this.customerId}`, payload, { withCredentials: true }).subscribe({
       next: () => {
         this.modalMessage = '✅ Customer updated successfully.';
         this.showMessageModal = true;
       },
-      error: (err) => console.error('Error updating customer:', err)
+      error: (err) => {
+        if (err.error?.errors) {
+          this.modalMessage = '❌ Validation errors:\n' + err.error.errors.join('\n');
+          this.showMessageModal = true;
+        } else {
+          console.error('Error updating customer:', err);
+        }
+      }
     });
+  }
+
+  cancelConfirm(): void {
+    this.showConfirmModal = false;
   }
 
   cancel(): void {
