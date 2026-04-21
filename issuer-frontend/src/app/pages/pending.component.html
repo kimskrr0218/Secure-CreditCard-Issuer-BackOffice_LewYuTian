@@ -64,6 +64,7 @@
                 <th>Type</th>
                 <th>Operation</th>
                 <th>Approval Status</th>
+                <th>Time</th>
                 <th>Action</th>
               </tr>
             </thead>
@@ -106,6 +107,9 @@
                     {{ r.status }}
                   </span>
                 </td>
+
+                <!-- TIME -->
+                <td>{{ getTimeAgo(r.createdAt) }}</td>
 
                 <!-- ACTION -->
                 <td>
