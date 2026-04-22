@@ -34,7 +34,7 @@ export class AppComponent {
   }
 
   logout(): void {
-    this.http.post('http://localhost:8080/api/logout', {}, { withCredentials: true }).subscribe({
+    this.http.post('/api/logout', {}, { withCredentials: true }).subscribe({
       complete: () => {
         localStorage.clear();
         this.role = null;

@@ -60,7 +60,7 @@ export class AddCardComponent implements OnInit {
   }
 
   loadAccounts(): void {
-    this.http.get<any[]>('http://localhost:8080/api/accounts', { withCredentials: true }).subscribe({
+    this.http.get<any[]>('/api/accounts', { withCredentials: true }).subscribe({
       next: (data) => {
         this.accounts = data.filter(a => a.status === 'ACTIVE');
         this.isLoadingAccounts = false;
@@ -99,7 +99,7 @@ export class AddCardComponent implements OnInit {
       })
     };
 
-    this.http.post('http://localhost:8080/api/pending', reqPayload, { withCredentials: true }).subscribe({
+    this.http.post('/api/pending', reqPayload, { withCredentials: true }).subscribe({
       next: () => {
         this.isSubmitting = false;
         this.modalMessage = '✅ Card request submitted for approval.';

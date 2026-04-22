@@ -86,7 +86,11 @@ export class EditAccountComponent implements OnInit {
           this.loadPendingRequestData();
         }
       },
-      error: (err) => console.error('Error loading account:', err)
+      error: (err) => {
+        const msg = err.error?.error || err.error?.message || 'Failed to load account details.';
+        this.modalMessage = '❌ ' + msg;
+        this.showMessageModal = true;
+      }
     });
   }
 
@@ -157,7 +161,11 @@ export class EditAccountComponent implements OnInit {
         }
         this.showMessageModal = true;
       },
-      error: (err) => console.error('Error submitting update request:', err)
+      error: (err) => {
+        const msg = err.error?.error || err.error?.message || 'Failed to submit update request.';
+        this.modalMessage = '❌ ' + msg;
+        this.showMessageModal = true;
+      }
     });
   }
 

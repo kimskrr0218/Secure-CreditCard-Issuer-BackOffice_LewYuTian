@@ -55,8 +55,8 @@ export class CardsComponent implements OnInit {
   replaceCardHolderName = '';
   replaceOldCard: any = null;
 
-  private cardsApiUrl = 'http://localhost:8080/api/cards';
-  private pendingApiUrl = 'http://localhost:8080/api/pending';
+  private cardsApiUrl = '/api/cards';
+  private pendingApiUrl = '/api/pending';
 
   constructor(
     private http: HttpClient,

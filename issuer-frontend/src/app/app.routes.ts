@@ -9,6 +9,7 @@ import { AddAccountComponent } from './pages/add-account.component';
 import { AccountsComponent } from './pages/accounts.component';
 import { EditAccountComponent } from './pages/edit-account.component';
 import { ViewAccountComponent } from './pages/view-account.component';
+import { EditRejectedAccountComponent } from './pages/edit-rejected-account.component';
 import { CardsComponent } from './pages/cards.component';
 import { AddCardComponent } from './pages/add-card.component';
 import { ViewCardComponent } from './pages/view-card.component';
@@ -40,7 +41,7 @@ export const routes: Routes = [
     path: 'customers/edit/:id',
     component: EditCustomerComponent,
     canActivate: [authGuard],
-    data: { role: 'STAFF' }
+    data: { roles: ['STAFF','MANAGER'] }
   },
   {
     path: 'customers/edit-rejected/:id',
@@ -94,7 +95,7 @@ export const routes: Routes = [
     path: 'cards/add',
     component: AddCardComponent,
     canActivate: [authGuard],
-    data: { role: 'STAFF' }
+    data: { roles: ['STAFF','MANAGER'] }
   },
   {
     path: 'cards/view/:id',
@@ -106,11 +107,17 @@ export const routes: Routes = [
     path: 'accounts/add',
     component: AddAccountComponent,
     canActivate: [authGuard],
-    data: { role: 'STAFF' }
+    data: { roles: ['STAFF','MANAGER'] }
   },
   {
     path: 'accounts/:id/edit',
     component: EditAccountComponent,
+    canActivate: [authGuard],
+    data: { roles: ['STAFF','MANAGER'] }
+  },
+  {
+    path: 'accounts/edit-rejected/:id',
+    component: EditRejectedAccountComponent,
     canActivate: [authGuard],
     data: { roles: ['STAFF','MANAGER'] }
   },

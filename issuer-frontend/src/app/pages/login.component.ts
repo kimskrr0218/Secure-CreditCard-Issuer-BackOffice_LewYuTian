@@ -62,7 +62,7 @@ export class LoginComponent {
       payload: { username: this.resetRequestUsername.trim() }
     };
 
-    this.http.post('http://localhost:8080/api/maker-checker/requests', payload, { withCredentials: true })
+    this.http.post('/api/maker-checker/requests', payload, { withCredentials: true })
       .subscribe({
         next: () => {
           this.modalMessage = 'Password reset request submitted successfully. Waiting for admin approval.';

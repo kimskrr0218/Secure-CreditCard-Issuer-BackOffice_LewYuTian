@@ -39,7 +39,7 @@ export class DashboardComponent implements OnInit {
   // Recent Activity
   recentActivity: any[] = [];
 
-  private summaryUrl = 'http://localhost:8080/api/dashboard/summary';
+  private summaryUrl = '/api/dashboard/summary';
 
   constructor(private router: Router, private http: HttpClient) {}
 
@@ -117,7 +117,7 @@ export class DashboardComponent implements OnInit {
   }
 
   logout(): void {
-    this.http.post('http://localhost:8080/api/logout', {}, { withCredentials: true }).subscribe({
+    this.http.post('/api/logout', {}, { withCredentials: true }).subscribe({
       next: () => {
         localStorage.clear();
         this.router.navigate(['/login']);

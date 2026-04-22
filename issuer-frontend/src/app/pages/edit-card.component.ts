@@ -22,8 +22,8 @@ export class EditCardComponent implements OnInit {
   loading: boolean = true;
   card: any = null;
 
-  private cardsUrl = 'http://localhost:8080/api/cards';
-  private pendingUrl = 'http://localhost:8080/api/pending';
+  private cardsUrl = '/api/cards';
+  private pendingUrl = '/api/pending';
 
   constructor(
     private fb: FormBuilder,

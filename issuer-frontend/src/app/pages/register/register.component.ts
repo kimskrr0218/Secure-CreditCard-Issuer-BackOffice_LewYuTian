@@ -50,7 +50,7 @@ export class RegisterComponent {
       role: this.registerForm.value.role
     };
 
-    this.http.post('http://localhost:8080/api/users/register-request', payload, { withCredentials: true })
+    this.http.post('/api/users/register-request', payload, { withCredentials: true })
       .subscribe({
         next: (res: any) => {
           this.loading = false;

@@ -14,7 +14,7 @@ import { TopNavbarComponent } from '../components/top-navbar.component';
 })
 export class ProfileComponent implements OnInit {
 
-  private baseUrl = 'http://localhost:8080/api/profile';
+  private baseUrl = '/api/profile';
 
   // Profile data
   profile: any = null;

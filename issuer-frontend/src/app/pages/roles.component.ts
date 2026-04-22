@@ -48,8 +48,8 @@ export class RolesComponent implements OnInit {
     this.filterRole = '';
   }
 
-  private apiUrl = 'http://localhost:8080/api/users';
-  private pendingApiUrl = 'http://localhost:8080/api/pending';
+  private apiUrl = '/api/users';
+  private pendingApiUrl = '/api/pending';
 
   constructor(private http: HttpClient, private router: Router) {}
 
@@ -176,7 +176,7 @@ export class RolesComponent implements OnInit {
 
   //  Add logout function to match HTML
   logout(): void {
-    this.http.post('http://localhost:8080/api/logout', {}, { withCredentials: true }).subscribe({
+    this.http.post('/api/logout', {}, { withCredentials: true }).subscribe({
       complete: () => {
         localStorage.clear();
         this.router.navigate(['/login']);

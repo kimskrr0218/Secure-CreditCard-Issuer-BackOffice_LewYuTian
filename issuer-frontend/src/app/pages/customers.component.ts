@@ -243,7 +243,11 @@ export class CustomersComponent implements OnInit {
         this.closeModal();
         this.loadCustomers();
       },
-      error: (err) => console.error('Error submitting request:', err)
+      error: (err) => {
+        const msg = err.error?.error || err.error?.message || 'Failed to submit request.';
+        this.modalMessage = '❌ ' + msg;
+        this.showMessageModal = true;
+      }
     });
 
   }
@@ -280,7 +284,11 @@ export class CustomersComponent implements OnInit {
 
     this.http.post(this.pendingUrl, pendingRequest, { withCredentials: true }).subscribe({
       next: () => { this.modalMessage = '🕓 Delete request submitted for approval.'; this.showMessageModal = true; },
-      error: (err) => console.error('Error submitting delete request:', err)
+      error: (err) => {
+        const msg = err.error?.error || err.error?.message || 'Failed to submit delete request.';
+        this.modalMessage = '❌ ' + msg;
+        this.showMessageModal = true;
+      }
     });
   }
 
@@ -304,10 +312,17 @@ export class CustomersComponent implements OnInit {
         payload: JSON.stringify({ id: customer.id })
       };
       this.http.post('/api/pending', request, { withCredentials: true })
-        .subscribe(() => {
-          this.modalMessage = "Deactivate request submitted for approval";
-          this.showMessageModal = true;
-          this.loadCustomers();
+        .subscribe({
+          next: () => {
+            this.modalMessage = "Deactivate request submitted for approval";
+            this.showMessageModal = true;
+            this.loadCustomers();
+          },
+          error: (err) => {
+            const msg = err.error?.error || err.error?.message || 'Failed to submit deactivate request.';
+            this.modalMessage = '❌ ' + msg;
+            this.showMessageModal = true;
+          }
         });
     };
     this.showConfirmActionModal = true;
@@ -322,10 +337,17 @@ export class CustomersComponent implements OnInit {
         payload: JSON.stringify({ id: customer.id })
       };
       this.http.post('/api/pending', request, { withCredentials: true })
-        .subscribe(() => {
-          this.modalMessage = "Activate request submitted for approval";
-          this.showMessageModal = true;
-          this.loadCustomers();
+        .subscribe({
+          next: () => {
+            this.modalMessage = "Activate request submitted for approval";
+            this.showMessageModal = true;
+            this.loadCustomers();
+          },
+          error: (err) => {
+            const msg = err.error?.error || err.error?.message || 'Failed to submit activate request.';
+            this.modalMessage = '❌ ' + msg;
+            this.showMessageModal = true;
+          }
         });
     };
     this.showConfirmActionModal = true;

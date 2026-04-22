@@ -234,17 +234,43 @@ export class ViewAccountComponent implements OnInit {
 
   editResubmit(): void {
     if (!this.pendingRequest?.id) return;
-    let entityId = this.account?.id;
-    if (!entityId) {
-      try {
-        const payload = typeof this.pendingRequest.payload === 'string' ? JSON.parse(this.pendingRequest.payload) : (this.pendingRequest.payload || {});
-        entityId = payload.id;
-      } catch (e) {}
-    }
-    if (entityId) {
-      this.router.navigate(['/accounts', entityId, 'edit'], {
-        queryParams: { pendingRequestId: this.pendingRequest.id }
+
+    const operation = this.pendingRequest.operation || '';
+    let payload: any = {};
+    try {
+      payload = typeof this.pendingRequest.payload === 'string'
+        ? JSON.parse(this.pendingRequest.payload)
+        : (this.pendingRequest.payload || {});
+    } catch (e) {}
+
+    if (operation === 'CREATE') {
+      // For rejected CREATE, use the edit-rejected-account page
+      this.router.navigate(['/accounts/edit-rejected', this.pendingRequest.id], {
+        state: {
+          requestData: {
+            customerId: payload.customer?.id || payload.customerId || '',
+            accountNumber: payload.accountNumber || '',
+            currency: payload.currency || 'USD',
+            balance: payload.balance ?? '',
+            creditLimit: payload.creditLimit ?? '',
+            billingCycle: payload.billingCycle || '',
+            interestRate: payload.interestRate ?? '',
+            openDate: payload.openDate || '',
+            rejectionReason: this.pendingRequest.rejectionReason || ''
+          }
+        }
       });
+    } else {
+      // For rejected UPDATE, use the regular edit page with pendingRequestId
+      let entityId = this.account?.id;
+      if (!entityId) {
+        entityId = payload.id || payload.accountId;
+      }
+      if (entityId) {
+        this.router.navigate(['/accounts', entityId, 'edit'], {
+          queryParams: { pendingRequestId: this.pendingRequest.id }
+        });
+      }
     }
   }
 

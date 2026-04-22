@@ -90,7 +90,11 @@ export class AddAccountComponent implements OnInit {
         this.modalMessage = 'Account creation request submitted for approval.';
         this.showMessageModal = true;
       },
-      error: (err) => console.error('Error submitting request:', err)
+      error: (err) => {
+        const msg = err.error?.error || err.error?.message || 'Failed to submit request.';
+        this.modalMessage = '❌ ' + msg;
+        this.showMessageModal = true;
+      }
     });
   }
 
@@ -100,10 +104,10 @@ export class AddAccountComponent implements OnInit {
 
   closeMessage(): void {
     this.showMessageModal = false;
-    this.router.navigate(['/customers']);
+    this.router.navigate(['/accounts']);
   }
 
   cancel(): void {
-    this.router.navigate(['/customers']);
+    this.router.navigate(['/accounts']);
   }
 }

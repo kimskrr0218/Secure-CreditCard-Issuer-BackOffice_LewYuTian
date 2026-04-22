@@ -241,7 +241,11 @@ export class AccountsComponent implements OnInit {
         this.showMessageModal = true;
         this.loadAccounts();
       },
-      error: (err) => console.error('Error submitting pending request:', err)
+      error: (err) => {
+        const msg = err.error?.error || err.error?.message || 'Failed to submit request.';
+        this.modalMessage = '❌ ' + msg;
+        this.showMessageModal = true;
+      }
     });
   }
 
@@ -266,7 +270,11 @@ export class AccountsComponent implements OnInit {
           this.showMessageModal = true;
           this.loadAccounts();
         },
-        error: (err) => console.error('Error submitting deactivate request:', err)
+        error: (err) => {
+          const msg = err.error?.error || err.error?.message || 'Failed to submit deactivate request.';
+          this.modalMessage = '❌ ' + msg;
+          this.showMessageModal = true;
+        }
       });
     };
     this.showConfirmModal = true;
@@ -287,7 +295,11 @@ export class AccountsComponent implements OnInit {
           this.showMessageModal = true;
           this.loadAccounts();
         },
-        error: (err) => console.error('Error submitting activate request:', err)
+        error: (err) => {
+          const msg = err.error?.error || err.error?.message || 'Failed to submit activate request.';
+          this.modalMessage = '❌ ' + msg;
+          this.showMessageModal = true;
+        }
       });
     };
     this.showConfirmModal = true;
