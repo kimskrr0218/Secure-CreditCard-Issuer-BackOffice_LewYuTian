@@ -17,6 +17,7 @@ export class EditCustomerComponent implements OnInit {
   customerForm!: FormGroup;
   showMessageModal = false;
   modalMessage = '';
+  modalSuccess = false;
   showConfirmModal = false;
   customerId: string | null = null;
   loading: boolean = true;
@@ -124,37 +125,22 @@ export class EditCustomerComponent implements OnInit {
       delete payload.phoneNumber;
     }
 
-    const role = localStorage.getItem('role');
+    const pendingRequest = {
+      entityType: 'CUSTOMER',
+      operation: 'UPDATE',
+      payload: JSON.stringify(payload)
+    };
 
-    if (role === 'STAFF') {
-      const pendingRequest = {
-        entityType: 'CUSTOMER',
-        operation: 'UPDATE',
-        payload: JSON.stringify(payload)
-      };
-
-      this.http.post(this.pendingUrl, pendingRequest, { withCredentials: true }).subscribe({
-        next: () => {
-          this.modalMessage = '✅ Update request submitted for approval.';
-          this.showMessageModal = true;
-        },
-        error: (err) => console.error('Error submitting update request:', err)
-      });
-      return;
-    }
-
-    this.http.put(`${this.apiUrl}/${this.customerId}`, payload, { withCredentials: true }).subscribe({
+    this.http.post(this.pendingUrl, pendingRequest, { withCredentials: true }).subscribe({
       next: () => {
-        this.modalMessage = '✅ Customer updated successfully.';
+        this.modalMessage = '✅ Update request submitted for approval.';
+        this.modalSuccess = true;
         this.showMessageModal = true;
       },
       error: (err) => {
-        if (err.error?.errors) {
-          this.modalMessage = '❌ Validation errors:\n' + err.error.errors.join('\n');
-          this.showMessageModal = true;
-        } else {
-          console.error('Error updating customer:', err);
-        }
+        this.modalMessage = '❌ ' + (err.error?.error || err.error?.message || 'Failed to submit update request.');
+        this.modalSuccess = false;
+        this.showMessageModal = true;
       }
     });
   }
@@ -169,6 +155,8 @@ export class EditCustomerComponent implements OnInit {
 
   closeMessage(): void {
     this.showMessageModal = false;
-    this.router.navigate(['/customers']);
+    if (this.modalSuccess) {
+      this.router.navigate(['/customers']);
+    }
   }
 }

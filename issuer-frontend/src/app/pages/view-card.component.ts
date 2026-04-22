@@ -20,12 +20,14 @@ export class ViewCardComponent implements OnInit {
   // Pending request approval
   pendingRequest: any = null;
   isManager: boolean = false;
+  showConfirmApproveModal = false;
   showRejectModal = false;
   rejectReason = '';
   showMessageModal = false;
   modalMessage = '';
   backLabel: string = 'Back';
   backPath: string = '/cards';
+  showConfirmDeleteModal = false;
 
   constructor(
     private route: ActivatedRoute,
@@ -84,16 +86,50 @@ export class ViewCardComponent implements OnInit {
                   status: req.status,
                   operation: req.operation,
                   createdBy: req.createdBy,
-                  rejectionReason: req.rejectionReason || req.reason
+                  rejectionReason: req.rejectionReason || req.reason,
+                  payload: req.payload
                 };
               }
 
-              this.card = {
-                ...payloadObj,
-                cardNumber: 'Pending...',
-                status: req.status || 'PENDING',
-                customerName: payloadObj.customerName || req.customerNo || 'N/A'
-              };
+              // For non-CREATE operations, fetch live card data
+              const entityId = req.entityId || payloadObj.entityId || payloadObj.id || payloadObj.oldCardId;
+              if (req.operation !== 'CREATE' && entityId) {
+                this.http.get(`/api/cards/${entityId}`, { withCredentials: true }).subscribe({
+                  next: (liveData: any) => {
+                    this.card = {
+                      ...liveData,
+                      isPendingView: true
+                    };
+                  },
+                  error: () => {
+                    // Fallback to enriched payload data
+                    this.card = {
+                      ...payloadObj,
+                      cardNumber: payloadObj.cardNumber || 'N/A',
+                      status: payloadObj.status || 'PENDING',
+                      account: payloadObj.account || (payloadObj.accountNumber ? {
+                        accountNumber: payloadObj.accountNumber,
+                        currency: payloadObj.accountCurrency || ''
+                      } : undefined),
+                      customer: payloadObj.customer || (payloadObj.customerNo ? {
+                        customerNo: payloadObj.customerNo,
+                        name: payloadObj.customerName || ''
+                      } : undefined),
+                      customerName: payloadObj.customerName || payloadObj.cardHolderName || 'N/A',
+                      isPendingView: true
+                    };
+                  }
+                });
+              } else {
+                // CREATE operation — use payload data
+                this.card = {
+                  ...payloadObj,
+                  cardNumber: payloadObj.cardNumber || 'Pending...',
+                  status: req.status || 'PENDING',
+                  customerName: payloadObj.customerName || req.customerNo || 'N/A',
+                  isPendingView: true
+                };
+              }
             }
           },
           error: (err) => console.error('Error fetching pending request', err)
@@ -125,10 +161,18 @@ export class ViewCardComponent implements OnInit {
   }
 
   get canApproveReject(): boolean {
-    return this.isManager && this.pendingRequest?.status === 'PENDING';
+    const currentUser = localStorage.getItem('username');
+    return this.isManager
+      && this.pendingRequest?.status === 'PENDING'
+      && this.pendingRequest?.createdBy !== currentUser;
   }
 
   approve(): void {
+    this.showConfirmApproveModal = true;
+  }
+
+  confirmApprove(): void {
+    this.showConfirmApproveModal = false;
     if (!this.pendingRequest?.id) return;
     this.http.put(`/api/pending/${this.pendingRequest.id}/approve`, {}).subscribe({
       next: () => {
@@ -143,6 +187,10 @@ export class ViewCardComponent implements OnInit {
         this.showMessageModal = true;
       }
     });
+  }
+
+  cancelApprove(): void {
+    this.showConfirmApproveModal = false;
   }
 
   openRejectModal(): void {
@@ -173,6 +221,60 @@ export class ViewCardComponent implements OnInit {
   closeRejectModal(): void {
     this.showRejectModal = false;
     this.rejectReason = '';
+  }
+
+  get canEditResubmit(): boolean {
+    const currentUser = localStorage.getItem('username');
+    return this.pendingRequest?.status === 'REJECTED'
+      && this.pendingRequest?.createdBy === currentUser;
+  }
+
+  editResubmit(): void {
+    if (!this.pendingRequest?.id) return;
+    const pendingId = this.pendingRequest.id;
+    let payload: any = {};
+    try {
+      payload = typeof this.pendingRequest.payload === 'string' ? JSON.parse(this.pendingRequest.payload) : (this.pendingRequest.payload || {});
+    } catch (e) {}
+    this.router.navigate(['/cards/edit-rejected', pendingId], {
+      state: {
+        requestData: {
+          accountId: payload.accountId || '',
+          cardType: payload.cardType || '',
+          cardBrand: payload.cardBrand || '',
+          cardMode: payload.cardMode || 'PHYSICAL',
+          cardHolderName: payload.cardHolderName || '',
+          cardNumber: payload.cardNumber || '',
+          rejectionReason: this.pendingRequest.rejectionReason || ''
+        }
+      }
+    });
+  }
+
+  confirmDeleteRequest(): void {
+    this.showConfirmDeleteModal = true;
+  }
+
+  cancelDeleteRequest(): void {
+    this.showConfirmDeleteModal = false;
+  }
+
+  executeDeleteRequest(): void {
+    this.showConfirmDeleteModal = false;
+    if (!this.pendingRequest?.id) return;
+    this.http.delete(`/api/pending/${this.pendingRequest.id}`, { withCredentials: true }).subscribe({
+      next: () => {
+        this.modalMessage = 'Rejected request deleted successfully.';
+        this.showMessageModal = true;
+        this.pendingRequest = null;
+        this.requestStatus = null;
+      },
+      error: (err) => {
+        const msg = err.error?.error || err.error?.message || 'Failed to delete request.';
+        this.modalMessage = msg;
+        this.showMessageModal = true;
+      }
+    });
   }
 
   closeMessage(): void {

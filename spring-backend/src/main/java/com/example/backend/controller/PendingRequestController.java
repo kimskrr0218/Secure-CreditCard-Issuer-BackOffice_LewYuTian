@@ -80,6 +80,7 @@ public class PendingRequestController {
         }
 
         java.util.List<PendingRequestDTO> dtoList = requests.stream()
+                .filter(r -> r.getStatus() != RequestStatus.SUPERSEDED)
                 .map(this::mapToDTO)
                 .toList();
 
@@ -330,7 +331,6 @@ public class PendingRequestController {
 
     @PutMapping("/{id}/approve")
     @PreAuthorize("hasRole('MANAGER')")
-    @Transactional
     public ResponseEntity<?> approve(
             @PathVariable Long id,
             @AuthenticationPrincipal UserDetails user
@@ -418,7 +418,7 @@ public class PendingRequestController {
     // ================= CREATE =================
 
     @PostMapping
-    @PreAuthorize("hasRole('STAFF')")
+    @PreAuthorize("hasAnyRole('STAFF','MANAGER')")
     public ResponseEntity<?> createRequest(
             @RequestBody PendingRequest request,
             @AuthenticationPrincipal UserDetails user
@@ -453,7 +453,7 @@ public class PendingRequestController {
     // ================= DELETE REJECTED REQUEST =================
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('STAFF')")
+    @PreAuthorize("hasAnyRole('STAFF','MANAGER')")
     public ResponseEntity<?> deleteRejectedRequest(
             @PathVariable Long id,
             @AuthenticationPrincipal UserDetails user
@@ -560,8 +560,18 @@ public class PendingRequestController {
     }
 
     private String generateCustomerNo() {
-        long count = customerRepository.count() + 1;
-        return "CUST-" + (1000 + count);
+        String maxNo = customerRepository.findMaxCustomerNo();
+        long next = 1001; // default starting number
+        if (maxNo != null && maxNo.startsWith("CUST-")) {
+            try {
+                long current = Long.parseLong(maxNo.substring(5));
+                next = current + 1;
+            } catch (NumberFormatException ignored) {
+                // fallback to count-based
+                next = 1000 + customerRepository.count() + 1;
+            }
+        }
+        return "CUST-" + next;
     }
 
     private void handleCustomer(PendingRequest req, String approverUsername) throws Exception {
@@ -1024,7 +1034,12 @@ public class PendingRequestController {
 
             cardRepository.save(newCard);
 
-            // Old card stays BLOCKED — do not change its status
+            // Mark old card as REPLACED so it can no longer be replaced again
+            oldCard.setStatus("REPLACED");
+            oldCard.setUpdatedBy(req.getCreatedBy());
+            oldCard.setUpdatedAt(LocalDateTime.now());
+            cardRepository.save(oldCard);
+
             // Mark superseded if applicable
             if (node.has("originalRequestId") && !node.get("originalRequestId").isNull()) {
                 Long originalId = node.get("originalRequestId").asLong();

@@ -128,6 +128,10 @@
         <button type="button" class="approve-btn" (click)="approve()">Approve</button>
         <button type="button" class="reject-btn" (click)="openRejectModal()">Reject</button>
       </ng-container>
+      <ng-container *ngIf="canEditResubmit">
+        <button type="button" class="edit-btn" (click)="editResubmit()">Edit & Resubmit</button>
+        <button type="button" class="delete-btn" (click)="confirmDeleteRequest()">Delete Request</button>
+      </ng-container>
     </div>
 
   </div>
@@ -135,6 +139,21 @@
   <!-- Loading State -->
   <div *ngIf="!card" class="loading-state">
     <p>Loading card details...</p>
+  </div>
+</div>
+
+<!-- ================= CONFIRM APPROVE MODAL ================= -->
+<div *ngIf="showConfirmApproveModal" class="modal-overlay">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Confirm Approval</h3>
+      <button class="close-btn" (click)="cancelApprove()">&times;</button>
+    </div>
+    <p style="padding: 0 20px;">Are you sure you want to approve this request?</p>
+    <div class="modal-actions">
+      <button class="modal-cancel-btn" (click)="cancelApprove()">Cancel</button>
+      <button class="modal-submit-btn" (click)="confirmApprove()">Confirm</button>
+    </div>
   </div>
 </div>
 
@@ -158,6 +177,21 @@
     <div class="modal-actions">
       <button class="modal-cancel-btn" (click)="closeRejectModal()">Cancel</button>
       <button class="modal-submit-btn" (click)="confirmReject()" [disabled]="!rejectReason.trim()">Confirm Rejection</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================= CONFIRM DELETE REQUEST MODAL ================= -->
+<div *ngIf="showConfirmDeleteModal" class="modal-overlay">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Confirm Delete</h3>
+      <button class="close-btn" (click)="cancelDeleteRequest()">&times;</button>
+    </div>
+    <p style="padding: 0 20px;">Are you sure you want to delete this rejected request? This action cannot be undone.</p>
+    <div class="modal-actions">
+      <button class="modal-cancel-btn" (click)="cancelDeleteRequest()">Cancel</button>
+      <button class="modal-submit-btn" style="background-color: #dc3545;" (click)="executeDeleteRequest()">Delete</button>
     </div>
   </div>
 </div>

@@ -17,6 +17,7 @@ export class AddCustomerComponent implements OnInit {
   customerForm!: FormGroup;
   showMessageModal = false;
   modalMessage = '';
+  modalSuccess = false;
   showConfirmModal = false;
   readonly nationalities = NATIONALITIES;
 
@@ -89,38 +90,22 @@ export class AddCustomerComponent implements OnInit {
     const payload = this.customerForm.value;
     // Derive 'name' from firstName + lastName for backward compatibility
     payload.name = `${payload.firstName} ${payload.lastName}`.trim();
-    const role = localStorage.getItem('role');
+    const pendingRequest = {
+      entityType: 'CUSTOMER',
+      operation: 'CREATE',
+      payload: JSON.stringify(payload)
+    };
 
-    if (role === 'STAFF') {
-      const pendingRequest = {
-        entityType: 'CUSTOMER',
-        operation: 'CREATE',
-        payload: JSON.stringify(payload)
-      };
-
-      this.http.post(this.pendingUrl, pendingRequest, { withCredentials: true }).subscribe({
-        next: () => {
-          this.modalMessage = '✅ Request submitted for approval.';
-          this.showMessageModal = true;
-        },
-        error: (err) => console.error('Error submitting request:', err)
-      });
-      return;
-    }
-
-    // Direct CRUD for Manager/Admin
-    this.http.post(this.apiUrl, payload, { withCredentials: true }).subscribe({
+    this.http.post(this.pendingUrl, pendingRequest, { withCredentials: true }).subscribe({
       next: () => {
-        this.modalMessage = '✅ Customer created successfully.';
+        this.modalMessage = '✅ Request submitted for approval.';
+        this.modalSuccess = true;
         this.showMessageModal = true;
       },
       error: (err) => {
-        if (err.error?.errors) {
-          this.modalMessage = '❌ Validation errors:\n' + err.error.errors.join('\n');
-          this.showMessageModal = true;
-        } else {
-          console.error('Error creating customer:', err);
-        }
+        this.modalMessage = '❌ ' + (err.error?.error || err.error?.message || 'Failed to submit request.');
+        this.modalSuccess = false;
+        this.showMessageModal = true;
       }
     });
   }
@@ -135,6 +120,8 @@ export class AddCustomerComponent implements OnInit {
 
   closeMessage(): void {
     this.showMessageModal = false;
-    this.router.navigate(['/customers']);
+    if (this.modalSuccess) {
+      this.router.navigate(['/customers']);
+    }
   }
 }

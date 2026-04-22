@@ -17,6 +17,7 @@ export class EditRejectedComponent implements OnInit {
   customerForm!: FormGroup;
   showMessageModal = false;
   modalMessage = '';
+  modalSuccess = false;
   showConfirmModal = false;
   pendingRequestId: string | null = null;
   loading = true;
@@ -127,9 +128,15 @@ export class EditRejectedComponent implements OnInit {
     this.http.post(this.pendingUrl, pendingRequest, { withCredentials: true }).subscribe({
       next: () => {
         this.modalMessage = '✅ Customer update request resubmitted for manager approval.';
+        this.modalSuccess = true;
         this.showMessageModal = true;
       },
-      error: (err) => console.error('Error resubmitting request:', err)
+      error: (err) => {
+        const msg = err?.error?.message || err?.error?.error || 'An unexpected error occurred.';
+        this.modalMessage = '❌ ' + msg;
+        this.modalSuccess = false;
+        this.showMessageModal = true;
+      }
     });
   }
 
@@ -143,6 +150,8 @@ export class EditRejectedComponent implements OnInit {
 
   closeMessage(): void {
     this.showMessageModal = false;
-    this.router.navigate(['/customers']);
+    if (this.modalSuccess) {
+      this.router.navigate(['/customers']);
+    }
   }
 }

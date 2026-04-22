@@ -16,6 +16,7 @@ export class EditRejectedCardComponent implements OnInit {
   cardForm!: FormGroup;
   showMessageModal = false;
   modalMessage = '';
+  modalSuccess = false;
   showConfirmModal = false;
   pendingRequestId: string | null = null;
   loading = true;
@@ -181,9 +182,15 @@ export class EditRejectedCardComponent implements OnInit {
     this.http.post(this.pendingUrl, pendingRequest, { withCredentials: true }).subscribe({
       next: () => {
         this.modalMessage = '✅ Card request resubmitted for manager approval.';
+        this.modalSuccess = true;
         this.showMessageModal = true;
       },
-      error: (err) => console.error('Error resubmitting card request:', err)
+      error: (err) => {
+        const msg = err?.error?.message || err?.error?.error || 'An unexpected error occurred.';
+        this.modalMessage = '❌ ' + msg;
+        this.modalSuccess = false;
+        this.showMessageModal = true;
+      }
     });
   }
 
@@ -202,6 +209,8 @@ export class EditRejectedCardComponent implements OnInit {
 
   closeMessage(): void {
     this.showMessageModal = false;
-    this.router.navigate(['/cards']);
+    if (this.modalSuccess) {
+      this.router.navigate(['/cards']);
+    }
   }
 }

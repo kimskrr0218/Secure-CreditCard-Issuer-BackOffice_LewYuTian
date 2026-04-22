@@ -154,6 +154,8 @@
                   </button>
                 </ng-container>
 
+
+
               </td>
 
             </tr>
@@ -284,7 +286,7 @@
       </div>
       <div class="detail-row" *ngIf="selectedRequest.status === 'REJECTED'">
         <span class="detail-label">Rejection Reason:</span>
-        <span class="detail-value" style="color: #dc3545; font-weight: bold;">{{ selectedRequest.reason }}</span>
+        <span class="detail-value" style="color: #dc3545; font-weight: bold;">{{ selectedRequest.rejectionReason }}</span>
       </div>
     </div>
 
@@ -309,6 +311,21 @@
     <div class="modal-actions">
       <button class="cancel-btn" (click)="cancelDelete()">Cancel</button>
       <button class="delete-confirm-btn" (click)="confirmDelete()">Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================= CONFIRM ACTION MODAL ================= -->
+<div *ngIf="showConfirmActionModal" class="modal-overlay">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Confirm Action</h3>
+      <button class="close-btn" (click)="cancelAction()">&times;</button>
+    </div>
+    <p>{{ confirmActionMessage }}</p>
+    <div class="modal-actions">
+      <button class="cancel-btn" (click)="cancelAction()">Cancel</button>
+      <button class="submit-btn" (click)="confirmAction()">Confirm</button>
     </div>
   </div>
 </div>

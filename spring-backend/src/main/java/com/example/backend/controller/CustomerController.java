@@ -66,8 +66,17 @@ public class CustomerController {
             return ResponseEntity.badRequest().body(java.util.Map.of("errors", errors));
         }
 
-        long count = repository.count() + 1;
-        customer.setCustomerNo("CUST-" + (1000 + count));
+        // Generate unique customer number from max existing value
+        String maxNo = repository.findMaxCustomerNo();
+        long next = 1001;
+        if (maxNo != null && maxNo.startsWith("CUST-")) {
+            try {
+                next = Long.parseLong(maxNo.substring(5)) + 1;
+            } catch (NumberFormatException ignored) {
+                next = 1000 + repository.count() + 1;
+            }
+        }
+        customer.setCustomerNo("CUST-" + next);
         return ResponseEntity.ok(repository.save(customer));
     }
 

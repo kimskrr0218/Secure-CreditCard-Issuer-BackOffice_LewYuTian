@@ -52,7 +52,6 @@ export class CustomersComponent implements OnInit {
 
   showConfirmModal = false;
   confirmMessage = '';
-  confirmAction: (() => void) | null = null;
 
   showConfirmDeleteModal = false;
   pendingDeleteId: number | null = null;
@@ -169,11 +168,14 @@ export class CustomersComponent implements OnInit {
         const pendingReq = relatedRequests.find(r => r.status === 'PENDING');
         if (pendingReq) {
           customer.pendingStatus = 'PENDING';
+          customer.pendingRequest = pendingReq;
         } else {
           customer.pendingStatus = relatedRequests[0].status; // APPROVED, REJECTED, etc.
+          customer.pendingRequest = relatedRequests[0];
         }
       } else {
         customer.pendingStatus = null; // No pending request
+        customer.pendingRequest = null;
       }
     }
   }
@@ -226,55 +228,23 @@ export class CustomersComponent implements OnInit {
       payload.id = this.editId;
     }
 
-    // ===== STAFF → Pending Request =====
+    // ===== All roles → Pending Request =====
 
-    if (role === 'STAFF') {
-
-      const pendingRequest = {
-        entityType: 'CUSTOMER',
-        operation: this.isEditing ? 'UPDATE' : 'CREATE',
-        payload: JSON.stringify(payload)
-      };
+    const pendingRequest = {
+      entityType: 'CUSTOMER',
+      operation: this.isEditing ? 'UPDATE' : 'CREATE',
+      payload: JSON.stringify(payload)
+    };
 
     this.http.post(this.pendingUrl, pendingRequest, { withCredentials: true }).subscribe({
-        next: () => {
-          this.modalMessage = '✅ Request submitted for approval.';
-          this.showMessageModal = true;
-          this.closeModal();
-          this.loadCustomers(); // Refresh the tables to show the new pending request
-        },
-        error: (err) => console.error('Error submitting request:', err)        
-      });
-      return;
-    }
-
-    // ===== MANAGER / ADMIN → Direct CRUD =====
-
-    if (this.isEditing && this.editId !== null) {
-
-      this.http.put(`${this.apiUrl}/${this.editId}`, payload).subscribe({
-        next: () => {
-          this.modalMessage = '✅ Customer updated successfully.';
-          this.showMessageModal = true;
-          this.closeModal();
-          this.loadCustomers();
-        },
-        error: (err) => console.error('Error updating customer:', err)
-      });
-
-    } else {
-
-      this.http.post(this.apiUrl, payload, { withCredentials: true }).subscribe({
-        next: () => {
-          this.modalMessage = '✅ Customer created successfully.';
-          this.showMessageModal = true;
-          this.closeModal();
-          this.loadCustomers();
-        },
-        error: (err) => console.error('Error creating customer:', err)
-      });
-
-    }
+      next: () => {
+        this.modalMessage = '✅ Request submitted for approval.';
+        this.showMessageModal = true;
+        this.closeModal();
+        this.loadCustomers();
+      },
+      error: (err) => console.error('Error submitting request:', err)
+    });
 
   }
 
@@ -300,39 +270,17 @@ export class CustomersComponent implements OnInit {
     this.showConfirmDeleteModal = false;
     this.pendingDeleteId = null;
 
-    const role = localStorage.getItem('role');
+    // ===== All roles → Pending Delete =====
 
-    // ===== STAFF → Pending Delete =====
+    const pendingRequest = {
+      entityType: 'CUSTOMER',
+      operation: 'DELETE',
+      payload: JSON.stringify({ id })
+    };
 
-    if (role === 'STAFF') {
-
-      const pendingRequest = {
-        entityType: 'CUSTOMER',
-        operation: 'DELETE',
-        payload: JSON.stringify({ id })
-      };
-
-      this.http.post(this.pendingUrl, pendingRequest, { withCredentials: true }).subscribe({
-        next: () => { this.modalMessage = '🕓 Delete request submitted for approval.'; this.showMessageModal = true; },
-        error: (err) => console.error('Error submitting delete request:', err)
-      });
-
-      return;
-    }
-
-    // ===== MANAGER / ADMIN → Direct Delete =====
-
-    this.http.delete(`${this.apiUrl}/${id}`).subscribe({
-      next: () => {
-        this.modalMessage = '✅ Customer deleted successfully.';
-        this.showMessageModal = true;
-        this.loadCustomers();
-      },
-      error: (err) => {
-        const msg = err.error?.error || 'Failed to delete customer.';
-        this.modalMessage = '❌ ' + msg;
-        this.showMessageModal = true;
-      }
+    this.http.post(this.pendingUrl, pendingRequest, { withCredentials: true }).subscribe({
+      next: () => { this.modalMessage = '🕓 Delete request submitted for approval.'; this.showMessageModal = true; },
+      error: (err) => console.error('Error submitting delete request:', err)
     });
   }
 
@@ -343,38 +291,72 @@ export class CustomersComponent implements OnInit {
 
   // ================= DEACTIVATE / ACTIVATE =================
 
-  deactivate(customer: any) {
-    const request = {
-      entityType: "CUSTOMER",
-      operation: "DEACTIVATE",
-      payload: JSON.stringify({ id: customer.id })
-    };
+  showConfirmActionModal = false;
+  confirmActionMessage = '';
+  pendingActionFn: (() => void) | null = null;
 
-    this.http.post('/api/pending', request, { withCredentials: true })
-      .subscribe(() => {
-        this.modalMessage = "Deactivate request submitted for approval";
+  deactivate(customer: any) {
+    this.confirmActionMessage = 'Are you sure you want to submit a deactivation request for this customer?';
+    this.pendingActionFn = () => {
+      const request = {
+        entityType: "CUSTOMER",
+        operation: "DEACTIVATE",
+        payload: JSON.stringify({ id: customer.id })
+      };
+      this.http.post('/api/pending', request, { withCredentials: true })
+        .subscribe(() => {
+          this.modalMessage = "Deactivate request submitted for approval";
           this.showMessageModal = true;
-        this.loadCustomers();
-      });
+          this.loadCustomers();
+        });
+    };
+    this.showConfirmActionModal = true;
   }
 
   activate(customer: any) {
-    const request = {
-      entityType: "CUSTOMER",
-      operation: "ACTIVATE",
-      payload: JSON.stringify({ id: customer.id })
-    };
-
-    this.http.post('/api/pending', request, { withCredentials: true })
-      .subscribe(() => {
-        this.modalMessage = "Activate request submitted for approval";
+    this.confirmActionMessage = 'Are you sure you want to submit an activation request for this customer?';
+    this.pendingActionFn = () => {
+      const request = {
+        entityType: "CUSTOMER",
+        operation: "ACTIVATE",
+        payload: JSON.stringify({ id: customer.id })
+      };
+      this.http.post('/api/pending', request, { withCredentials: true })
+        .subscribe(() => {
+          this.modalMessage = "Activate request submitted for approval";
           this.showMessageModal = true;
-        this.loadCustomers();
-      });
+          this.loadCustomers();
+        });
+    };
+    this.showConfirmActionModal = true;
+  }
+
+  confirmAction(): void {
+    this.showConfirmActionModal = false;
+    if (this.pendingActionFn) {
+      this.pendingActionFn();
+      this.pendingActionFn = null;
+    }
+  }
+
+  cancelAction(): void {
+    this.showConfirmActionModal = false;
+    this.pendingActionFn = null;
   }  // ================= MODAL LOGIC =================
   view(customer: any): void {
     if (customer && customer.id) {
-      this.router.navigate(['/customers/view', customer.id]);
+      const state: any = {};
+      if (customer.pendingRequest) {
+        state.pendingRequest = {
+          id: customer.pendingRequest.id,
+          status: customer.pendingRequest.status,
+          operation: customer.pendingRequest.operation,
+          createdBy: customer.pendingRequest.createdBy,
+          rejectionReason: customer.pendingRequest.rejectionReason,
+          payload: customer.pendingRequest.payload
+        };
+      }
+      this.router.navigate(['/customers/view', customer.id], { state });
     } else {
       this.selectedCustomer = customer;
       this.showViewModal = true;
@@ -405,28 +387,60 @@ export class CustomersComponent implements OnInit {
   editRequest(request: any): void {
     const pendingId = request.pendingRequestId || request.id;
 
-    // Pass the full request data in router state so the edit page can pre-fill the form
+    // Parse payload if it's a raw pending request
+    let requestData: any = {};
+    try {
+      const payload = typeof request.payload === 'string' ? JSON.parse(request.payload) : (request.payload || {});
+      requestData = { ...payload };
+    } catch (e) {}
+
+    // Override with top-level fields if they exist (for mapped requests)
+    if (request.firstName) requestData.firstName = request.firstName;
+    if (request.lastName) requestData.lastName = request.lastName;
+
     this.router.navigate(['/customers/edit-rejected', pendingId], {
       state: {
         requestData: {
-          customerNo: request.customerNo,
-          firstName: request.firstName,
-          lastName: request.lastName,
-          name: request.name,
-          gender: request.gender,
-          nationality: request.nationality,
-          companyName: request.companyName,
-          dob: request.dob,
-          idNumber: request.idNumber,
-          email: request.email,
-          phoneNumber: request.phoneNumber,
-          homeAddress: request.homeAddress,
-          annualIncome: request.annualIncome,
-          employerName: request.employerName,
-          employmentStatus: request.employmentStatus
+          customerNo: requestData.customerNo || request.customerNo,
+          firstName: requestData.firstName,
+          lastName: requestData.lastName,
+          name: requestData.name || request.name,
+          gender: requestData.gender || request.gender,
+          nationality: requestData.nationality || request.nationality,
+          companyName: requestData.companyName || request.companyName,
+          dob: requestData.dob || request.dob,
+          idNumber: requestData.idNumber || request.idNumber,
+          email: requestData.email || request.email,
+          phoneNumber: requestData.phoneNumber || request.phoneNumber,
+          homeAddress: requestData.homeAddress || request.homeAddress,
+          annualIncome: requestData.annualIncome || request.annualIncome,
+          employerName: requestData.employerName || request.employerName,
+          employmentStatus: requestData.employmentStatus || request.employmentStatus
         }
       }
     });
+  }
+
+  deleteRejectedRequest(request: any): void {
+    const pendingId = request.pendingRequestId || request.id;
+    if (!pendingId) return;
+
+    this.confirmActionMessage = 'Are you sure you want to delete this rejected request?';
+    this.showConfirmActionModal = true;
+    this.pendingActionFn = () => {
+      this.http.delete(`${this.pendingUrl}/${pendingId}`, { withCredentials: true }).subscribe({
+        next: () => {
+          this.modalMessage = '✅ Rejected request deleted successfully.';
+          this.showMessageModal = true;
+          this.loadCustomers();
+        },
+        error: (err) => {
+          const msg = err?.error?.message || err?.error?.error || 'Failed to delete request.';
+          this.modalMessage = '❌ ' + msg;
+          this.showMessageModal = true;
+        }
+      });
+    };
   }
 
   openCreateCustomer(): void {

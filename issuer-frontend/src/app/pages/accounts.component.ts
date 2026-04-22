@@ -156,11 +156,14 @@ export class AccountsComponent implements OnInit {
         const pendingReq = relatedRequests.find(r => r.status === 'PENDING');
         if (pendingReq) {
           account.pendingStatus = 'PENDING';
+          account.pendingRequest = pendingReq;
         } else {
           account.pendingStatus = relatedRequests[0].status;
+          account.pendingRequest = relatedRequests[0];
         }
       } else {
         account.pendingStatus = null;
+        account.pendingRequest = null;
       }
     }
   }
@@ -219,51 +222,27 @@ export class AccountsComponent implements OnInit {
       body.creditLimit = creditLimit;
     }
 
-    // --- STAFF -> pending table ---
-    if (role === 'STAFF') {
-      const pendingRequest = {
-        entityType: 'ACCOUNT',
-        operation: this.isEditing ? 'UPDATE' : 'CREATE',
-        payload: JSON.stringify({
-          id: this.editId,
-          customer: { id: customerId },
-          accountType,
-          creditLimit: accountType === 'CREDIT' ? creditLimit : null,
-          balance
-        })
-      };
+    // --- All roles -> pending table ---
+    const pendingRequest = {
+      entityType: 'ACCOUNT',
+      operation: this.isEditing ? 'UPDATE' : 'CREATE',
+      payload: JSON.stringify({
+        id: this.editId,
+        customer: { id: customerId },
+        accountType,
+        creditLimit: accountType === 'CREDIT' ? creditLimit : null,
+        balance
+      })
+    };
 
-      this.http.post(this.pendingUrl, pendingRequest, { withCredentials: true }).subscribe({
-        next: () => {
-          this.modalMessage = 'Request submitted for manager approval.';
-          this.showMessageModal = true;
-          this.loadAccounts();
-        },
-        error: (err) => console.error('Error submitting pending request:', err)
-      });
-      return;
-    }
-
-    // --- MANAGER / ADMIN -> direct ---
-    if (this.isEditing && this.editId !== null) {
-      this.http.put(`${this.apiUrl}/${this.editId}`, body, { withCredentials: true }).subscribe({
-        next: () => {
-          this.modalMessage = 'Account updated successfully.';
-          this.showMessageModal = true;
-          this.loadAccounts();
-        },
-        error: (err) => console.error('Error updating account:', err)
-      });
-    } else {
-      this.http.post(this.apiUrl, body, { withCredentials: true }).subscribe({
-        next: () => {
-          this.modalMessage = 'Account created successfully.';
-          this.showMessageModal = true;
-          this.loadAccounts();
-        },
-        error: (err) => console.error('Error creating account:', err)
-      });
-    }
+    this.http.post(this.pendingUrl, pendingRequest, { withCredentials: true }).subscribe({
+      next: () => {
+        this.modalMessage = 'Request submitted for approval.';
+        this.showMessageModal = true;
+        this.loadAccounts();
+      },
+      error: (err) => console.error('Error submitting pending request:', err)
+    });
   }
 
   // ================= EDIT / DELETE =================
@@ -334,7 +313,18 @@ export class AccountsComponent implements OnInit {
   }
 
   view(account: any): void {
-    this.router.navigate(['/accounts/view', account.id]);
+    const state: any = {};
+    if (account.pendingRequest) {
+      state.pendingRequest = {
+        id: account.pendingRequest.id,
+        status: account.pendingRequest.status,
+        operation: account.pendingRequest.operation,
+        createdBy: account.pendingRequest.createdBy,
+        rejectionReason: account.pendingRequest.rejectionReason,
+        payload: account.pendingRequest.payload
+      };
+    }
+    this.router.navigate(['/accounts/view', account.id], { state });
   }
 
   viewRequest(request: any): void {
@@ -353,23 +343,41 @@ export class AccountsComponent implements OnInit {
     }
 
   editRejectedRequest(request: any): void {
-    if (request.entityId) {
-      this.router.navigate(['/accounts', request.entityId, 'edit'], {
-        queryParams: { pendingRequestId: request.id }
-      });
-    } else {
-      // If entityId is null but payload has an ID 
+    // Parse payload for the entityId
+    let entityId = request.entityId;
+    if (!entityId) {
       try {
         const payloadData = typeof request.payload === 'string' ? JSON.parse(request.payload) : request.payload;
-        if (payloadData && payloadData.id) {
-            this.router.navigate(['/accounts', payloadData.id, 'edit'], {
-              queryParams: { pendingRequestId: request.id }
-            });
-        }
-      } catch (e) {
-          console.error("Failed to parse request payload for edit", e);
-      }
+        entityId = payloadData?.id;
+      } catch (e) {}
     }
+    if (entityId) {
+      this.router.navigate(['/accounts', entityId, 'edit'], {
+        queryParams: { pendingRequestId: request.id }
+      });
+    }
+  }
+
+  deleteRejectedRequest(request: any): void {
+    const pendingId = request.id;
+    if (!pendingId) return;
+
+    this.confirmMessage = 'Are you sure you want to delete this rejected request?';
+    this.pendingAction = () => {
+      this.http.delete(`${this.pendingUrl}/${pendingId}`, { withCredentials: true }).subscribe({
+        next: () => {
+          this.modalMessage = '✅ Rejected request deleted successfully.';
+          this.showMessageModal = true;
+          this.loadAccounts();
+        },
+        error: (err) => {
+          const msg = err?.error?.message || err?.error?.error || 'Failed to delete request.';
+          this.modalMessage = '❌ ' + msg;
+          this.showMessageModal = true;
+        }
+      });
+    };
+    this.showConfirmModal = true;
   }
 
   closeRequestModal(): void {

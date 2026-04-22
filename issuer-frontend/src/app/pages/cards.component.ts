@@ -66,7 +66,7 @@ export class CardsComponent implements OnInit {
   ngOnInit(): void {
     const role = localStorage.getItem('role') || '';
     this.isManager = role === 'MANAGER' || role === 'ADMIN';
-    this.isStaff = role === 'STAFF' || role === 'ADMIN';
+    this.isStaff = role === 'STAFF' || role === 'MANAGER' || role === 'ADMIN';
 
     this.loadAllData();
   }
@@ -140,11 +140,14 @@ export class CardsComponent implements OnInit {
         const pendingReq = relatedRequests.find(r => r.status === 'PENDING');
         if (pendingReq) {
           card.pendingStatus = 'PENDING';
+          card.pendingRequest = pendingReq;
         } else {
           card.pendingStatus = relatedRequests[0].status;
+          card.pendingRequest = relatedRequests[0];
         }
       } else {
         card.pendingStatus = null;
+        card.pendingRequest = null;
       }
     }
   }
@@ -180,8 +183,19 @@ export class CardsComponent implements OnInit {
     this.router.navigate(['/cards/add']);
   }
 
-  viewLiveCard(id: number): void {
-    this.router.navigate(['/cards/view', id]);
+  viewLiveCard(card: any): void {
+    const state: any = {};
+    if (card.pendingRequest) {
+      state.pendingRequest = {
+        id: card.pendingRequest.id,
+        status: card.pendingRequest.status,
+        operation: card.pendingRequest.operation,
+        createdBy: card.pendingRequest.createdBy,
+        rejectionReason: card.pendingRequest.rejectionReason,
+        payload: card.pendingRequest.payload
+      };
+    }
+    this.router.navigate(['/cards/view', card.id], { state });
   }
 
   viewPendingCard(id: number): void {
@@ -363,7 +377,15 @@ export class CardsComponent implements OnInit {
 
   editRejectedRequest(request: any): void {
     const pendingId = request.pendingRequestId || request.id;
-    const payload = request.parsedPayload || {};
+    // Parse payload from raw pending request if needed
+    let payload = request.parsedPayload;
+    if (!payload) {
+      try {
+        payload = typeof request.payload === 'string' ? JSON.parse(request.payload) : (request.payload || {});
+      } catch (e) {
+        payload = {};
+      }
+    }
     this.router.navigate(['/cards/edit-rejected', pendingId], {
       state: {
         requestData: {

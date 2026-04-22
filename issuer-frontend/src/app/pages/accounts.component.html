@@ -125,6 +125,7 @@
                   <ng-container *ngIf="a.status === 'INACTIVE' && a.pendingStatus !== 'PENDING'">
                     <button class="activate-btn" (click)="activate(a)">Activate</button>
                   </ng-container>
+
                 </td>
             </tr>
           </tbody>
@@ -176,7 +177,7 @@
       </div>
       <div class="detail-row" *ngIf="selectedRequest.status === 'REJECTED'">
         <span class="detail-label">Rejection Reason:</span>
-        <span class="detail-value" style="color: #dc3545; font-weight: bold;">{{ selectedRequest.reason }}</span>
+        <span class="detail-value" style="color: #dc3545; font-weight: bold;">{{ selectedRequest.rejectionReason }}</span>
       </div>
     </div>
 

@@ -20,6 +20,9 @@ export class PendingComponent implements OnInit {
     this.showMessageModal = false;
   }
 
+  showConfirmApproveModal = false;
+  pendingApproveId: number | null = null;
+
   showRejectModal = false;
   rejectReason = "";
   selectedRequestId: number | null = null;
@@ -181,8 +184,16 @@ export class PendingComponent implements OnInit {
   }
 
   approve(id: number): void {
+    if (!this.isManager) return;
+    this.pendingApproveId = id;
+    this.showConfirmApproveModal = true;
+  }
 
-    if (!this.isManager) return; // extra safety
+  confirmApprove(): void {
+    const id = this.pendingApproveId;
+    this.showConfirmApproveModal = false;
+    this.pendingApproveId = null;
+    if (!id) return;
 
     this.http.put(
       `${this.apiUrl}/${id}/approve`,
@@ -190,7 +201,7 @@ export class PendingComponent implements OnInit {
     ).subscribe({
       next: () => {
         this.modalMessage = "Request approved successfully.";
-          this.showMessageModal = true;
+        this.showMessageModal = true;
         this.loadRequests();
       },
       error: (err) => {
@@ -200,6 +211,11 @@ export class PendingComponent implements OnInit {
         this.showMessageModal = true;
       }
     });
+  }
+
+  cancelApprove(): void {
+    this.showConfirmApproveModal = false;
+    this.pendingApproveId = null;
   }
 
   reject(id: number): void {
@@ -218,9 +234,10 @@ export class PendingComponent implements OnInit {
     };
 
     if (req.entityType === 'CUSTOMER') {
-      const id = req.entityId || req.id;
-      this.router.navigate(['/customers/view', id], {
-        state: { customer: req.parsedPayload, pendingRequest },
+      // Only pass customer data if the payload has substantial customer fields (CREATE/UPDATE)
+      const hasCustomerFields = req.parsedPayload?.firstName && req.parsedPayload?.lastName;
+      this.router.navigate(['/customers/view', req.id], {
+        state: { customer: hasCustomerFields ? req.parsedPayload : null, pendingRequest },
         queryParams: { from: 'pending' }
       });
     } else if (req.entityType === 'ACCOUNT') {

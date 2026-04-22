@@ -108,7 +108,7 @@
                     'blocked': card.status === 'BLOCKED',
                     'inactive': card.status === 'INACTIVE',
                     'issued': card.status === 'ISSUED',
-                    'deactivated': card.status === 'DEACTIVATED'
+                    'deactivated': card.status === 'DEACTIVATED' || card.status === 'REPLACED'
                   }">
                   {{ card.status }}
                 </span>
@@ -128,31 +128,32 @@
               <td class="actions">
                 <!-- ACTIVE -->
                 <ng-container *ngIf="card.status === 'ACTIVE'">
-                  <button class="view-btn" (click)="viewLiveCard(card.id)">View</button>
+                  <button class="view-btn" (click)="viewLiveCard(card)">View</button>
                   <button class="edit-btn" *ngIf="isStaff && card.pendingStatus !== 'PENDING'" (click)="editCard(card.id)">Edit</button>
                   <button class="block-btn" *ngIf="isStaff && card.pendingStatus !== 'PENDING'" (click)="blockCard(card)">Block</button>
                 </ng-container>
                 <!-- ISSUED -->
                 <ng-container *ngIf="card.status === 'ISSUED'">
-                  <button class="view-btn" (click)="viewLiveCard(card.id)">View</button>
+                  <button class="view-btn" (click)="viewLiveCard(card)">View</button>
                   <button class="activate-btn" *ngIf="isStaff && card.pendingStatus !== 'PENDING'" (click)="activateCard(card.id)">Activate</button>
                 </ng-container>
                 <!-- BLOCKED -->
                 <ng-container *ngIf="card.status === 'BLOCKED'">
-                  <button class="view-btn" (click)="viewLiveCard(card.id)">View</button>
+                  <button class="view-btn" (click)="viewLiveCard(card)">View</button>
                   <button class="replace-btn" *ngIf="isStaff && card.pendingStatus !== 'PENDING'" (click)="replaceCard(card)">Replace</button>
                   <button class="delete-btn" *ngIf="isStaff && card.pendingStatus !== 'PENDING'" (click)="deactivateCard(card.id)">Deactivate</button>
                 </ng-container>
                 <!-- INACTIVE -->
                 <ng-container *ngIf="card.status === 'INACTIVE'">
-                  <button class="view-btn" (click)="viewLiveCard(card.id)">View</button>
+                  <button class="view-btn" (click)="viewLiveCard(card)">View</button>
                   <button class="issue-btn" *ngIf="isStaff && card.pendingStatus !== 'PENDING'" (click)="issueCard(card.id)">Issue Card</button>
                 </ng-container>
                 <!-- DEACTIVATED -->
-                <ng-container *ngIf="card.status === 'DEACTIVATED'">
-                  <button class="view-btn" (click)="viewLiveCard(card.id)">View</button>
+                <ng-container *ngIf="card.status === 'DEACTIVATED' || card.status === 'REPLACED'">
+                  <button class="view-btn" (click)="viewLiveCard(card)">View</button>
                   <button class="delete-btn" *ngIf="isStaff && card.pendingStatus !== 'PENDING'" (click)="deleteCard(card.id)">Delete</button>
                 </ng-container>
+
               </td>
             </tr>
           </tbody>

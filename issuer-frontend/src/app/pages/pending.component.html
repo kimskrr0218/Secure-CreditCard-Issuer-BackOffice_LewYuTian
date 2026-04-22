@@ -131,6 +131,21 @@
 
 </div>
 
+<!-- ================= CONFIRM APPROVE MODAL ================= -->
+<div *ngIf="showConfirmApproveModal" class="modal-overlay">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Confirm Approval</h3>
+      <button class="close-btn" (click)="cancelApprove()">&times;</button>
+    </div>
+    <p style="padding: 0 20px;">Are you sure you want to approve this request?</p>
+    <div class="modal-actions">
+      <button class="cancel-btn" (click)="cancelApprove()">Cancel</button>
+      <button class="submit-btn" (click)="confirmApprove()">Confirm</button>
+    </div>
+  </div>
+</div>
+
 <!-- ================= REJECT MODAL ================= -->
 <div *ngIf="showRejectModal" class="modal-overlay">
   <div class="modal-content">
