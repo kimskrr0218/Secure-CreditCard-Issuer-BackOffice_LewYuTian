@@ -27,9 +27,14 @@
         </select>
       </div>
 
-      <button class="clear-btn" (click)="clearFilters()">
-        <span>CLEAR</span>
-      </button>
+      <div class="filter-actions">
+        <button class="clear-btn" (click)="clearFilters()">
+          <span>CLEAR</span>
+        </button>
+        <button class="search-btn" (click)="applyFilters()">
+          <span>SEARCH</span>
+        </button>
+      </div>
     </div>
 
     <!-- ================= MAIN SECTION ================= -->

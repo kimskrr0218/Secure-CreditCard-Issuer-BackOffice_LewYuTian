@@ -3,11 +3,15 @@ package com.example.backend.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
+import javax.net.ssl.*;
+import java.net.HttpURLConnection;
 import java.nio.charset.StandardCharsets;
+import java.security.cert.X509Certificate;
 import java.util.List;
 import java.util.Map;
 
@@ -16,23 +20,55 @@ import java.util.Map;
 @CrossOrigin(origins = "http://localhost:4200")
 public class ChatController {
 
-    @Value("${cerebras.api.key}")
+    @Value("${groq.api.key}")
     private String apiKey;
 
-    @Value("${cerebras.api.url:https://api.cerebras.ai/v1/chat/completions}")
+    @Value("${groq.api.url:https://api.groq.com/openai/v1/chat/completions}")
     private String apiUrl;
 
-    @Value("${cerebras.model:llama-4-scout-17b-16e-instruct}")
+    @Value("${groq.model:llama-3.3-70b-versatile}")
     private String model;
 
-    private final RestTemplate restTemplate = new RestTemplate();
+    private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper = new ObjectMapper();
+
+    public ChatController() {
+        this.restTemplate = createSslTrustingRestTemplate();
+    }
+
+    private RestTemplate createSslTrustingRestTemplate() {
+        try {
+            TrustManager[] trustAllCerts = new TrustManager[] {
+                new X509TrustManager() {
+                    public X509Certificate[] getAcceptedIssuers() { return null; }
+                    public void checkClientTrusted(X509Certificate[] certs, String authType) {}
+                    public void checkServerTrusted(X509Certificate[] certs, String authType) {}
+                }
+            };
+            SSLContext sslContext = SSLContext.getInstance("TLS");
+            sslContext.init(null, trustAllCerts, new java.security.SecureRandom());
+
+            SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory() {
+                @Override
+                protected void prepareConnection(HttpURLConnection connection, String httpMethod) throws java.io.IOException {
+                    if (connection instanceof HttpsURLConnection) {
+                        ((HttpsURLConnection) connection).setSSLSocketFactory(sslContext.getSocketFactory());
+                        ((HttpsURLConnection) connection).setHostnameVerifier((hostname, session) -> true);
+                    }
+                    super.prepareConnection(connection, httpMethod);
+                }
+            };
+            return new RestTemplate(factory);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to create SSL-trusting RestTemplate", e);
+        }
+    }
 
     @PostMapping
     @PreAuthorize("hasAnyRole('STAFF','MANAGER')")
     public ResponseEntity<?> chat(@RequestBody ChatRequest request) {
         try {
-            // Build the Cerebras API request body
+            // Build the Groq API request body
             Map<String, Object> body = Map.of(
                 "model", model,
                 "messages", request.getMessages(),
@@ -55,7 +91,7 @@ public class ChatController {
                 apiUrl, HttpMethod.POST, entity, Map.class
             );
 
-            // Extract the assistant's reply from the Cerebras response
+            // Extract the assistant's reply from the Groq response
             Map responseBody = response.getBody();
             if (responseBody != null && responseBody.containsKey("choices")) {
                 List<Map> choices = (List<Map>) responseBody.get("choices");
@@ -72,6 +108,7 @@ public class ChatController {
                 .body(Map.of("error", "No response from AI"));
 
         } catch (Exception e) {
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(Map.of("error", "Chat request failed: " + e.getMessage()));
         }

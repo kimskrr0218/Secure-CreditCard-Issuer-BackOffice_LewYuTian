@@ -63,6 +63,13 @@ public class SecurityConfig {
                         .requestMatchers("/api/pending/user")
                         .hasRole("ADMIN")
 
+                        // Allow ADMIN to approve/reject/delete pending requests (user-related)
+                        .requestMatchers(HttpMethod.PUT, "/api/pending/*/approve", "/api/pending/*/reject")
+                        .hasAnyRole("ADMIN", "MANAGER", "STAFF")
+
+                        .requestMatchers(HttpMethod.DELETE, "/api/pending/*")
+                        .hasAnyRole("ADMIN", "MANAGER", "STAFF")
+
                         .requestMatchers("/api/pending/**")
                         .hasAnyRole("MANAGER", "STAFF")
 

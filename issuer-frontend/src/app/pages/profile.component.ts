@@ -19,6 +19,7 @@ export class ProfileComponent implements OnInit {
   // Profile data
   profile: any = null;
   loading = true;
+  backLabel = 'Back to Dashboard';
 
   // Email form
   newEmail = '';
@@ -60,6 +61,10 @@ export class ProfileComponent implements OnInit {
   constructor(private http: HttpClient, private router: Router) {}
 
   ngOnInit(): void {
+    const role = localStorage.getItem('role');
+    if (role === 'ADMIN') {
+      this.backLabel = 'Back to Role Management';
+    }
     this.loadProfile();
   }
 
@@ -341,81 +346,24 @@ export class ProfileComponent implements OnInit {
     this.tfaMessage = '';
   }
 
-  // ─── OTP DIGIT BOX HANDLERS ───────────────────────────────
-  onOtpInput(event: Event, index: number, mode: 'setup' | 'disable'): void {
+  // ─── OTP SINGLE INPUT HANDLER ─────────────────────────────
+  onOtpSingleInput(event: Event, mode: 'setup' | 'disable'): void {
     const input = event.target as HTMLInputElement;
-    const value = input.value.replace(/[^0-9]/g, '');
-    input.value = value;
-
-    const digits = mode === 'setup' ? this.otpDigits : this.disableOtpDigits;
-    digits[index] = value;
+    input.value = input.value.replace(/[^0-9]/g, '').slice(0, 6);
 
     if (mode === 'setup') {
-      this.tfaVerifyCode = digits.join('');
+      this.tfaVerifyCode = input.value;
     } else {
-      this.tfaDisableCode = digits.join('');
+      this.tfaDisableCode = input.value;
     }
 
-    // Auto-advance to next box
-    if (value && index < 5) {
-      const nextInput = (input.parentElement as HTMLElement).querySelectorAll('.otp-box')[index + 1] as HTMLInputElement;
-      if (nextInput) nextInput.focus();
-    }
-
-    // Auto-submit when all 6 filled
-    const code = digits.join('');
-    if (code.length === 6) {
+    // Auto-submit when all 6 digits entered
+    if (input.value.length === 6) {
       if (mode === 'setup') {
         this.confirmSetup2FA();
       } else {
         this.confirmDisable2FA();
       }
-    }
-  }
-
-  onOtpKeydown(event: KeyboardEvent, index: number, mode: 'setup' | 'disable'): void {
-    const input = event.target as HTMLInputElement;
-    const digits = mode === 'setup' ? this.otpDigits : this.disableOtpDigits;
-
-    if (event.key === 'Backspace' && !input.value && index > 0) {
-      const prevInput = (input.parentElement as HTMLElement).querySelectorAll('.otp-box')[index - 1] as HTMLInputElement;
-      if (prevInput) {
-        digits[index - 1] = '';
-        prevInput.value = '';
-        prevInput.focus();
-        if (mode === 'setup') {
-          this.tfaVerifyCode = digits.join('');
-        } else {
-          this.tfaDisableCode = digits.join('');
-        }
-      }
-    }
-  }
-
-  onOtpPaste(event: ClipboardEvent, mode: 'setup' | 'disable'): void {
-    event.preventDefault();
-    const paste = (event.clipboardData?.getData('text') || '').replace(/[^0-9]/g, '').slice(0, 6);
-    const digits = mode === 'setup' ? this.otpDigits : this.disableOtpDigits;
-    const boxes = ((event.target as HTMLInputElement).parentElement as HTMLElement).querySelectorAll('.otp-box');
-
-    for (let i = 0; i < 6; i++) {
-      digits[i] = paste[i] || '';
-      if (boxes[i]) (boxes[i] as HTMLInputElement).value = digits[i];
-    }
-
-    if (mode === 'setup') {
-      this.tfaVerifyCode = digits.join('');
-    } else {
-      this.tfaDisableCode = digits.join('');
-    }
-
-    // Focus last filled box
-    const focusIdx = Math.min(paste.length, 5);
-    if (boxes[focusIdx]) (boxes[focusIdx] as HTMLInputElement).focus();
-
-    if (paste.length === 6) {
-      if (mode === 'setup') this.confirmSetup2FA();
-      else this.confirmDisable2FA();
     }
   }
 
@@ -437,6 +385,11 @@ export class ProfileComponent implements OnInit {
   }
 
   goBack(): void {
-    this.router.navigate(['/dashboard']);
+    const role = localStorage.getItem('role');
+    if (role === 'ADMIN') {
+      this.router.navigate(['/roles']);
+    } else {
+      this.router.navigate(['/dashboard']);
+    }
   }
 }

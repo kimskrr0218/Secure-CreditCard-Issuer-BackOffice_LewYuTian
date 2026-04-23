@@ -32,9 +32,10 @@ export class RolesComponent implements OnInit {
   // Filter state
   filterUsername: string = '';
   filterRole: string = '';
+  filteredUsers: any[] = [];
 
-  get filteredUsers(): any[] {
-    return this.users.filter(u => {
+  applyFilters(): void {
+    this.filteredUsers = this.users.filter(u => {
       const uName = (u.username || '').toLowerCase();
       const uRole = (u.role?.name || '').toUpperCase();
       if (this.filterUsername && !uName.includes(this.filterUsername.trim().toLowerCase())) return false;
@@ -46,6 +47,7 @@ export class RolesComponent implements OnInit {
   clearFilters(): void {
     this.filterUsername = '';
     this.filterRole = '';
+    this.applyFilters();
   }
 
   private apiUrl = '/api/users';
@@ -112,7 +114,7 @@ export class RolesComponent implements OnInit {
   //  Load all users
   loadUsers(): void {
     this.http.get<any[]>(this.apiUrl).subscribe({
-      next: (data) => (this.users = data),
+      next: (data) => { this.users = data; this.applyFilters(); },
       error: (err) => console.error('⚠️ Error loading users:', err)
     });
   }

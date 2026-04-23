@@ -14,7 +14,7 @@ import { ChatWidgetComponent } from './components/chat-widget.component';
   template: `
     <router-outlet></router-outlet>
     <app-global-modal></app-global-modal>
-    <app-chat-widget *ngIf="role"></app-chat-widget>
+    <app-chat-widget *ngIf="role && role !== 'ADMIN'"></app-chat-widget>
   `,
   styles: []
 })

@@ -353,20 +353,20 @@
   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
 }
 
-/* ─── OTP 6-digit boxes ─────────────────────────── */
-.otp-boxes {
+/* ─── OTP single input ─────────────────────────── */
+.otp-single-wrapper {
   display: flex;
-  gap: 10px;
   justify-content: center;
   margin-top: 14px;
 }
 
-.otp-box {
-  width: 48px;
-  height: 56px;
+.otp-single-input {
+  width: 220px;
+  height: 52px;
   text-align: center;
-  font-size: 24px;
+  font-size: 28px;
   font-weight: 700;
+  letter-spacing: 12px;
   color: #1e293b;
   border: 2px solid #cbd5e1;
   border-radius: 10px;
@@ -376,13 +376,14 @@
   caret-color: #2563eb;
 }
 
-.otp-box:focus {
+.otp-single-input:focus {
   border-color: #2563eb;
   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
 }
 
-.otp-box::placeholder {
+.otp-single-input::placeholder {
   color: #cbd5e1;
+  letter-spacing: 12px;
 }
 
 .otp-actions {
@@ -404,6 +405,11 @@
 
 .full-width {
   grid-column: 1 / -1;
+}
+
+.half-row {
+  grid-column: 1 / -1;
+  max-width: calc(50% - 10px);
 }
 
 .save-btn {

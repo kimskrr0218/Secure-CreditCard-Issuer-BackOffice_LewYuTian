@@ -74,28 +74,10 @@
                 <td>{{ r.id }}</td>
 
                 <!-- ENTITY TYPE -->
-                <td>
-                  <span class="badge entity-badge" [ngClass]="{
-                    'entity-customer': r.entityType === 'CUSTOMER',
-                    'entity-account': r.entityType === 'ACCOUNT',
-                    'entity-card': r.entityType === 'CARD'
-                  }">
-                    {{ r.entityType }}
-                  </span>
-                </td>
+                <td>{{ r.entityType }}</td>
 
                 <!-- OPERATION -->
-                <td>
-                  <span class="badge" [ngClass]="{
-                    'active': r.operation === 'CREATE' || r.operation === 'ACTIVATE',
-                    'inactive': r.operation === 'DEACTIVATE' || r.operation === 'DELETE',
-                    'blocked': r.operation === 'BLOCK',
-                    'issued': r.operation === 'ISSUE',
-                    'pending': r.operation === 'UPDATE' || r.operation === 'REPLACE' || r.operation === 'UNBLOCK'
-                  }">
-                    {{ r.operation }}
-                  </span>
-                </td>
+                <td>{{ r.operation }}</td>
 
                 <!-- APPROVAL STATUS -->
                 <td>

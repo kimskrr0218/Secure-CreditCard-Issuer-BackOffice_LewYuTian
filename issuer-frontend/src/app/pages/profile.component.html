@@ -31,26 +31,14 @@
       <h3>Update Profile</h3>
 
       <div class="form-grid">
-        <div class="form-group">
+        <div class="form-group half-row">
           <label>Email</label>
           <input type="email" [(ngModel)]="newEmail" placeholder="your@email.com">
         </div>
-      </div>
-
-      <div class="inline-message" *ngIf="emailMessage" [class.error]="emailError" [class.success]="!emailError">
-        {{ emailMessage }}
-      </div>
-
-      <h4 class="sub-heading">Change Password</h4>
-
-      <div class="form-grid">
-        <div class="form-group">
+        <div class="form-group half-row">
           <label>Current Password</label>
           <input type="password" [(ngModel)]="oldPassword" placeholder="Enter current password">
         </div>
-      </div>
-
-      <div class="form-grid">
         <div class="form-group">
           <label>New Password</label>
           <input type="password" [(ngModel)]="newPassword" placeholder="At least 6 characters">
@@ -59,6 +47,10 @@
           <label>Confirm New Password</label>
           <input type="password" [(ngModel)]="confirmPassword" placeholder="Re-enter new password">
         </div>
+      </div>
+
+      <div class="inline-message" *ngIf="emailMessage" [class.error]="emailError" [class.success]="!emailError">
+        {{ emailMessage }}
       </div>
 
       <div class="inline-message" *ngIf="passwordMessage" [class.error]="passwordError" [class.success]="!passwordError">
@@ -102,15 +94,14 @@
         <code class="secret-code">{{ tfaSecret }}</code>
 
         <p class="setup-step" style="margin-top: 20px;"><strong>Step 2:</strong> Enter the 6-digit code from the app to verify</p>
-        <div class="otp-boxes">
-          <input *ngFor="let d of otpDigits; let idx = index"
+        <div class="otp-single-wrapper">
+          <input
             type="text"
-            maxlength="1"
-            class="otp-box"
-            [value]="otpDigits[idx]"
-            (input)="onOtpInput($event, idx, 'setup')"
-            (keydown)="onOtpKeydown($event, idx, 'setup')"
-            (paste)="onOtpPaste($event, 'setup')"
+            maxlength="6"
+            class="otp-single-input"
+            [(ngModel)]="tfaVerifyCode"
+            (input)="onOtpSingleInput($event, 'setup')"
+            placeholder="000000"
             inputmode="numeric"
             autocomplete="off"
           />
@@ -124,15 +115,14 @@
       <!-- ─── 2FA Disable: Requires verification code ─── -->
       <div *ngIf="tfaDisableMode" class="tfa-setup-panel">
         <p class="setup-step">Enter your Google Authenticator code to confirm disabling 2FA:</p>
-        <div class="otp-boxes">
-          <input *ngFor="let d of disableOtpDigits; let idx = index"
+        <div class="otp-single-wrapper">
+          <input
             type="text"
-            maxlength="1"
-            class="otp-box"
-            [value]="disableOtpDigits[idx]"
-            (input)="onOtpInput($event, idx, 'disable')"
-            (keydown)="onOtpKeydown($event, idx, 'disable')"
-            (paste)="onOtpPaste($event, 'disable')"
+            maxlength="6"
+            class="otp-single-input"
+            [(ngModel)]="tfaDisableCode"
+            (input)="onOtpSingleInput($event, 'disable')"
+            placeholder="000000"
             inputmode="numeric"
             autocomplete="off"
           />
@@ -150,7 +140,7 @@
 
     <!-- Back button -->
     <div class="form-actions">
-      <button class="cancel-btn" (click)="goBack()">← Back to Dashboard</button>
+      <button class="cancel-btn" (click)="goBack()">← {{ backLabel }}</button>
     </div>
   </div>
 

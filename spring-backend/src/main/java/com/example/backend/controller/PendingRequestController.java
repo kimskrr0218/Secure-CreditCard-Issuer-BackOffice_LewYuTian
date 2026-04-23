@@ -330,7 +330,7 @@ public class PendingRequestController {
     // ================= APPROVE =================
 
     @PutMapping("/{id}/approve")
-    @PreAuthorize("hasRole('MANAGER')")
+    @PreAuthorize("hasAnyRole('MANAGER','ADMIN')")
     public ResponseEntity<?> approve(
             @PathVariable Long id,
             @AuthenticationPrincipal UserDetails user
@@ -338,6 +338,14 @@ public class PendingRequestController {
         try {
             PendingRequest req = repository.findById(id)
                     .orElseThrow(() -> new RuntimeException("Request not found"));
+
+            // ADMIN can only approve USER-type requests
+            boolean isAdmin = user.getAuthorities().stream()
+                    .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+            if (isAdmin && !"USER".equalsIgnoreCase(req.getEntityType())) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                        .body(Map.of("error", "Admin can only approve user-related requests."));
+            }
 
             if (req.getStatus() != RequestStatus.PENDING) {
                 return ResponseEntity.badRequest()
@@ -376,7 +384,7 @@ public class PendingRequestController {
     // ================= REJECT =================
 
     @PutMapping("/{id}/reject")
-    @PreAuthorize("hasRole('MANAGER')")
+    @PreAuthorize("hasAnyRole('MANAGER','ADMIN')")
     public ResponseEntity<?> reject(
             @PathVariable Long id,
             @AuthenticationPrincipal UserDetails user,
@@ -385,6 +393,14 @@ public class PendingRequestController {
         try {
             PendingRequest req = repository.findById(id)
                     .orElseThrow(() -> new RuntimeException("Request not found"));
+
+            // ADMIN can only reject USER-type requests
+            boolean isAdmin = user.getAuthorities().stream()
+                    .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+            if (isAdmin && !"USER".equalsIgnoreCase(req.getEntityType())) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                        .body(Map.of("error", "Admin can only reject user-related requests."));
+            }
 
             if (req.getStatus() != RequestStatus.PENDING) {
                 return ResponseEntity.badRequest()
