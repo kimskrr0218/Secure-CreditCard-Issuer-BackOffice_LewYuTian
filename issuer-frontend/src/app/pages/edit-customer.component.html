@@ -131,7 +131,7 @@
           </div>
           <div class="form-group">
             <label>Gross Annual Income *</label>
-            <input type="number" formControlName="annualIncome" placeholder="0.00">
+            <input type="text" formControlName="annualIncome" placeholder="0.00">
             <div class="error" *ngIf="customerForm.get('annualIncome')?.touched && customerForm.get('annualIncome')?.invalid">
               <small *ngIf="customerForm.get('annualIncome')?.errors?.['required']">Gross Annual Income is required</small>
               <small *ngIf="customerForm.get('annualIncome')?.errors?.['min']">Gross Annual Income must be greater than 0</small>

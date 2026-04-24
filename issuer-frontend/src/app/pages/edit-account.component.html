@@ -47,7 +47,7 @@
 
           <div class="form-group">
             <label>Initial Balance *</label>
-            <input type="number" formControlName="balance" placeholder="0.00">
+            <input type="text" formControlName="balance" placeholder="0.00">
             <div class="error" *ngIf="accountForm.get('balance')?.touched && accountForm.get('balance')?.invalid">
               <small>Initial Balance is required</small>
             </div>
@@ -55,7 +55,7 @@
 
           <div class="form-group">
             <label>Credit Limit *</label>
-            <input type="number" formControlName="creditLimit" placeholder="0.00">
+            <input type="text" formControlName="creditLimit" placeholder="0.00">
             <div class="error" *ngIf="accountForm.get('creditLimit')?.touched && accountForm.get('creditLimit')?.invalid">
               <small>Credit Limit is required</small>
             </div>

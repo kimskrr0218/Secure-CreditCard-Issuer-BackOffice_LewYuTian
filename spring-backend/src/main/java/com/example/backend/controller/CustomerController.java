@@ -124,7 +124,8 @@ public class CustomerController {
             if (updates.containsKey("email")) c.setEmail((String) updates.get("email"));
             if (updates.containsKey("homeAddress")) c.setHomeAddress((String) updates.get("homeAddress"));
             if (updates.containsKey("annualIncome") && updates.get("annualIncome") != null) {
-                c.setAnnualIncome(Double.valueOf(updates.get("annualIncome").toString()));
+                String incomeVal = updates.get("annualIncome").toString();
+                if (!incomeVal.contains("*")) c.setAnnualIncome(incomeVal);
             }
             if (updates.containsKey("employerName")) c.setEmployerName((String) updates.get("employerName"));
             if (updates.containsKey("employmentStatus")) c.setEmploymentStatus((String) updates.get("employmentStatus"));

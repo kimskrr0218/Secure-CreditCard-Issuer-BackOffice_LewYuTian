@@ -1,5 +1,7 @@
 package com.example.backend.entity;
 
+import com.example.backend.util.SensitiveFieldConverter;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
@@ -21,11 +23,15 @@ public class Account {
     @Column(nullable = false)
     private String accountType;  // CREDIT, REVOLVING
 
-    @Column(nullable = false)
-    private Double balance = 0.0;
-    
-    @Column(nullable = true)
-    private Double creditLimit;
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    @Convert(converter = SensitiveFieldConverter.class)
+    @Column(nullable = false, length = 512)
+    private String balance = "0.0";
+
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    @Convert(converter = SensitiveFieldConverter.class)
+    @Column(nullable = true, length = 512)
+    private String creditLimit;
 
     @Column(nullable = false)
     private String status = "ACTIVE"; // ACTIVE, CLOSED, FROZEN
@@ -55,11 +61,27 @@ public class Account {
     public String getAccountType() { return accountType; }
     public void setAccountType(String accountType) { this.accountType = accountType; }
 
-    public Double getBalance() { return balance; }
-    public void setBalance(Double balance) { this.balance = balance; }
-    
-    public Double getCreditLimit() { return creditLimit; }
-    public void setCreditLimit(Double creditLimit) { this.creditLimit = creditLimit; }
+    public String getBalance() { return balance; }
+    public void setBalance(String balance) { this.balance = balance; }
+    public void setBalance(Double balance) { this.balance = balance != null ? String.valueOf(balance) : null; }
+
+    /** Fully masked balance for read-only display (e.g. "********") */
+    @JsonProperty("maskedBalance")
+    public String getMaskedBalance() {
+        if (balance == null || balance.isEmpty()) return null;
+        return "*".repeat(balance.length());
+    }
+
+    public String getCreditLimit() { return creditLimit; }
+    public void setCreditLimit(String creditLimit) { this.creditLimit = creditLimit; }
+    public void setCreditLimit(Double creditLimit) { this.creditLimit = creditLimit != null ? String.valueOf(creditLimit) : null; }
+
+    /** Fully masked credit limit for read-only display (e.g. "********") */
+    @JsonProperty("maskedCreditLimit")
+    public String getMaskedCreditLimit() {
+        if (creditLimit == null || creditLimit.isEmpty()) return null;
+        return "*".repeat(creditLimit.length());
+    }
 
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }

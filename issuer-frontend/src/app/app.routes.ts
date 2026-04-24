@@ -21,6 +21,7 @@ import { LoginComponent } from './pages/login.component';
 import { RegisterComponent } from './pages/register/register.component';
 import { PendingComponent } from './pages/pending.component';
 import { ProfileComponent } from './pages/profile.component';
+import { ReportsComponent } from './pages/reports.component';
 import { authGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
@@ -131,6 +132,12 @@ export const routes: Routes = [
   {
     path: 'pending',
     component: PendingComponent,
+    canActivate: [authGuard],
+    data: { roles: ['STAFF','MANAGER'] }
+  },
+  {
+    path: 'reports',
+    component: ReportsComponent,
     canActivate: [authGuard],
     data: { roles: ['STAFF','MANAGER'] }
   },

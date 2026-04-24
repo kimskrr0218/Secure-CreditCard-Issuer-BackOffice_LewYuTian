@@ -45,8 +45,8 @@ public class AccountController {
     public Account updateAccount(@PathVariable Long id, @RequestBody Account updated) {
         return repository.findById(id).map(acc -> {
             acc.setAccountNumber(updated.getAccountNumber());
-            acc.setBalance(updated.getBalance());
-            acc.setCreditLimit(updated.getCreditLimit());
+            if (updated.getBalance() != null && !updated.getBalance().contains("*")) acc.setBalance(updated.getBalance());
+            if (updated.getCreditLimit() != null && !updated.getCreditLimit().contains("*")) acc.setCreditLimit(updated.getCreditLimit());
             acc.setStatus(updated.getStatus());
             return repository.save(acc);
         }).orElseThrow(() -> new RuntimeException("Account not found"));

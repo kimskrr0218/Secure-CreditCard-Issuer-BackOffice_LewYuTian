@@ -18,7 +18,8 @@ export interface Customer {
   maskedIdNumber?: string;
   maskedPhoneNumber?: string;
   homeAddress?: string;
-  annualIncome?: number;
+  annualIncome?: any;
+  maskedAnnualIncome?: string;
   employerName?: string;
   email: string;
   status?: string;

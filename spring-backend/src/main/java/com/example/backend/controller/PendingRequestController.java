@@ -753,9 +753,9 @@ public class PendingRequestController {
             acc.setCustomer(customer);
             // Always force CREDIT — ignore incoming accountType
             acc.setAccountType("CREDIT");
-            acc.setBalance(node.get("balance").asDouble());
+            acc.setBalance(node.get("balance").asText());
             if (node.has("creditLimit") && !node.get("creditLimit").isNull()) {
-                acc.setCreditLimit(node.get("creditLimit").asDouble());
+                acc.setCreditLimit(node.get("creditLimit").asText());
             }
             if (node.has("accountNumber") && !node.get("accountNumber").isNull()) {
                 acc.setAccountNumber(node.get("accountNumber").asText());
@@ -811,13 +811,15 @@ public class PendingRequestController {
                     .orElseThrow(() -> new RuntimeException("Account not found"));
 
             if (node.has("balance") && !node.get("balance").isNull()) {
-                account.setBalance(node.get("balance").asDouble());
+                String balVal = node.get("balance").asText();
+                if (!balVal.contains("*")) account.setBalance(balVal);
             }
 
             if (node.has("creditLimit") && !node.get("creditLimit").isNull()) {
-                account.setCreditLimit(node.get("creditLimit").asDouble());
+                String clVal = node.get("creditLimit").asText();
+                if (!clVal.contains("*")) account.setCreditLimit(clVal);
             } else if (node.has("creditLimit") && node.get("creditLimit").isNull()) {
-                account.setCreditLimit(null);
+                account.setCreditLimit((String) null);
             }
 
             if (node.has("status") && !node.get("status").isNull()) {

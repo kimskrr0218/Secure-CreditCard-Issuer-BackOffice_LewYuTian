@@ -65,7 +65,19 @@ public class Customer {
     }
 
     private String homeAddress;
-    private Double annualIncome;
+
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    @Convert(converter = SensitiveFieldConverter.class)
+    @Column(length = 512)
+    private String annualIncome; // encrypted at rest
+
+    /** Fully masked annual income for read-only display (e.g. "********") */
+    @JsonProperty("maskedAnnualIncome")
+    public String getMaskedAnnualIncome() {
+        if (annualIncome == null || annualIncome.isEmpty()) return null;
+        return "*".repeat(annualIncome.length());
+    }
+
     private String employerName;
 
     private String email;

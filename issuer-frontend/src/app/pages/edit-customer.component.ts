@@ -81,6 +81,9 @@ export class EditCustomerComponent implements OnInit {
           if (data.maskedPhoneNumber) {
             this.customerForm.patchValue({ phoneNumber: data.maskedPhoneNumber });
           }
+          if (data.maskedAnnualIncome) {
+            this.customerForm.patchValue({ annualIncome: data.maskedAnnualIncome });
+          }
           this.loading = false;
         },
         error: (err) => {

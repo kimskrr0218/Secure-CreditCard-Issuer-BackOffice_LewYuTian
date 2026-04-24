@@ -33,12 +33,12 @@
 
         <div class="form-group">
           <label>Initial Balance</label>
-          <input type="text" [value]="account.balance !== null ? account.balance : 'N/A'" readonly class="readonly-field">
+          <input type="text" [value]="account.maskedBalance || 'N/A'" readonly class="readonly-field">
         </div>
 
         <div class="form-group">
           <label>Credit Limit</label>
-          <input type="text" [value]="account.creditLimit !== null ? account.creditLimit : 'N/A'" readonly class="readonly-field">
+          <input type="text" [value]="account.maskedCreditLimit || 'N/A'" readonly class="readonly-field">
         </div>
 
         <div class="form-group">

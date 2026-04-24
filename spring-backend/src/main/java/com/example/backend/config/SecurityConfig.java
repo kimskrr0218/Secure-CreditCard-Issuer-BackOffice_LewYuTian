@@ -93,6 +93,10 @@ public class SecurityConfig {
                         .requestMatchers("/api/chat/**")
                         .hasAnyRole("MANAGER", "STAFF")
 
+                        // Reports
+                        .requestMatchers("/api/reports/**")
+                        .hasAnyRole("MANAGER", "STAFF")
+
                         // User Profile (any authenticated user)
                         .requestMatchers("/api/profile/**")
                         .hasAnyRole("ADMIN", "MANAGER", "STAFF")

@@ -19,6 +19,7 @@ import { HttpClient } from '@angular/common/http';
           <a class="nav-link" routerLink="/accounts" routerLinkActive="active">Accounts</a>
           <a class="nav-link" routerLink="/cards" routerLinkActive="active">Cards</a>
           <a class="nav-link" routerLink="/pending" routerLinkActive="active">Tasks</a>
+          <a class="nav-link" routerLink="/reports" routerLinkActive="active">Reports</a>
         </ng-container>
         <a *ngIf="role === 'ADMIN'" class="nav-link" routerLink="/roles" routerLinkActive="active">User & Role Management</a>
       </div>

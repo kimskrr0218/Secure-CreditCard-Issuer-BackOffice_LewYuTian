@@ -7,8 +7,10 @@ export interface Account {
   id?: number;
   accountNumber?: string;
   accountType: string;
-  balance: number;
-  creditLimit?: number;
+  balance: any;
+  creditLimit?: any;
+  maskedBalance?: string;
+  maskedCreditLimit?: string;
   status?: string;
   currency?: string;
   billingCycle?: string;
