@@ -80,7 +80,7 @@ public class EmailService {
                 + "You may now proceed to use your account and request a credit card.\n\n"
                 + "If you did not request this, please contact our support team immediately.\n\n"
                 + "Thank you for choosing our services.";
-        sendEmail(email, "Your Credit Account Has Been Activated", body);
+        sendEmail(email, "Your Account Has Been Activated", body);
     }
 
     @Async

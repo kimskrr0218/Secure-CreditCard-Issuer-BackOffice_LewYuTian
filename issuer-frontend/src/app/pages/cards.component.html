@@ -3,6 +3,7 @@
 <div class="page-container">
   <div class="page-header">
     <h2>Credit Card Management</h2>
+    <button class="create-btn" *ngIf="isStaff" (click)="navigateToAdd()">+ Card</button>
   </div>
 
   <div class="content-layout">
@@ -68,17 +69,8 @@
     <!-- ================= MAIN SECTION ================= -->
     <div class="main-section">
 
-      <!-- ACTION BAR -->
-      <div class="top-bar">
-        <div></div>
-        <button class="create-btn" *ngIf="isStaff" (click)="navigateToAdd()">
-          + Card
-        </button>
-      </div>
-
       <!-- ================= LIVE CARDS ================= -->
       <div class="card">
-        <h3>Live Cards</h3>
 
         <table class="data-table">
           <thead>

@@ -5,6 +5,7 @@
   <!-- HEADER -->
   <div class="page-header">
     <h2>Customer Management</h2>
+    <button class="create-btn" (click)="openCreateCustomer()">+ Customer</button>
   </div>
 
 
@@ -67,19 +68,9 @@
 
     <div class="main-section">
 
-      <!-- ACTION BAR -->
-      <div class="top-bar">
-        <div></div>
-        <button class="create-btn" (click)="openCreateCustomer()">
-          + Customer
-        </button>
-      </div>
-
-
       <!-- ================= LIVE CUSTOMERS ================= -->
 
       <div class="card">
-        <h3>Live Customers</h3>
 
         <table class="data-table">
 

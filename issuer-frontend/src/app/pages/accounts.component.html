@@ -5,6 +5,7 @@
   <!-- HEADER -->
   <div class="page-header">
     <h2>Account Management</h2>
+    <button class="create-btn" (click)="openCreateAccount()">+ Account</button>
   </div>
 
   <div class="content-layout">
@@ -62,17 +63,8 @@
     <!-- ================= MAIN SECTION ================= -->
     <div class="main-section">
 
-      <!-- ACTION BAR -->
-      <div class="top-bar">
-        <div></div>
-        <button class="create-btn" (click)="openCreateAccount()">
-          + Account
-        </button>
-      </div>
-
       <!-- ================= LIVE ACCOUNTS ================= -->
       <div class="card">
-        <h3>Live Accounts</h3>
 
         <table class="data-table">
           <thead>
