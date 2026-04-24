@@ -1,0 +1,19 @@
+Table,Question No,Question,Aspect Evaluated,3 (n),4 (n),5 (n),Total,Average Rating
+User Acceptance Testing,Q1,The system allows me to login and logout without issues.,Authentication,0,3,7,47,4.70
+User Acceptance Testing,Q2,The maker-checker approval workflow works as expected for creating and approving records.,Maker-Checker Workflow,0,2,8,48,4.80
+User Acceptance Testing,Q3,I am able to create and manage customers and accounts and cards successfully.,CRUD Operations,1,2,7,46,4.60
+User Acceptance Testing,Q4,The system correctly restricts access based on my assigned role (Staff/Manager/Admin).,Role-Based Access Control,0,1,9,49,4.90
+User Acceptance Testing,Q5,The two-factor authentication (2FA) setup and login process works correctly.,Two-Factor Authentication,1,3,6,45,4.50
+User Acceptance Testing,Q6,Email notifications are received when accounts are activated or cards are issued.,Email Notifications,0,4,6,46,4.60
+User Acceptance Testing,Q7,The AI chatbot provides helpful and accurate responses about the system.,AI Chatbot,1,4,5,44,4.40
+User Acceptance Testing,Q8,Sensitive data such as card numbers and ID numbers are properly masked in the interface.,Data Security & Masking,0,2,8,48,4.80
+User Acceptance Testing,Q9,The system meets the overall functional requirements of a credit card issuer back-office.,Overall Satisfaction,0,2,8,48,4.80
+User Interface Design Feedback,Q1,The login page is clean and easy to understand.,Login Page Design,0,3,7,47,4.70
+User Interface Design Feedback,Q2,The dashboard provides a clear overview of system statistics.,Dashboard Layout,1,2,7,46,4.60
+User Interface Design Feedback,Q3,The navigation menu is intuitive and easy to use.,Navigation & Menu,0,2,8,48,4.80
+User Interface Design Feedback,Q4,The forms for creating customers and accounts and cards are well-organized and user-friendly.,Form Design,1,3,6,45,4.50
+User Interface Design Feedback,Q5,The pending requests table is easy to read and filter.,Table & Filter Design,0,4,6,46,4.60
+User Interface Design Feedback,Q6,The colour scheme and overall visual design is professional and consistent.,Visual Design & Consistency,1,3,6,45,4.50
+User Interface Design Feedback,Q7,Error messages and success notifications are clear and helpful.,Feedback & Notifications,0,2,8,48,4.80
+User Interface Design Feedback,Q8,The profile page layout for updating email and password and 2FA is well-structured.,Profile Page Layout,0,3,7,47,4.70
+User Interface Design Feedback,Q9,The AI chatbot widget is visually appealing and does not obstruct the main interface.,Chatbot UI Design,1,4,5,44,4.40
