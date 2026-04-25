@@ -12,15 +12,15 @@ import org.springframework.web.client.RestTemplate;
 public class EmailService {
 
     private static final Logger log = LoggerFactory.getLogger(EmailService.class);
-    private static final String BREVO_API_URL = "https://api.brevo.com/v3/smtp/email";
+    private static final String MAILERSEND_API_URL = "https://api.mailersend.com/v1/email";
 
-    @Value("${brevo.api.key}")
-    private String apiKey;
+    @Value("${mailersend.api.token}")
+    private String apiToken;
 
-    @Value("${brevo.sender.email}")
+    @Value("${mailersend.sender.email}")
     private String senderEmail;
 
-    @Value("${brevo.sender.name}")
+    @Value("${mailersend.sender.name}")
     private String senderName;
 
     private final RestTemplate restTemplate = new RestTemplate();
@@ -31,14 +31,14 @@ public class EmailService {
         try {
             String jsonBody = """
                     {
-                      "sender": { "name": "%s", "email": "%s" },
+                      "from": { "email": "%s", "name": "%s" },
                       "to": [{ "email": "%s" }],
                       "subject": "%s",
-                      "textContent": %s
+                      "text": %s
                     }
                     """.formatted(
-                    senderName,
                     senderEmail,
+                    escapeJson(senderName),
                     toEmail,
                     escapeJson(subject),
                     toJsonString(textContent)
@@ -46,15 +46,15 @@ public class EmailService {
 
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
-            headers.set("api-key", apiKey);
+            headers.setBearerAuth(apiToken);
 
             HttpEntity<String> request = new HttpEntity<>(jsonBody, headers);
-            ResponseEntity<String> response = restTemplate.postForEntity(BREVO_API_URL, request, String.class);
+            ResponseEntity<String> response = restTemplate.postForEntity(MAILERSEND_API_URL, request, String.class);
 
             if (response.getStatusCode().is2xxSuccessful()) {
                 log.info("Email sent to {} — subject: {}", toEmail, subject);
             } else {
-                log.error("Brevo API returned {}: {}", response.getStatusCode(), response.getBody());
+                log.error("MailerSend API returned {}: {}", response.getStatusCode(), response.getBody());
             }
         } catch (Exception e) {
             log.error("Failed to send email to {}: {}", toEmail, e.getMessage(), e);
@@ -76,7 +76,7 @@ public class EmailService {
     public void sendAccountActivationEmail(String email, String firstName, String accountNumber) {
         String name = (firstName != null ? firstName : "Valued Customer");
         String body = "Dear " + name + ",\n\n"
-                + "Your credit account (Account No: " + accountNumber + ") has been successfully activated.\n\n"
+                + "Your account (Account No: " + accountNumber + ") has been successfully activated.\n\n"
                 + "You may now proceed to use your account and request a credit card.\n\n"
                 + "If you did not request this, please contact our support team immediately.\n\n"
                 + "Thank you for choosing our services.";
@@ -113,7 +113,6 @@ public class EmailService {
         return s.replace("\\", "\\\\").replace("\"", "\\\"");
     }
 
-    /** Convert a plain-text string into a valid JSON string literal (with quotes). */
     private static String toJsonString(String s) {
         return "\"" + s.replace("\\", "\\\\").replace("\"", "\\\"").replace("\n", "\\n") + "\"";
     }

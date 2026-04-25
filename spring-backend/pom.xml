@@ -53,7 +53,7 @@
     <artifactId>h2</artifactId>
     <scope>runtime</scope>
 </dependency>
-        <!-- Email via Brevo HTTP API (port 443) — no SMTP dependency needed -->
+        <!-- Email via MailerSend HTTP API (port 443) — no SMTP dependency needed -->
         <dependency>
             <groupId>com.fasterxml.jackson.datatype</groupId>
             <artifactId>jackson-datatype-jsr310</artifactId>
