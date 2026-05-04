@@ -67,8 +67,13 @@ export class AddAccountComponent implements OnInit {
     this.showConfirmModal = false;
 
     const formValue = this.accountForm.getRawValue();
+    const selectedCustomer = this.customers.find(c => c.id == formValue.customerId);
     const payload = {
-      customer: { id: formValue.customerId },
+      customer: {
+        id: formValue.customerId,
+        customerNo: selectedCustomer?.customerNo || '',
+        name: selectedCustomer?.name || ''
+      },
       accountNumber: formValue.accountNumber,
       accountType: formValue.accountType,
       currency: formValue.currency,

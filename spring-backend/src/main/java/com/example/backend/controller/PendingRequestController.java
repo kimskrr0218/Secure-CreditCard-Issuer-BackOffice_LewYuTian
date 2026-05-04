@@ -812,12 +812,12 @@ public class PendingRequestController {
 
             if (node.has("balance") && !node.get("balance").isNull()) {
                 String balVal = node.get("balance").asText();
-                if (!balVal.contains("*")) account.setBalance(balVal);
+                account.setBalance(balVal);
             }
 
             if (node.has("creditLimit") && !node.get("creditLimit").isNull()) {
                 String clVal = node.get("creditLimit").asText();
-                if (!clVal.contains("*")) account.setCreditLimit(clVal);
+                account.setCreditLimit(clVal);
             } else if (node.has("creditLimit") && node.get("creditLimit").isNull()) {
                 account.setCreditLimit((String) null);
             }
