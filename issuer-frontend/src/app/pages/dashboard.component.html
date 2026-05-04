@@ -68,7 +68,7 @@
         <div class="chart-card full-width">
           <h3>System Overview</h3>
           <div class="summary-grid">
-            <div class="summary-card customers" (click)="navigateTo('/customers')">
+            <div class="summary-card customers">
               <div class="summary-icon">👥</div>
               <div class="summary-info">
                 <span class="summary-number">{{ totalCustomers }}</span>
@@ -76,7 +76,7 @@
               </div>
             </div>
 
-            <div class="summary-card accounts" (click)="navigateTo('/accounts')">
+            <div class="summary-card accounts">
               <div class="summary-icon">🏦</div>
               <div class="summary-info">
                 <span class="summary-number">{{ activeAccounts }}</span>
@@ -84,7 +84,7 @@
               </div>
             </div>
 
-            <div class="summary-card cards-stat" (click)="navigateTo('/cards')">
+            <div class="summary-card cards-stat">
               <div class="summary-icon">💳</div>
               <div class="summary-info">
                 <span class="summary-number">{{ activeCards }}</span>
@@ -92,7 +92,7 @@
               </div>
             </div>
 
-            <div class="summary-card pending" (click)="navigateTo('/pending')">
+            <div class="summary-card pending">
               <div class="summary-icon">⏳</div>
               <div class="summary-info">
                 <span class="summary-number">{{ pendingRequests }}</span>

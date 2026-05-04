@@ -104,7 +104,7 @@ public class ReportController {
                 })
                 .collect(Collectors.toList());
 
-        String[] headers = {"No.", "Account No", "Customer", "Type", "Currency", "Credit Limit", "Status", "Created At"};
+        String[] headers = {"No.", "Account No", "Customer", "Type", "Currency", "Status", "Created At"};
         String[][] rows = new String[filtered.size()][];
         for (int i = 0; i < filtered.size(); i++) {
             Account a = filtered.get(i);
@@ -114,7 +114,6 @@ public class ReportController {
                     a.getCustomer() != null ? a.getCustomer().getName() : "-",
                     a.getAccountType() != null ? a.getAccountType() : "-",
                     a.getCurrency() != null ? a.getCurrency() : "-",
-                    a.getMaskedCreditLimit() != null ? a.getMaskedCreditLimit() : "-",
                     a.getStatus() != null ? a.getStatus() : "-",
                     a.getCreatedAt() != null ? a.getCreatedAt().toLocalDate().toString() : "-"
             };
@@ -210,7 +209,7 @@ public class ReportController {
                 .filter(a -> dateFilter(a.getCreatedAt(), fromDate, toDate))
                 .collect(Collectors.toList());
 
-        String[] headers = {"No.", "Account No", "Customer", "Type", "Currency", "Credit Limit", "Status", "Created At"};
+        String[] headers = {"No.", "Account No", "Customer", "Type", "Currency", "Status", "Created At"};
         List<String[]> rows = new ArrayList<>();
         for (int i = 0; i < filtered.size(); i++) {
             Account a = filtered.get(i);
@@ -220,7 +219,6 @@ public class ReportController {
                     a.getCustomer() != null ? a.getCustomer().getName() : "-",
                     a.getAccountType() != null ? a.getAccountType() : "-",
                     a.getCurrency() != null ? a.getCurrency() : "-",
-                    a.getMaskedCreditLimit() != null ? a.getMaskedCreditLimit() : "-",
                     a.getStatus() != null ? a.getStatus() : "-",
                     a.getCreatedAt() != null ? a.getCreatedAt().toLocalDate().toString() : "-"
             });

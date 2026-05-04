@@ -200,7 +200,7 @@ HOW TO CREATE A CUSTOMER:
 HOW TO CREATE AN ACCOUNT:
 1. Navigate to Accounts page from the navbar
 2. Click the "+ Account" button
-3. Select a customer, set currency, initial balance, credit limit, billing cycle, interest rate
+3. Select a customer, set currency, cash limit, credit limit, billing cycle, interest rate
 4. Click Submit — this creates a PENDING request requiring Manager approval
 
 HOW TO CREATE A CARD:

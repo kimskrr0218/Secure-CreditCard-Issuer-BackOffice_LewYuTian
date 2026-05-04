@@ -58,10 +58,10 @@
           </div>
 
           <div class="form-group">
-            <label>Initial Balance *</label>
+            <label>Cash Limit *</label>
             <input type="number" formControlName="balance" placeholder="0.00">
             <div class="error" *ngIf="accountForm.get('balance')?.touched && accountForm.get('balance')?.invalid">
-              <small>Initial Balance is required</small>
+              <small>Cash Limit is required</small>
             </div>
           </div>
 

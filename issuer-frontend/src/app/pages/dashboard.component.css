@@ -146,12 +146,12 @@ body {
   gap: 14px;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   border-left: 4px solid transparent;
-  cursor: pointer;
+  cursor: default;
 }
 
 .summary-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+  transform: none;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
 }
 
 /* Stat cards inside a chart-card box */
