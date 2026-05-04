@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { ChatService, ChatMessage } from '../services/chat.service';
+import { forkJoin } from 'rxjs';
 
 @Component({
   selector: 'app-chat-widget',
@@ -178,7 +179,7 @@ export class ChatWidgetComponent implements OnInit {
   }
 
   private buildSystemPrompt(): void {
-    let context = `You are an AI assistant for the Secure Credit Card Issuer Back-Office System. You help Staff and Manager users with their daily tasks. Answer ONLY based on this system's features and the live data provided below. Do not give generic advice.
+    const base = `You are an AI assistant for the Secure Credit Card Issuer Back-Office System. You help Staff and Manager users with their daily tasks. Answer ONLY based on this system's features and the live data provided below. Do not give generic advice.
 
 SYSTEM FEATURES:
 - Customer Management: Create, update, view, activate, deactivate, delete customers. Navigate to Customers page.
@@ -210,38 +211,36 @@ HOW TO CREATE A CARD:
 
 LIVE DATA:\n`;
 
-    // Fetch live data
-    this.http.get<any[]>('/api/customers', { withCredentials: true }).subscribe({
-      next: (customers) => {
-        context += `\nCUSTOMERS (${customers.length} total):\n`;
+    // Fetch all live data in parallel and wait for ALL to complete
+    forkJoin({
+      customers: this.http.get<any[]>('/api/customers', { withCredentials: true }),
+      accounts: this.http.get<any[]>('/api/accounts', { withCredentials: true }),
+      cards: this.http.get<any[]>('/api/cards', { withCredentials: true })
+    }).subscribe({
+      next: ({ customers, accounts, cards }) => {
+        let data = '';
+
+        data += `\nCUSTOMERS (${customers.length} total):\n`;
         customers.slice(0, 20).forEach(c => {
-          context += `- ${c.customerNo || 'N/A'}: ${c.name || 'N/A'}, Email: ${c.email || 'N/A'}, Phone: ${c.maskedPhoneNumber || 'N/A'}, Status: ${c.status || 'N/A'}\n`;
+          data += `- ${c.customerNo || 'N/A'}: ${c.name || 'N/A'}, Email: ${c.email || 'N/A'}, Phone: ${c.maskedPhoneNumber || 'N/A'}, Status: ${c.status || 'N/A'}\n`;
         });
-      }
-    });
 
-    this.http.get<any[]>('/api/accounts', { withCredentials: true }).subscribe({
-      next: (accounts) => {
-        context += `\nACCOUNTS (${accounts.length} total):\n`;
+        data += `\nACCOUNTS (${accounts.length} total):\n`;
         accounts.slice(0, 20).forEach(a => {
-          context += `- ${a.accountNumber || 'N/A'}: Type: ${a.accountType || 'N/A'}, Status: ${a.status || 'N/A'}, Currency: ${a.currency || 'N/A'}, Customer: ${a.customer?.name || 'N/A'}\n`;
+          data += `- ${a.accountNumber || 'N/A'}: Type: ${a.accountType || 'N/A'}, Status: ${a.status || 'N/A'}, Currency: ${a.currency || 'N/A'}, Customer: ${a.customer?.name || 'N/A'}\n`;
         });
-      }
-    });
 
-    this.http.get<any[]>('/api/cards', { withCredentials: true }).subscribe({
-      next: (cards) => {
-        context += `\nCARDS (${cards.length} total):\n`;
+        data += `\nCARDS (${cards.length} total):\n`;
         cards.slice(0, 20).forEach(card => {
-          context += `- ${card.cardNumber || 'N/A'}: Type: ${card.cardType || 'N/A'}, Brand: ${card.cardBrand || 'N/A'}, Status: ${card.status || 'N/A'}, Holder: ${card.cardHolderName || 'N/A'}\n`;
+          data += `- ${card.cardNumber || 'N/A'}: Type: ${card.cardType || 'N/A'}, Brand: ${card.cardBrand || 'N/A'}, Status: ${card.status || 'N/A'}, Holder: ${card.cardHolderName || 'N/A'}\n`;
         });
+
+        this.systemPrompt = base + data;
+      },
+      error: () => {
+        this.systemPrompt = base + '\n(Live data could not be loaded.)\n';
       }
     });
-
-    // Set after a brief delay to allow fetches to complete
-    setTimeout(() => {
-      this.systemPrompt = context;
-    }, 2000);
   }
 
   toggleChat(): void {
