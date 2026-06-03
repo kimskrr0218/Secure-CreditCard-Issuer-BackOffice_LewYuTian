@@ -59,7 +59,7 @@ public class EncryptionMigrationRunner implements CommandLineRunner {
             log.error("Encryption migration failed", e);
         }
     }
-
+    
     private int migrateCustomers(Connection conn) throws SQLException {
         int migrated = 0;
 
